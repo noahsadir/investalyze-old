@@ -3,11 +3,40 @@ import ReactDOM from 'react-dom';
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
+import { ThemeProvider, createMuiTheme } from '@material-ui/core/styles';
+import CssBaseline from '@material-ui/core/CssBaseline';
+import 'fontsource-open-sans';
+import 'fontsource-open-sans/600.css';
+import 'fontsource-open-sans/300.css';
+
+const theme = createMuiTheme({
+  typography: {
+    fontFamily: "Open Sans, sans-serif",
+    fontWeight: 600,
+  },
+  palette: {
+    type: "dark",
+    background: {
+      default: "#000004",
+    },
+    primary: {
+      light: "#111115",
+      main: "#111115",
+      dark: "#111115",
+    },
+    secondary: {
+      light: "#7953d2",
+      dark: "#7953d2",
+      main: "#7953d2"
+    }
+  }
+});
 
 ReactDOM.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>,
+  <ThemeProvider theme={theme}>
+    <CssBaseline />
+    <App  />
+  </ThemeProvider>,
   document.getElementById('root')
 );
 

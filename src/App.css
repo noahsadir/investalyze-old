@@ -1,3 +1,188 @@
+html, body{
+  height: 100%;
+  margin: 0;
+  width: 100vw;
+  position: fixed;
+  font-family: 'Open Sans', sans-serif;
+}
+.MuiCircularProgress-root{
+    color: #ffffff !important;
+}
+.Resizer {
+  background: #000;
+  z-index: 1;
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+  -moz-background-clip: padding;
+  -webkit-background-clip: padding;
+  background-clip: padding-box;
+}
+
+.Resizer.vertical {
+  width: 11px;
+  margin: 0 -4px;
+  border-left: 5px solid #000;
+  border-right: 5px solid #000;
+  cursor: col-resize;
+  min-width: 1px;
+}
+
+.Resizer.vertical:hover {
+  border-left: 5px solid #333;
+  border-right: 5px solid #333;
+}
+.Resizer.disabled {
+  cursor: not-allowed;
+}
+.Resizer.disabled:hover {
+  border-color: transparent;
+}
+
+#root{
+  display: flex;
+  flex-flow: column;
+  height: 100%;
+
+}
+
+#name_label{
+  margin:0px;
+  padding:0px;
+  padding-left:16px;
+  font-size:14px;
+}
+
+#investalyze_title{
+  color: white;
+  font-size: 22px;
+  font-weight: 300;
+  margin: 0px;
+  padding: 12px;
+  padding-left: 16px;
+  padding-bottom: 0px;
+  padding-top:8px;
+}
+
+#root header{
+  flex: 0 1 auto;
+}
+
+#root .tabContent{
+  flex: 1 1 auto;
+}
+
+.mainListToolbarPadding{
+  margin: 0px 8px 8px 8px;
+  padding: 8px;
+  /*border: 1px solid #000000;*/
+  border-radius: 8px;
+  background-color: #111115;
+}
+
+.listToolbarPadding{
+  margin: 8px 8px 8px 8px;
+  padding: 8px 8px 8px 8px;
+  /*border: 1px solid #000000;*/
+  border-radius: 8px;
+  background-color: #111115;
+}
+
+#settings_button{
+  width: 42px;
+  height: 42px;
+  margin-left: 16px;
+  margin-top: 8px;
+  padding: 8px;
+}
+#chart_button{
+  width: 42px;
+  height: 42px;
+  margin-top: 8px;
+  margin-left: 8px;
+  padding: 8px;
+}
+#options_builder_button{
+  width: 42px;
+  height: 42px;
+  margin-left: 8px;
+  padding: 8px;
+}
+#searchbox_container{
+  display: flex;
+  width: 100%;
+}
+
+.searchbox {
+  background-color: #1F1F2AAA;
+  display: inline-block;
+  margin: 8px;
+  margin-top: 8px;
+  margin-right: 16px;
+  margin-bottom: 16px;
+  min-width: 0px;
+  flex: 1 0 0;
+  outline: none;
+  border: none;
+  border-radius: 8px;
+  height: 42px;
+  color: white;
+  font-size: 18px;
+  padding-left: 16px;
+  transition: box-shadow .3s;
+}
+.atmLine{
+  background-color:#222226;
+  margin: 8px 16px 8px 16px;
+  border-radius: 4px;
+  width: 100%;
+  height: 24px;
+}
+.atmLine p{
+  margin: 0;
+  line-height: 24px;
+  text-align: center;
+  font-size: 14px;
+  color: #CCCCCC;
+}
+#contentContainer{
+
+}
+#listContainer_graphOpen{
+  flex: 1 0 auto;
+  display: flex;
+  width: 50%;
+}
+#graphContainer_graphOpen{
+  flex: 1 0 auto;
+  display: flex;
+  width: 50%;
+}
+
+#listContainer_graphClosed{
+  flex: 1 0 auto;
+  display: flex;
+  width: 100%;
+}
+#graphContainer_graphClosed{
+  flex: 1 0 auto;
+  display: none;
+  width: 0%;
+}
+.topToolbarBottomExpandContainer{
+  display: flex;
+  flex-flow: column;
+  height: 100%;
+}
+
+.topToolbarBottomExpandContainer .topToolbar{
+  flex: 0 1 auto;
+}
+
+.topToolbarBottomExpandContainer .bottomExpand{
+  flex: 1 1 auto;
+}
+
 .App {
   text-align: center;
 }
@@ -5,6 +190,13 @@
 .App-logo {
   height: 40vmin;
   pointer-events: none;
+}
+
+.MuiSelect-root{
+  max-width: 100%;
+}
+.MuiSlider-root{
+  color: #7953d2 !important;
 }
 
 @media (prefers-reduced-motion: no-preference) {
@@ -26,6 +218,220 @@
 
 .App-link {
   color: #61dafb;
+}
+
+.tabContent{
+  position: fixed;
+  left: 0px;
+  right: 0px;
+  bottom: 0px;
+}
+
+.expansiveContent{
+  width: 100%;
+  height: 100%;
+  margin: auto;
+}
+
+
+.progressCircle{
+  position: absolute;
+  width: 28px !important;
+  height: 28px !important;
+  top: 22px;
+  right: 22px;
+}
+
+/**/
+.searchbox:hover {
+  box-shadow: 0 4px 5px 0 rgba(0,0,0,0.14), 0 1px 10px 0 rgba(0,0,0,0.12), 0 2px 4px -1px rgba(0,0,0,0.20);
+}
+.searchbox:focus {
+  box-shadow: 0 4px 5px 0 rgba(0,0,0,0.14), 0 1px 10px 0 rgba(0,0,0,0.12), 0 2px 4px -1px rgba(0,0,0,0.20);
+}
+/**/
+
+.toggle-duo{
+  width: 50%;
+}
+/*
+.MuiToggleButtonGroup-grouped{
+  width: 100px;
+}*/
+.toggleSeparator{
+  margin:0;
+  display: inline-block;
+  padding-left: 8px;
+  width: 0px;
+}
+#partitionGap{
+  padding: 18px;
+}
+.partition{
+  border: 0.5px solid #777777;
+  margin-top:10px;
+}
+
+/* OPTION ITEM */
+
+.option_item{
+    background-color: #000004CC;
+    float: left;
+    display:flex;
+    width: 100%;
+    margin: 0px;
+    margin-top: 0px;
+    padding:18px;
+    padding-top: 14px;
+    height:48px;
+
+}
+.column{
+  flex: 1 0 0px;
+}
+.left_column{
+  text-align: left;
+  flex: 1 0 0px;
+}
+.left_column p{
+  font-weight: bold;
+}
+.right_column{
+  text-align: right;
+  flex: 1 0 0px;
+}
+.option_value{
+    color: white;
+    font-size: 16px;
+    font-weight: 300;
+    margin: 0px;
+}
+
+.option_select{
+  background-color: #00000000;
+  border: 1px solid #333333;
+  border-radius: 4px;
+  height: 64px;
+}
+
+.option_item_header{
+  height: 64px !important;
+  padding: 0px !important;
+}
+
+.option_item_header .column{
+  display: flex;
+  justify-content: center;
+  padding-right: 4px;
+  padding-left: 4px;
+  overflow-x: auto;
+}
+
+.option_item_header .left_column{
+  display: flex;
+  justify-content: center;
+  padding-left: 16px;
+  padding-right: 4px;
+  overflow-x: auto;
+}
+
+.option_item_header .right_column{
+  display: flex;
+  justify-content: center;
+  padding-left: 4px;
+  padding-right: 16px;
+  overflow-x: auto;
+}
+
+
+.column .option_value{
+  text-align: center;
+}
+.right_column .option_value{
+  text-align: right;
+}
+.left_column .option_value{
+  text-align: left;
+}
+.row{
+  width: calc(calc(100% - 64px));
+
+}
+
+.loader{
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  border: none;
+  background-color: #000004;
+}
+
+.textfield_duo div{
+  width: 100%;
+}
+/* RESPONSIVE */
+
+@media screen and (max-width: 768px){
+  .tabContent{
+    top: 128px;
+  }
+  .loader{
+    top: 128px;
+  }
+
+  #contentContainer .SplitPane .Resizer {
+    display: none;
+  }
+
+  .splitPaneChartOnly .SplitPane .Pane2 {
+    display: none;
+  }
+  .splitPaneChartOnly .SplitPane .Pane1 {
+    width: 100% !important;
+  }
+
+  .splitPaneListOnly .SplitPane .Pane2 {
+    width: 100% !important;
+  }
+  .splitPaneListOnly .SplitPane .Pane1 {
+    display: none;
+  }
+  #listContainer_graphOpen{
+    flex: 1 0 auto;
+    display: none;
+  }
+  #graphContainer_graphOpen{
+    flex: 1 0 auto;
+    width: 100%;
+    display: flex;
+  }
+  #topRowSeparator{
+    display: block;
+    padding: 0px;
+    padding-top: 8px;
+  }
+}
+@media screen and (min-width: 768px){
+  .tabContent{
+    top: 192px;
+  }
+  .loader{
+    top: 192px;
+  }
+  #chart_button{
+    display: none;
+  }
+  #topRowSeparator{
+    display: inline-block;
+  }
+  #dropdownContainer{
+    display: inline-block;
+    width: 384px;
+  }
+  #toggleContainer{
+    display: inline-block;
+    width: calc(100% - 384px - 8px);
+  }
 }
 
 @keyframes App-logo-spin {
