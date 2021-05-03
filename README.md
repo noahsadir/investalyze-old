@@ -1,7 +1,14 @@
 # Investalyze
 Analytics for stock market and options trading.
 
-## How to install
+## How to Install
+Download the following script, inspect it, and run:
+```
+wget https://noahsadir.io/resources/scripts/investalyze-react-install.sh
+```
+Alternatively, you can install it manually.
+
+### Manual Install
 - Create an empty react app. These instructions assume the app is named "investalyze"
   ```
   npx create-react-app investalyze
@@ -17,10 +24,11 @@ Analytics for stock market and options trading.
   cp -r tmp/* ./
   rm -r ./tmp
   ```
-- Install required packages using
+- Install required packages:
   ```
+  # Using Yarn:
   # yarn add [DEPENDENCY]
-  
+
   @material-ui/core
   @material-ui/lab
   react-split-pane
