@@ -2,11 +2,19 @@
 Analytics for stock market and options trading.
 
 ## How to Install
-Download the following script, inspect it, and run:
-```
-wget https://noahsadir.io/resources/scripts/investalyze-react-install.sh
-```
-Alternatively, you can install it manually.
+
+#### Note: The instructions assume Node.js and npm are installed.
+
+### Automated Install
+ - Download the following script:
+   ```
+   wget https://noahsadir.io/resources/scripts/investalyze-react-install.sh
+   ```
+ - Inspect the script, then run:
+   ```
+   sh investalyze-react-install.sh
+   ```
+Alternatively, you can set up the environment manually.
 
 ### Manual Install
 - Create an empty react app. These instructions assume the app is named "investalyze"
