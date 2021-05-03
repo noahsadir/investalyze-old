@@ -3,10 +3,10 @@ Analytics for stock market and options trading.
 
 ## How to Install
 
-#### Note: The instructions assume Node.js and npm are installed.
+#### Note: Instructions assume Node.js and npm are installed.
 
 ### Automated Install
- - Download the following script:
+ - In the parent folder of where you want to set up the environment, download the following script:
    ```
    wget https://noahsadir.io/resources/scripts/investalyze-react-install.sh
    ```
