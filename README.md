@@ -60,5 +60,4 @@ In order to use the APIs, create a file called keys.json in the src folder with 
   "alpha_vantage": "YOUR_API_KEY_HERE"
 }
 ```
-
 Then, replace YOUR_API_KEY_HERE with a valid API key.
