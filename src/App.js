@@ -286,8 +286,6 @@ function makeAPIRequest(jobID, args, callback, testMode) {
       API_TRADIER_EXPIRATIONS: ("../../api/tradier_expirations.php?symbol=" + args.symbol + "&apikey=" + args.tradierKey),
       API_TRADIER_CHAIN: ("../../api/tradier_chain.php?symbol=" + args.symbol + "&expiration=" + args.expiration + "&apikey=" + args.tradierKey),
       API_TRADIER_QUOTE: ("../../api/tradier_quote.php?symbol=" + args.symbol + "&apikey=" + args.tradierKey),
-      API_OPTIONS_CHAIN: ("../../api/options_chain.php?symbol=" + args.symbol),
-      API_STOCK_PRICE: ("../../api/stock_price.php?symbol=" + args.symbol),
       API_STOCK_HISTORICAL: ("https://www.alphavantage.co/query?function=TIME_SERIES_DAILY_ADJUSTED&symbol=" + args.symbol + "&interval=1y&outputsize=full&apikey=" + args.avKey)
     };
 
