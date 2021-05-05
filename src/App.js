@@ -19,6 +19,7 @@
 import './App.css';
 import { withStyles } from '@material-ui/core/styles';
 import { convertToMoneyValue, time } from './lib/Formats';
+import { formatSingleExpirationChain } from './lib/Tradier';
 import React from "react";
 
 import MainToolbar from "./components/MainToolbar";
@@ -154,9 +155,18 @@ export default class App extends React.Component {
   }
 }
 
+/**
+ * Retrieve all the data needed for analysis.
+ *
+ * @param adjustedSymbol the cleaned-up symbol specified by the user
+ * @param state the app's state
+ * @param isTest boolean indicating whether test mode is activated
+ * @param callback the function to call when all data has been loaded.
+ *                 Should accept single parameter representing updated app state.
+ */
 function retrieveDataForSymbol(adjustedSymbol, state, isTest, callback) {
   //Load options chain
-  makeAPIRequest("API_OPTIONS_CHAIN", {symbol: adjustedSymbol}, (ocID, ocSuccess, ocData) => {
+  retrieveOptionsChain(adjustedSymbol, isTest, (ocSuccess, ocData) => {
     //If successful, save returned options chain
     if (ocSuccess) {
       var optionsChain = new OptionsChain(ocData);
@@ -176,7 +186,6 @@ function retrieveDataForSymbol(adjustedSymbol, state, isTest, callback) {
       makeAPIRequest("API_STOCK_HISTORICAL", {symbol: adjustedSymbol, avKey: apiKeys.alpha_vantage}, (shID, shSuccess, shData) => {
         if (shSuccess) {
           var historicalStockData = new HistoricalStockData(shData);
-          console.log(historicalStockData);
           state.data.underlyingHistorical = historicalStockData;
         }
 
@@ -185,6 +194,81 @@ function retrieveDataForSymbol(adjustedSymbol, state, isTest, callback) {
         callback(state);
       }, isTest);
     }, isTest);
+  });
+}
+
+/**
+ * Retrieve options chain using Tradier API.
+ *
+ * @param adjustedSymbol the cleaned-up symbol specified by the user
+ * @param isTest boolean indicating whether test mode is activated
+ * @param callback the function to call when options chain has loaded.
+ *                 Should accept two parameters:
+ *                 1) A boolean indicating whether the operation was successful.
+ *                 2) A JSON object representing the options chain JSON.
+ */
+function retrieveOptionsChain(adjustedSymbol, isTest, callback) {
+  makeAPIRequest("API_TRADIER_EXPIRATIONS", {symbol: adjustedSymbol, tradierKey: apiKeys.tradier}, (teID, teSuccess, teData) => {
+    if (teSuccess) {
+      var expirations = [];
+      var chainData = {};
+
+      //If returned data is valid, make an array of all the expirations
+      if (teData.expirations != null && teData.expirations.expiration != null) {
+        for (var index in teData.expirations.expiration) {
+          expirations.push(teData.expirations.expiration[index].date);
+        }
+      }
+
+      var callsToMake = expirations.length;
+      var callsMade = 0;
+
+      //Tentatively indicate that all chains are fetched, unless there are none
+      var couldFetchAllChains = (expirations.length > 0) ? true : false;
+
+      recursiveTradierChainRequest(chainData, adjustedSymbol, isTest, expirations, 0, (data) => {
+        console.log(data);
+        callback(couldFetchAllChains, data);
+      });
+
+    } else {
+      callback(false, {});
+    }
+  }, isTest);
+}
+
+/**
+ * Synchronously load Tradier options chains for each expiration specified by {@code expirations}.
+ * If {@code expIndex} is the last one in {@code expirations}, {@code callback} will be initiated.
+ * Otherwise, the function will call itself but increment {@code expIndex} by 1
+ * until last index of {@code expirations} is reached (base case).
+ *
+ * @param data the currently loaded state of the options chain
+ * @param adjustedSymbol the cleaned-up symbol specified by the user
+ * @param isTest indicates whether test mode is activated
+ * @param expirations the array of expirations
+ * @param expIndex the index of the {@code expirations} array to load.
+ * @param callback the function to call when data for all expirations has loaded.
+ *                 Should accept single parameter for options chain JSON.
+ */
+function recursiveTradierChainRequest(data, adjustedSymbol, isTest, expirations, expIndex, callback) {
+  var chainData = data;
+  makeAPIRequest("API_TRADIER_CHAIN", {symbol: adjustedSymbol, expiration: expirations[expIndex], tradierKey: apiKeys.tradier}, (tcID, tcSuccess, tcData) => {
+    //If request was successful, convert the data into a processable format and save to chainData
+    if (tcSuccess) {
+      var dateMillis = parseInt(Date.parse(expirations[expIndex]) / 1000).toString();
+      var singleExpData = formatSingleExpirationChain(tcData);
+      if (chainData[dateMillis] == null) {
+        chainData[dateMillis] = singleExpData;
+      }
+    }
+
+    //Increment calls made until all of them have been made, then initiate the callback with the data
+    if (expIndex < expirations.length - 1) {
+      recursiveTradierChainRequest(chainData, adjustedSymbol, isTest, expirations, expIndex + 1, callback);
+    } else {
+      callback(chainData);
+    }
   }, isTest);
 }
 
@@ -199,6 +283,8 @@ function makeAPIRequest(jobID, args, callback, testMode) {
 
     //Converts API job ID to fetch-able URL
     var urlBindings = {
+      API_TRADIER_EXPIRATIONS: ("../../api/tradier_expirations.php?symbol=" + args.symbol + "&apikey=" + args.tradierKey),
+      API_TRADIER_CHAIN: ("../../api/tradier_chain.php?symbol=" + args.symbol + "&expiration=" + args.expiration + "&apikey=" + args.tradierKey),
       API_OPTIONS_CHAIN: ("../../api/options_chain.php?symbol=" + args.symbol),
       API_STOCK_PRICE: ("../../api/stock_price.php?symbol=" + args.symbol),
       API_STOCK_HISTORICAL: ("https://www.alphavantage.co/query?function=TIME_SERIES_DAILY_ADJUSTED&symbol=" + args.symbol + "&interval=1y&outputsize=full&apikey=" + args.avKey)
