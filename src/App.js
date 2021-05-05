@@ -4,13 +4,6 @@
 * Created by Noah Sadir            *
 *         on December 11, 2020     *
 *  rewritten April 29, 2021        *
-* -------------------------------- *
-* PACKAGES USED                    *
-* =============                    *
-* - material-ui (npm)              *
-* - greeks (npm)                   *
-* - black-scholes (npm)            *
-* - react-split-pane (npm)         *
 * -------------------------------- */
 
 /*---------------------------------------------------------------------
@@ -168,7 +161,7 @@ function makeAPIRequest(jobID, args, callback, testMode) {
 
     //Determine URL to send request to and the data to send with it.
     if (jobID == "API_OPTIONS_CHAIN"){
-      urlValue = "../api/options_chain.php?symbol=" + args.symbol;
+      urlValue = "../../api/options_chain.php?symbol=" + args.symbol;
     } else {
       callback(jobID, false, {});
     }
