@@ -21,8 +21,8 @@ import { withStyles } from '@material-ui/core/styles';
 import { convertToMoneyValue, time } from './lib/Formats';
 import React from "react";
 
-import MainToolbar from "./objects/MainToolbar";
-import MainContent from "./objects/MainContent";
+import MainToolbar from "./obj/MainToolbar";
+import MainContent from "./obj/MainContent";
 
 import SingleOption from './lib/SingleOption';
 import OptionsChain from './lib/OptionsChain';
@@ -34,7 +34,6 @@ const BACKGROUND_COLOR = "#111115";
 const ACCENT_COLOR = "#593d99";
 
 var apiKeys = require('./keys.json');
-const AV_KEY = apiKeys.alpha_vantage;
 
 export default class App extends React.Component {
 
@@ -174,7 +173,7 @@ function retrieveDataForSymbol(adjustedSymbol, state, isTest, callback) {
         state.toolbar.priceInfo = convertToMoneyValue(spData.price) + " (" + spData.percent_change + "%)";
       }
 
-      makeAPIRequest("API_STOCK_HISTORICAL", {symbol: adjustedSymbol, avKey: AV_KEY}, (shID, shSuccess, shData) => {
+      makeAPIRequest("API_STOCK_HISTORICAL", {symbol: adjustedSymbol, avKey: apiKeys.alpha_vantage}, (shID, shSuccess, shData) => {
         if (shSuccess) {
           var historicalStockData = new HistoricalStockData(shData);
           console.log(historicalStockData);
