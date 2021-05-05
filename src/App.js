@@ -21,8 +21,8 @@ import { withStyles } from '@material-ui/core/styles';
 import { convertToMoneyValue, time } from './lib/Formats';
 import React from "react";
 
-import MainToolbar from "./obj/MainToolbar";
-import MainContent from "./obj/MainContent";
+import MainToolbar from "./components/MainToolbar";
+import MainContent from "./components/MainContent";
 
 import SingleOption from './lib/SingleOption';
 import OptionsChain from './lib/OptionsChain';
