@@ -136,6 +136,7 @@ export default class MainToolbar extends React.Component {
     //Call parent function for symbol handler if one exists
     const handleKeyPress = (event) => {
       if(event.key === 'Enter' && this.props.onSymbolEnter != null){
+        event.target.value = event.target.value.trim().toUpperCase();
         this.props.onSymbolEnter(event.target.value);
       }
     }

@@ -174,7 +174,7 @@ function retrieveDataForSymbol(adjustedSymbol, state, isTest, callback) {
     }
 
     //Regardless of outcome for options chain, get basic data of underlying
-    makeAPIRequest("API_TRADIER_QUOTE", {symbol: adjustedSymbol, tradierKey: apiKeys.tradierKey}, (spID, spSuccess, spData) => {
+    makeAPIRequest("API_TRADIER_QUOTE", {symbol: adjustedSymbol, tradierKey: apiKeys.tradier}, (spID, spSuccess, spData) => {
 
       //If successful, save data in relevant areas.
       if (spSuccess && spData.quotes != null && spData.quotes.quote != null) {
