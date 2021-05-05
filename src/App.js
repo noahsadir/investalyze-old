@@ -18,6 +18,7 @@
 
 import './App.css';
 import { withStyles } from '@material-ui/core/styles';
+import { convertToMoneyValue, time } from './lib/Formats';
 import React from "react";
 
 import MainToolbar from "./objects/MainToolbar";
@@ -25,10 +26,15 @@ import MainContent from "./objects/MainContent";
 
 import SingleOption from './lib/SingleOption';
 import OptionsChain from './lib/OptionsChain';
+import HistoricalStockData from './lib/HistoricalStockData';
+
 import JSON_RETRIEVE from './lib/Requests';
 
 const BACKGROUND_COLOR = "#111115";
 const ACCENT_COLOR = "#593d99";
+
+var apiKeys = require('./keys.json');
+const AV_KEY = apiKeys.alpha_vantage;
 
 export default class App extends React.Component {
 
@@ -37,6 +43,8 @@ export default class App extends React.Component {
     this.state = {
       data: {
         optionsChain: null,
+        underlyingPrice: null,
+        underlyingHistorical: null,
       },
       preferences: {
         optionType: "calls",
@@ -82,13 +90,10 @@ export default class App extends React.Component {
       console.log("symbol entered: " + symbol);
       var adjustedSymbol = symbol.trim().toUpperCase();
       var isTest = (adjustedSymbol == "@TEST");
-
-      makeAPIRequest("API_OPTIONS_CHAIN", {symbol: adjustedSymbol}, (id, success, data) => {
-        if (success) {
-          var optionsChain = new OptionsChain(data);
-          setSubState(this, "data", "optionsChain", optionsChain);
-        }
-      }, isTest);
+      setSubState(this, "toolbar", "showProgress", true);
+      retrieveDataForSymbol(adjustedSymbol, this.state, isTest, (newState) => {
+        this.setState({state: newState});
+      });
     }
 
     //toolbar incremeter selected
@@ -150,22 +155,64 @@ export default class App extends React.Component {
   }
 }
 
+function retrieveDataForSymbol(adjustedSymbol, state, isTest, callback) {
+  //Load options chain
+  makeAPIRequest("API_OPTIONS_CHAIN", {symbol: adjustedSymbol}, (ocID, ocSuccess, ocData) => {
+    //If successful, save returned options chain
+    if (ocSuccess) {
+      var optionsChain = new OptionsChain(ocData);
+      state.data.optionsChain = optionsChain;
+    }
+
+    //Regardless of outcome for options chain, get basic data of underlying
+    makeAPIRequest("API_STOCK_PRICE", {symbol: adjustedSymbol}, (spID, spSuccess, spData) => {
+
+      //If successful, save data in relevant areas.
+      if (spSuccess) {
+        state.data.underlyingPrice = spData.price;
+        state.toolbar.title = spData.company;
+        state.toolbar.priceInfo = convertToMoneyValue(spData.price) + " (" + spData.percent_change + "%)";
+      }
+
+      makeAPIRequest("API_STOCK_HISTORICAL", {symbol: adjustedSymbol, avKey: AV_KEY}, (shID, shSuccess, shData) => {
+        if (shSuccess) {
+          var historicalStockData = new HistoricalStockData(shData);
+          console.log(historicalStockData);
+          state.data.underlyingHistorical = historicalStockData;
+        }
+
+        //Regardless of outcome, hide progress and initiate callback
+        state.toolbar.showProgress = false;
+        callback(state);
+      }, isTest);
+    }, isTest);
+  }, isTest);
+}
+
 function makeAPIRequest(jobID, args, callback, testMode) {
   if (testMode){
-    callback(jobID,true,require('../api/test/' + jobID + '.json'));
     //Retrieve sample data if API is not available
+    callback(jobID,true,require('../api/test/' + jobID + '.json'));
   }else{
     //Make request to API for JSON
     var urlValue = "";
     var fetchDetails = {};
 
-    //Determine URL to send request to and the data to send with it.
-    if (jobID == "API_OPTIONS_CHAIN"){
-      urlValue = "../../api/options_chain.php?symbol=" + args.symbol;
+    //Converts API job ID to fetch-able URL
+    var urlBindings = {
+      API_OPTIONS_CHAIN: ("../../api/options_chain.php?symbol=" + args.symbol),
+      API_STOCK_PRICE: ("../../api/stock_price.php?symbol=" + args.symbol),
+      API_STOCK_HISTORICAL: ("https://www.alphavantage.co/query?function=TIME_SERIES_DAILY_ADJUSTED&symbol=" + args.symbol + "&interval=1y&outputsize=full&apikey=" + args.avKey)
+    };
+
+    //Ensure job ID exists, otherwise initiate callback indicating failure.
+    if (urlBindings[jobID] != null) {
+      urlValue = urlBindings[jobID];
     } else {
       callback(jobID, false, {});
     }
 
+    //Attempt to fetch JSON data from URL and callback with the result
     JSON_RETRIEVE(urlValue, (url, success, data) => {
       callback(jobID, success, data);
     });
