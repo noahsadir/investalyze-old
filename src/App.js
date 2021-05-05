@@ -174,13 +174,13 @@ function retrieveDataForSymbol(adjustedSymbol, state, isTest, callback) {
     }
 
     //Regardless of outcome for options chain, get basic data of underlying
-    makeAPIRequest("API_STOCK_PRICE", {symbol: adjustedSymbol}, (spID, spSuccess, spData) => {
+    makeAPIRequest("API_TRADIER_QUOTE", {symbol: adjustedSymbol, tradierKey: apiKeys.tradierKey}, (spID, spSuccess, spData) => {
 
       //If successful, save data in relevant areas.
-      if (spSuccess) {
-        state.data.underlyingPrice = spData.price;
-        state.toolbar.title = spData.company;
-        state.toolbar.priceInfo = convertToMoneyValue(spData.price) + " (" + spData.percent_change + "%)";
+      if (spSuccess && spData.quotes != null && spData.quotes.quote != null) {
+        state.data.underlyingPrice = spData.quotes.quote.last;
+        state.toolbar.title = spData.quotes.quote.description + " (" + spData.quotes.quote.symbol + ")";
+        state.toolbar.priceInfo = convertToMoneyValue(spData.quotes.quote.last) + " (" + spData.quotes.quote.change + "%)";
       }
 
       makeAPIRequest("API_STOCK_HISTORICAL", {symbol: adjustedSymbol, avKey: apiKeys.alpha_vantage}, (shID, shSuccess, shData) => {
@@ -285,6 +285,7 @@ function makeAPIRequest(jobID, args, callback, testMode) {
     var urlBindings = {
       API_TRADIER_EXPIRATIONS: ("../../api/tradier_expirations.php?symbol=" + args.symbol + "&apikey=" + args.tradierKey),
       API_TRADIER_CHAIN: ("../../api/tradier_chain.php?symbol=" + args.symbol + "&expiration=" + args.expiration + "&apikey=" + args.tradierKey),
+      API_TRADIER_QUOTE: ("../../api/tradier_quote.php?symbol=" + args.symbol + "&apikey=" + args.tradierKey),
       API_OPTIONS_CHAIN: ("../../api/options_chain.php?symbol=" + args.symbol),
       API_STOCK_PRICE: ("../../api/stock_price.php?symbol=" + args.symbol),
       API_STOCK_HISTORICAL: ("https://www.alphavantage.co/query?function=TIME_SERIES_DAILY_ADJUSTED&symbol=" + args.symbol + "&interval=1y&outputsize=full&apikey=" + args.avKey)
