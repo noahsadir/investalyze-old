@@ -46,11 +46,11 @@ export default class App extends React.Component {
     super(props);
     this.state = {
       cookies: {
-        "disclaimerAgreement": "Disclaimer Agreement",
-        "cookieAcknowledgement": "Cookie Preferences",
-        "rowConfiguration": "Options Chain Columns",
-        "expandToggled": "Toolbar Configuration",
-        "apiKeys": "API Keys"
+        disclaimerAgreement: "Disclaimer Agreement",
+        cookieAcknowledgement: "Cookie Preferences",
+        rowConfiguration: "Options Chain Columns",
+        expandToggled: "Toolbar Configuration",
+        apiKeys: "API Keys"
       },
       dialogs: {
         cookieAcknowledgementVisible: false,
@@ -159,6 +159,7 @@ export default class App extends React.Component {
       }
     }
 
+    //Close cookies dialog
     const cookieDialogAction = (didAgree) => {
       if (didAgree) {
         setSubState(this, "dialogs", "cookieAcknowledgementVisible", false);
@@ -170,7 +171,7 @@ export default class App extends React.Component {
       Cookies.setPref(cookieName, cookiePref);
       this.setState({state: this.state});
     }
-    
+
     const optionsListItemClicked = (singleOption) => {
       console.log(singleOption.get("id") + " clicked!");
     }
@@ -205,9 +206,12 @@ export default class App extends React.Component {
           chartToggled={this.state.toolbar.chartToggled}
           stickySelected={this.state.list.selectedItem}
           onOptionsListClick={optionsListItemClicked}
-          onRowConfigurationChange={(config) => setSubState(this, "preferences", "rowConfiguration", config)}/>
+          onRowConfigurationChange={(config) => {Cookies.set("rowConfiguration", config);setSubState(this, "preferences", "rowConfiguration", config)}}/>
         <div style={{flex: "0 0 auto"}}></div>
-        <DisclaimerDialog open={Cookies.get("disclaimerAgreement", false) != true} accentColor={ACCENT_COLOR} onAction={disclaimerDialogAction}/>
+        <DisclaimerDialog
+          open={Cookies.get("disclaimerAgreement", false) != true}
+          accentColor={ACCENT_COLOR}
+          onAction={disclaimerDialogAction}/>
         <CookiesDialog
           open={this.state.dialogs.cookieAcknowledgementVisible}
           accentColor={ACCENT_COLOR}
