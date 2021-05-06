@@ -160,6 +160,7 @@ export default class MainToolbar extends React.Component {
           <input class="searchbox" onKeyDown={handleKeyPress}></input>
         </div>
         <ExpandedConfiguration
+          optionsChain={this.props.optionsChain}
           onOptionTypeChange={this.props.onOptionTypeChange}
           onStepperClick={this.props.onStepperClick}
           onComparisonTypeChange={this.props.onComparisonTypeChange}
@@ -169,7 +170,7 @@ export default class MainToolbar extends React.Component {
           open={this.props.expandToggled}
           backgroundColor={this.props.backgroundColor}
           accentColor={this.props.accentColor}/>
-        <CircularProgress style={{display: (this.props.showProgress ? "block" : "none")}} class="progressCircle" color="accent"/>
+        <CircularProgress style={{display: (this.props.showProgress ? "block" : "none")}} variant="determinate" value={this.props.progress} class="progressCircle" color="accent"/>
       </AppBar>
     );
   }
@@ -212,9 +213,9 @@ class ExpandedConfiguration extends React.Component {
       var formattedValue = comparisonValue;
 
       if (this.props.preferences.comparisonType == "date") {
-        formattedValue = time(comparisonValue); //from Formats import
+        formattedValue = time(comparisonValue) + " (" + this.props.optionsChain.forDate(comparisonValue, this.props.preferences.optionType).length + ")"; //from Formats import
       } else if (this.props.preferences.comparisonType == "strike") {
-        formattedValue = "$" + comparisonValue; //from Formats import
+        formattedValue = "$" + comparisonValue + " (" + this.props.optionsChain.forStrike(comparisonValue, this.props.preferences.optionType).length + ")"; //from Formats import
       }
 
       comparisonValueMenuItems.push(<MenuItem key={comparisonValue} value={comparisonValue}>{formattedValue}</MenuItem>);

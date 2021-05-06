@@ -59,6 +59,7 @@ export default class App extends React.Component {
         expandToggled: false,
         chartToggled: false,
         showProgress: false,
+        progress: 0,
       },
       chart: {
         selectedPane: null,
@@ -91,9 +92,14 @@ export default class App extends React.Component {
       var adjustedSymbol = symbol.trim().toUpperCase();
       var isTest = (adjustedSymbol == "@TEST");
       setSubState(this, "toolbar", "showProgress", true);
-      retrieveDataForSymbol(adjustedSymbol, this.state, isTest, (newState) => {
-        this.setState({state: newState});
-      });
+      retrieveDataForSymbol(adjustedSymbol, this.state, isTest,
+        (newState) => {
+          this.setState({state: newState});
+        },
+        (progress) => {
+          setSubState(this, "toolbar", "progress", progress);
+        }
+      );
     }
 
     //toolbar incremeter selected
@@ -127,11 +133,13 @@ export default class App extends React.Component {
         <MainToolbar
           backgroundColor={BACKGROUND_COLOR}
           accentColor={ACCENT_COLOR}
+          optionsChain={this.state.data.optionsChain}
           chartToggled={this.state.toolbar.chartToggled}
           expandToggled={this.state.toolbar.expandToggled}
           title={this.state.toolbar.title}
           priceInfo={this.state.toolbar.priceInfo}
           showProgress={this.state.toolbar.showProgress}
+          progress={this.state.toolbar.progress}
           preferences={this.state.preferences}
           isBuilder={this.state.chart.selectedPane == "builder"}
           onExpandToggle={(toggled) => setSubState(this, "toolbar", "expandToggled", toggled)}
@@ -164,7 +172,7 @@ export default class App extends React.Component {
  * @param callback the function to call when all data has been loaded.
  *                 Should accept single parameter representing updated app state.
  */
-function retrieveDataForSymbol(adjustedSymbol, state, isTest, callback) {
+function retrieveDataForSymbol(adjustedSymbol, state, isTest, callback, progressCallback) {
   //Load options chain
   retrieveOptionsChain(adjustedSymbol, isTest, (ocSuccess, ocData) => {
     //If successful, save returned options chain
@@ -194,7 +202,7 @@ function retrieveDataForSymbol(adjustedSymbol, state, isTest, callback) {
         callback(state);
       }, isTest);
     }, isTest);
-  });
+  }, progressCallback);
 }
 
 /**
@@ -207,7 +215,7 @@ function retrieveDataForSymbol(adjustedSymbol, state, isTest, callback) {
  *                 1) A boolean indicating whether the operation was successful.
  *                 2) A JSON object representing the options chain JSON.
  */
-function retrieveOptionsChain(adjustedSymbol, isTest, callback) {
+function retrieveOptionsChain(adjustedSymbol, isTest, callback, progressCallback) {
   makeAPIRequest("API_TRADIER_EXPIRATIONS", {symbol: adjustedSymbol, tradierKey: apiKeys.tradier}, (teID, teSuccess, teData) => {
     if (teSuccess) {
       var expirations = [];
@@ -226,10 +234,20 @@ function retrieveOptionsChain(adjustedSymbol, isTest, callback) {
       //Tentatively indicate that all chains are fetched, unless there are none
       var couldFetchAllChains = (expirations.length > 0) ? true : false;
 
-      recursiveTradierChainRequest(chainData, adjustedSymbol, isTest, expirations, 0, (data) => {
-        console.log(data);
-        callback(couldFetchAllChains, data);
-      });
+      if (isTest) {
+        //API doesn't actually exist, but bypasses recursive request system in production
+        makeAPIRequest("API_TRADIER_CHAIN_FULL", {}, (tcfID, tcfSuccess, tcfData) => {
+          if (tcfData) {
+            callback(true, tcfData);
+          }
+        }, true);
+      } else {
+        recursiveTradierChainRequest(chainData, adjustedSymbol, isTest, expirations, 0, (data) => {
+          console.log(data);
+          callback(couldFetchAllChains, data);
+        }, progressCallback);
+      }
+
 
     } else {
       callback(false, {});
@@ -251,7 +269,7 @@ function retrieveOptionsChain(adjustedSymbol, isTest, callback) {
  * @param callback the function to call when data for all expirations has loaded.
  *                 Should accept single parameter for options chain JSON.
  */
-function recursiveTradierChainRequest(data, adjustedSymbol, isTest, expirations, expIndex, callback) {
+function recursiveTradierChainRequest(data, adjustedSymbol, isTest, expirations, expIndex, callback, progressCallback) {
   var chainData = data;
   makeAPIRequest("API_TRADIER_CHAIN", {symbol: adjustedSymbol, expiration: expirations[expIndex], tradierKey: apiKeys.tradier}, (tcID, tcSuccess, tcData) => {
     //If request was successful, convert the data into a processable format and save to chainData
@@ -265,7 +283,8 @@ function recursiveTradierChainRequest(data, adjustedSymbol, isTest, expirations,
 
     //Increment calls made until all of them have been made, then initiate the callback with the data
     if (expIndex < expirations.length - 1) {
-      recursiveTradierChainRequest(chainData, adjustedSymbol, isTest, expirations, expIndex + 1, callback);
+      progressCallback(((expIndex + 1) / expirations.length) * 100);
+      recursiveTradierChainRequest(chainData, adjustedSymbol, isTest, expirations, expIndex + 1, callback, progressCallback);
     } else {
       callback(chainData);
     }
