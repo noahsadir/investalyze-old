@@ -3,7 +3,8 @@ Analytics for stock market and options trading.
 
 ## How to Install
 
-#### Note: Instructions assume Node.js and npm are installed.
+#### Note: Instructions assume Node.js and npm are installed on a Unix-based system with a properly configured LAMP stack.
+ - Tested configuration: Ubuntu 18.04, Node 12.20.0, npm 6.14.8, Apache server 2.4.29, PHP 7.4.10
 
 ### Automated Install
  - In the parent folder of where you want to set up the environment, download the following script:
