@@ -151,7 +151,7 @@ export default class MainToolbar extends React.Component {
           <IconButton onClick={handleExpandButtonClick} id="settings_button" aria-label="settings">
             <Icon style={{fontSize: 24}}>{this.props.expandToggled ? "expand_less" : "expand_more"}</Icon>
           </IconButton>
-          <IconButton onClick={handleSettingsButtonClick} id="chart_button" aria-label="settings">
+          <IconButton onClick={handleSettingsButtonClick} id="settings_button" aria-label="settings">
             <Icon style={{fontSize: 24}}>tune</Icon>
           </IconButton>
           <IconButton style={{color: (this.props.chartToggled ? this.props.accentColor : "#FFFFFF")}} onClick={handleChartButtonClick} id="chart_button" aria-label="chart">

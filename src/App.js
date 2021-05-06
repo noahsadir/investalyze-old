@@ -155,9 +155,11 @@ export default class App extends React.Component {
           accentColor={ACCENT_COLOR}
           optionsChain={this.state.data.optionsChain}
           preferences={this.state.preferences}
+          chartToggled={this.state.toolbar.chartToggled}
           stickySelected={this.state.list.selectedItem}
           onOptionsListClick={optionsListItemClicked}
           onRowConfigurationChange={(config) => setSubState(this, "preferences", "rowConfiguration", config)}/>
+        <div style={{flex: "0 0 auto"}}></div>
       </div>
     );
   }

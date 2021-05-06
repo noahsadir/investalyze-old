@@ -22,18 +22,20 @@ export default class MainContent extends React.Component {
   }
 
   render() {
-
+    console.log(this.props.chartToggled);
     return (
-      <SplitPane split="vertical" defaultSize="50%" minSize={360} maxSize={-360} style={{position:"relative", display: "flex"}}>
-        <OptionsListView
-          optionsChain={this.props.optionsChain}
-          preferences={this.props.preferences}
-          accentColor={this.props.accentColor}
-          stickySelected={this.props.stickySelected}
-          onOptionsListClick={this.props.onOptionsListClick}
-          onRowConfigurationChange={this.props.onRowConfigurationChange}/>
-        <OptionsAnalyticsView/>
-      </SplitPane>
+      <div style={{flex: "1 0 0", height: 0}} class={((this.props.chartToggled == true) ? "splitPaneListOnly" : "splitPaneChartOnly")}>
+        <SplitPane split="vertical" defaultSize="50%" minSize={360} maxSize={-360} style={{position:"relative", display: "flex"}} >
+          <OptionsListView
+            optionsChain={this.props.optionsChain}
+            preferences={this.props.preferences}
+            accentColor={this.props.accentColor}
+            stickySelected={this.props.stickySelected}
+            onOptionsListClick={this.props.onOptionsListClick}
+            onRowConfigurationChange={this.props.onRowConfigurationChange}/>
+          <OptionsAnalyticsView/>
+        </SplitPane>
+      </div>
     );
   }
 }
@@ -70,7 +72,7 @@ class OptionsListView extends React.Component {
 
   render() {
     return (
-      <div style={{height: "100%"}}>
+      <div style={{display: "flex", flexFlow: "column", height: "100%"}}>
         <OptionsListHeader
           rowConfiguration={this.props.preferences.rowConfiguration}
           optionNames={(this.props.optionsChain == null) ? null : this.props.optionsChain.names}
@@ -81,6 +83,7 @@ class OptionsListView extends React.Component {
           accentColor={this.props.accentColor}
           stickySelected={this.props.stickySelected}
           onClick={this.props.onOptionsListClick}/>
+        <div style={{flex: "0 0 0"}}></div>
       </div>
     );
   }

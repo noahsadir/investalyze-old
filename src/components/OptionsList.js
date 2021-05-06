@@ -52,7 +52,7 @@ export default class OptionsList extends React.Component {
     }
 
     return (
-      <List style={{overflow: "auto", height: "100%"}}>
+      <List style={{overflowY: "scroll", flex: "1 0 0"}}>
         {listItems}
       </List>
     );

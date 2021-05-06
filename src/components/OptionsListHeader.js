@@ -68,7 +68,7 @@ export default class OptionsListHeader extends React.Component {
     }
 
     return (
-      <div style={{display: "flex", flexFlow: "row", paddingRight: 8}}>
+      <div style={{display: "flex", flexFlow: "row", flex: "0 0 0", paddingRight: 8}}>
         {optionsListSelectItems}
       </div>
     );
