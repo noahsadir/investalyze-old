@@ -22,8 +22,11 @@ import { convertToMoneyValue, time } from './lib/Formats';
 import { formatSingleExpirationChain } from './lib/Tradier';
 import React from "react";
 
+
 import MainToolbar from "./components/MainToolbar";
 import MainContent from "./components/MainContent";
+import DisclaimerDialog from "./components/DisclaimerDialog";
+import CookiesDialog from "./components/CookiesDialog";
 
 import SingleOption from './lib/SingleOption';
 import OptionsChain from './lib/OptionsChain';
@@ -35,12 +38,23 @@ const BACKGROUND_COLOR = "#111115";
 const ACCENT_COLOR = "#593d99";
 
 var apiKeys = require('./keys.json');
+var Cookies = require('./lib/Cookies');
 
 export default class App extends React.Component {
 
   constructor(props) {
     super(props);
     this.state = {
+      cookies: {
+        "disclaimerAgreement": "Disclaimer Agreement",
+        "cookieAcknowledgement": "Cookie Preferences",
+        "rowConfiguration": "Options Chain Columns",
+        "expandToggled": "Toolbar Configuration",
+        "apiKeys": "API Keys"
+      },
+      dialogs: {
+        cookieAcknowledgementVisible: false,
+      },
       data: {
         optionsChain: null,
         underlyingPrice: null,
@@ -51,12 +65,12 @@ export default class App extends React.Component {
         comparisonType: "date",
         selectedComparisonValue: null,
         availableComparisonValues: null,
-        rowConfiguration: ["strike", "volume", "open_interest", "bid"]
+        rowConfiguration: Cookies.get("rowConfiguration", ["strike", "volume", "open_interest", "bid"]),
       },
       toolbar: {
         title: "Investalyze",
         priceInfo: "by Noah Sadir",
-        expandToggled: false,
+        expandToggled: Cookies.get("expandToggled", true),
         chartToggled: false,
         showProgress: false,
         progress: 0,
@@ -66,6 +80,15 @@ export default class App extends React.Component {
       },
       list: {
         selectedItem: null,
+      }
+    }
+  }
+
+  componentWillMount() {
+    //Automatically agree to all cookies if preference not specified by user
+    for (var cookieName in this.state.cookies) {
+      if (Cookies.getPref(cookieName) == null) {
+        Cookies.setPref(cookieName, true);
       }
     }
   }
@@ -110,6 +133,7 @@ export default class App extends React.Component {
 
         //Insert new column right before last column & update state
         newRowConfig.splice(this.state.preferences.rowConfiguration.length - 1, 0, "ask");
+        Cookies.set("rowConfiguration", newRowConfig);
         setSubState(this, "preferences", "rowConfiguration", newRowConfig);
       }else if (value === "decrement"){
         //Ensure number of columns is greater than two (otherwise, ignore decrement request)
@@ -119,11 +143,34 @@ export default class App extends React.Component {
 
           //Remove the second to last column & update state
           newRowConfig.splice(this.state.preferences.rowConfiguration.length - 2, 1);
+          Cookies.set("rowConfiguration", newRowConfig);
           setSubState(this, "preferences", "rowConfiguration", newRowConfig);
         }
       }
     }
 
+    //User clicked agree on disclaimer dialog
+    const disclaimerDialogAction = (didAgree) => {
+      if (didAgree) {
+        //Save acknowledgements so that dialogs won't pop up every state/page refresh
+        Cookies.set("disclaimerAgreement", true);
+        Cookies.set("cookieAcknowledgement", true);
+        setSubState(this, "dialogs", "cookieAcknowledgementVisible", true);
+      }
+    }
+
+    const cookieDialogAction = (didAgree) => {
+      if (didAgree) {
+        setSubState(this, "dialogs", "cookieAcknowledgementVisible", false);
+      }
+    }
+
+    //Preference toggled for a particular cookie
+    const cookieToggleAction = (cookieName, cookiePref) => {
+      Cookies.setPref(cookieName, cookiePref);
+      this.setState({state: this.state});
+    }
+    
     const optionsListItemClicked = (singleOption) => {
       console.log(singleOption.get("id") + " clicked!");
     }
@@ -142,7 +189,7 @@ export default class App extends React.Component {
           progress={this.state.toolbar.progress}
           preferences={this.state.preferences}
           isBuilder={this.state.chart.selectedPane == "builder"}
-          onExpandToggle={(toggled) => setSubState(this, "toolbar", "expandToggled", toggled)}
+          onExpandToggle={(toggled) => {Cookies.set("expandToggled", toggled); setSubState(this, "toolbar", "expandToggled", toggled)}}
           onChartToggle={(toggled) => setSubState(this, "toolbar", "chartToggled", toggled)}
           onOptionTypeChange={(type) => setSubState(this, "preferences", "optionType", type)}
           onComparisonTypeChange={(type) => setSubState(this, "preferences", "comparisonType", type)}
@@ -160,6 +207,14 @@ export default class App extends React.Component {
           onOptionsListClick={optionsListItemClicked}
           onRowConfigurationChange={(config) => setSubState(this, "preferences", "rowConfiguration", config)}/>
         <div style={{flex: "0 0 auto"}}></div>
+        <DisclaimerDialog open={Cookies.get("disclaimerAgreement", false) != true} accentColor={ACCENT_COLOR} onAction={disclaimerDialogAction}/>
+        <CookiesDialog
+          open={this.state.dialogs.cookieAcknowledgementVisible}
+          accentColor={ACCENT_COLOR}
+          cookiePrefs={Cookies.raw().preferences}
+          cookieItems={this.state.cookies}
+          onAction={cookieDialogAction}
+          onCookieToggle={cookieToggleAction}/>
       </div>
     );
   }
