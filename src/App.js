@@ -343,7 +343,7 @@ function recursiveTradierChainRequest(data, adjustedSymbol, isTest, expirations,
     //If request was successful, convert the data into a processable format and save to chainData
     if (tcSuccess) {
       var dateMillis = parseInt(Date.parse(expirations[expIndex]) / 1000).toString();
-      var singleExpData = formatSingleExpirationChain(tcData);
+      var singleExpData = formatSingleExpirationChain(tcData, dateMillis);
       if (chainData[dateMillis] == null) {
         chainData[dateMillis] = singleExpData;
       }

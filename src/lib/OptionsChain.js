@@ -64,6 +64,7 @@ function getValueNamesForOption(rawData) {
           volume: "Volume",
           open_interest: "Open Interest",
           id: "ID",
+          date: "Date",
           strike: "Strike",
           last_price: "Last Price",
           last_trade: "Last Trade",

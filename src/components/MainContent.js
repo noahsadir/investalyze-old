@@ -55,7 +55,9 @@ export default class MainContent extends React.Component {
             onRowConfigurationChange={this.props.onRowConfigurationChange}/>
           <OptionsAnalyticsView
             optionsChain={this.props.optionsChain}
+            preferences={this.props.preferences}
             analytics={this.props.analytics}
+            accentColor={this.props.accentColor}
             onAnalyticsPaneChange={this.props.onAnalyticsPaneChange}
             onDataAnalyticsConfigChange={this.props.onDataAnalyticsConfigChange}/>
         </SplitPane>
@@ -135,27 +137,17 @@ class OptionsAnalyticsView extends React.Component {
             <ToggleButton value="builder" aria-label="right aligned">Builder</ToggleButton>
           </StyledChartToggle>
         </div>
-        <OptionsAnalyticsPanes
-          optionsChain={this.props.optionsChain}
-          analytics={this.props.analytics}
-          onDataAnalyticsConfigChange={this.props.onDataAnalyticsConfigChange}/>
+        <div style={{overflowY: "none", flex: "1 0 0"}}>
+          <DataAnalyticsPane
+            preferences={this.props.preferences}
+            optionsChain={this.props.optionsChain}
+            analytics={this.props.analytics}
+            accentColor={this.props.accentColor}
+            onDataAnalyticsConfigChange={this.props.onDataAnalyticsConfigChange}/>
+          <ProjectionAnalyticsPane optionsChain={this.props.optionsChain} analytics={this.props.analytics}/>
+          <BuilderAnalyticsPane optionsChain={this.props.optionsChain} analytics={this.props.analytics}/>
+        </div>
         <div style={{flex: "0 0 0"}}></div>
-      </div>
-    );
-  }
-}
-
-class OptionsAnalyticsPanes extends React.Component {
-  constructor(props) {
-    super(props);
-  }
-
-  render() {
-    return(
-      <div style={{overflowY: "none", flex: "1 0 0"}}>
-        <DataAnalyticsPane optionsChain={this.props.optionsChain} analytics={this.props.analytics} onDataAnalyticsConfigChange={this.props.onDataAnalyticsConfigChange}/>
-        <ProjectionAnalyticsPane optionsChain={this.props.optionsChain} analytics={this.props.analytics}/>
-        <BuilderAnalyticsPane optionsChain={this.props.optionsChain} analytics={this.props.analytics}/>
       </div>
     );
   }

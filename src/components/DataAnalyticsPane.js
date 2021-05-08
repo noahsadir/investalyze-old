@@ -9,6 +9,9 @@ import {
   Paper
 } from "@material-ui/core/";
 
+import LineChart from "./LineChart";
+
+
 const StyledInputBase = withStyles((theme) => ({
   root: {
     width: "100%",
@@ -52,12 +55,30 @@ export default class DataAnalyticsPane extends React.Component {
   }
 
   render() {
+    var dataPoints = [];
+    if (this.props.optionsChain != null) {
+      var singleOptions = this.props.optionsChain.filter(this.props.preferences.comparisonType, this.props.preferences.selectedComparisonValue, this.props.preferences.optionType);
+      var desiredKey = this.props.analytics.dataPaneConfig.metric_1;
+      for (var index in singleOptions) {
+        if (this.props.preferences.comparisonType == "strike") {
+          dataPoints.push([singleOptions[index].get("date"), singleOptions[index].get(desiredKey)]);
+        } else if (this.props.preferences.comparisonType == "date") {
+          dataPoints.push([singleOptions[index].get("strike"), singleOptions[index].get(desiredKey)]);
+        }
+      }
+    }
+
+    console.log(dataPoints);
+
     return (
-      <div style={{height: "100%", display: (this.props.analytics.selectedPane == "data" ? "block" : "none")}}>
+      <div style={{height: "100%", display: (this.props.analytics.selectedPane == "data" ? "flex" : "none"), flexFlow: "column"}}>
         <PaneConfiguration
-        analytics={this.props.analytics}
-        optionNames={(this.props.optionsChain == null) ? null : this.props.optionsChain.names}
-        onDataAnalyticsConfigChange={this.props.onDataAnalyticsConfigChange}/>
+          analytics={this.props.analytics}
+          optionNames={(this.props.optionsChain == null) ? null : this.props.optionsChain.names}
+          onDataAnalyticsConfigChange={this.props.onDataAnalyticsConfigChange}/>
+        <div style={{display: (this.props.analytics.dataPaneConfig.display == "chart" ? "flex" : "none"), flex: "1 1 auto"}}>
+          <LineChart data={[{label: "Metric", color: this.props.accentColor, data: dataPoints}]}/>
+        </div>
       </div>
     );
   }
@@ -70,12 +91,13 @@ class PaneConfiguration extends React.Component {
 
   render() {
 
+    //Make list of menu items containing each option metric
     var optionNameItems = [];
-
     for (var key in this.props.optionNames) {
       optionNameItems.push(<MenuItem value={key}>{this.props.optionNames[key]}</MenuItem>);
     }
 
+    //Change metric config and propogate entire data pane configuration object with updated value
     const handleMetricTypeChange = (event) => {
       if (this.props.onDataAnalyticsConfigChange != null) {
         var configuration = this.props.analytics.dataPaneConfig;
@@ -84,6 +106,7 @@ class PaneConfiguration extends React.Component {
       }
     }
 
+    //Change display config and propogate entire data pane configuration object with updated value
     const handleDisplayTypeChange = (event) => {
       if (this.props.onDataAnalyticsConfigChange != null) {
         var configuration = this.props.analytics.dataPaneConfig;
@@ -93,7 +116,7 @@ class PaneConfiguration extends React.Component {
     }
 
     return (
-      <Paper style={{padding: 8, margin: 8, marginTop: 0, backgroundColor: "#222226", display: "flex"}}>
+      <Paper style={{padding: 8, margin: 8, marginTop: 0, backgroundColor: "#222226", display: "flex", flex: "0 1 auto", height: 64}}>
         <Select
           value={this.props.analytics.dataPaneConfig.metric_1}
           variant='outlined'

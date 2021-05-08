@@ -27,6 +27,7 @@ export default class SingleOption {
       volume: "integer",
       open_interest: "integer",
       strike: "decimal_2",
+      date: "integer",
       last_price: "dollar",
       price_change: "dollar",
       percent_change: "percent",
