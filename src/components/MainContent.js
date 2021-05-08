@@ -42,7 +42,6 @@ export default class MainContent extends React.Component {
   }
 
   render() {
-    console.log(this.props.chartToggled);
     return (
       <div style={{flex: "1 0 0", height: 0}} class={((this.props.chartToggled == true) ? "splitPaneListOnly" : "splitPaneChartOnly")}>
         <SplitPane split="vertical" defaultSize="50%" minSize={360} maxSize={-360} style={{position:"relative", display: "flex"}} >

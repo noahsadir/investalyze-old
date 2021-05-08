@@ -56,8 +56,6 @@ export default class LineChart extends React.Component {
       chartData.push(dataSet);
     }
 
-    console.log(chartData);
-
 
     const data = {
       datasets: chartData,

@@ -68,8 +68,6 @@ export default class DataAnalyticsPane extends React.Component {
       }
     }
 
-    console.log(dataPoints);
-
     return (
       <div style={{height: "100%", display: (this.props.analytics.selectedPane == "data" ? "flex" : "none"), flexFlow: "column"}}>
         <PaneConfiguration
