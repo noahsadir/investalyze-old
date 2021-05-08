@@ -1,7 +1,7 @@
 import '../App.css';
 import React from "react";
 import { withStyles } from '@material-ui/core/styles';
-import { Line } from 'react-chartjs-2'
+import { Line, Bar } from 'react-chartjs-2'
 
 export default class LineChart extends React.Component {
   constructor(props) {
@@ -49,12 +49,18 @@ export default class LineChart extends React.Component {
       for (var index in inputData[key].data) {
         if (inputData[key].data[index][0] != null && inputData[key].data[index][1] != null) {
           dataForSet.push({x: inputData[key].data[index][0], y: inputData[key].data[index][1]});
-          xValues.push(inputData[key].data[index][0]);
+
+          if (!xValues.includes(inputData[key].data[index][0])) {
+            xValues.push(inputData[key].data[index][0]);
+          }
+
         }
       }
 
       chartData.push(dataSet);
     }
+
+    xValues.sort((a,b)=>b+a);
 
 
     const data = {
@@ -66,6 +72,9 @@ export default class LineChart extends React.Component {
 
     const options = {
       legend: {
+        labels: {
+          fontColor: 'orange',
+        },
         display: false,
       },
       responsive: true,
@@ -90,11 +99,24 @@ export default class LineChart extends React.Component {
       },
     };
 
+    var chartObject = null;
+    if (this.props.type == "line") {
+      chartObject = (<Line data={data} options={options} />);
+    } else if (this.props.type == "bar") {
+      chartObject = (<Bar data={data} options={options} />);
+    }
+
+    //This chart does NOT like to be resized.
+    //The following containers attempt to "squeeze" the chart within proper bounds
     return (
-      <div style={{display: "flex", flex: "1 0 0"}}>
+      <div style={{overflow: "hidden", display: "flex", flexFlow: "row", flex: "1 0 0"}}>
         <div style={{flex: "1 0 0"}}/>
-        <div style={{overflow: "hidden", display: "flex", flex: "100 0 0", margin: 8}}>
-          <Line height={"100%"} width={"100%"} data={data} options={options} />
+        <div style={{overflow: "hidden", display: "flex", flexFlow: "column", flex: "100 0 0"}}>
+          <div style={{flex: "1 0 0"}}/>
+          <div style={{flex: "100 0 0", overflow: "hidden"}}>
+            {chartObject}
+          </div>
+          <div style={{flex: "1 0 0"}}/>
         </div>
         <div style={{flex: "1 0 0"}}/>
       </div>

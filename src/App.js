@@ -79,7 +79,10 @@ export default class App extends React.Component {
         selectedPane: "data",
         dataPaneConfig: {
           metric_1: "ask",
+          metric_2: null,
+          metric_3: null,
           display: "chart",
+          chartType: "line",
         }
       },
       list: {

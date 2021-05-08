@@ -6,7 +6,9 @@ import {
   Select,
   InputBase,
   MenuItem,
-  Paper
+  Paper,
+  IconButton,
+  Icon,
 } from "@material-ui/core/";
 
 import LineChart from "./LineChart";
@@ -55,18 +57,30 @@ export default class DataAnalyticsPane extends React.Component {
   }
 
   render() {
-    var dataPoints = [];
+    var seriesData = [];
     if (this.props.optionsChain != null) {
       var singleOptions = this.props.optionsChain.filter(this.props.preferences.comparisonType, this.props.preferences.selectedComparisonValue, this.props.preferences.optionType);
-      var desiredKey = this.props.analytics.dataPaneConfig.metric_1;
-      for (var index in singleOptions) {
-        if (this.props.preferences.comparisonType == "strike") {
-          dataPoints.push([singleOptions[index].get("date"), singleOptions[index].get(desiredKey)]);
-        } else if (this.props.preferences.comparisonType == "date") {
-          dataPoints.push([singleOptions[index].get("strike"), singleOptions[index].get(desiredKey)]);
+      var keys = [this.props.analytics.dataPaneConfig.metric_1,this.props.analytics.dataPaneConfig.metric_2,this.props.analytics.dataPaneConfig.metric_3]
+      var colors = ['#b085f5','#6ff9ff','#ffd95b'];
+      console.log(keys);
+      for (var keyIndex in keys) {
+        var desiredKey = keys[keyIndex];
+        if (desiredKey != null) {
+          var dataPoints = [];
+          for (var index in singleOptions) {
+            if (this.props.preferences.comparisonType == "strike") {
+              dataPoints.push([singleOptions[index].get("date"), singleOptions[index].get(desiredKey)]);
+            } else if (this.props.preferences.comparisonType == "date") {
+              dataPoints.push([singleOptions[index].get("strike"), singleOptions[index].get(desiredKey)]);
+            }
+          }
+          seriesData.push({label: desiredKey, color: colors[keyIndex], data: dataPoints});
         }
       }
     }
+
+    console.log(seriesData);
+
 
     return (
       <div style={{height: "100%", display: (this.props.analytics.selectedPane == "data" ? "flex" : "none"), flexFlow: "column"}}>
@@ -75,7 +89,7 @@ export default class DataAnalyticsPane extends React.Component {
           optionNames={(this.props.optionsChain == null) ? null : this.props.optionsChain.names}
           onDataAnalyticsConfigChange={this.props.onDataAnalyticsConfigChange}/>
         <div style={{display: (this.props.analytics.dataPaneConfig.display == "chart" ? "flex" : "none"), flex: "1 1 auto"}}>
-          <LineChart data={[{label: "Metric", color: this.props.accentColor, data: dataPoints}]}/>
+          <LineChart type={this.props.analytics.dataPaneConfig.chartType} data={seriesData}/>
         </div>
       </div>
     );
@@ -91,6 +105,7 @@ class PaneConfiguration extends React.Component {
 
     //Make list of menu items containing each option metric
     var optionNameItems = [];
+    optionNameItems.push(<MenuItem value={null}>{"None"}</MenuItem>);
     for (var key in this.props.optionNames) {
       optionNameItems.push(<MenuItem value={key}>{this.props.optionNames[key]}</MenuItem>);
     }
@@ -99,7 +114,8 @@ class PaneConfiguration extends React.Component {
     const handleMetricTypeChange = (event) => {
       if (this.props.onDataAnalyticsConfigChange != null) {
         var configuration = this.props.analytics.dataPaneConfig;
-        configuration.metric_1 = event.target.value;
+        configuration[event.target.name] = event.target.value;
+        console.log(event);
         this.props.onDataAnalyticsConfigChange(configuration);
       }
     }
@@ -113,24 +129,49 @@ class PaneConfiguration extends React.Component {
       }
     }
 
+    const handleChartTypeChange = () => {
+      if (this.props.onDataAnalyticsConfigChange != null) {
+        var configuration = this.props.analytics.dataPaneConfig;
+        if (configuration.chartType == "line") {
+          configuration.chartType = "bar";
+        } else if (configuration.chartType == "bar") {
+          configuration.chartType = "line";
+        }
+        this.props.onDataAnalyticsConfigChange(configuration);
+      }
+    }
+
     return (
       <Paper style={{padding: 8, margin: 8, marginTop: 0, backgroundColor: "#222226", display: "flex", flex: "0 1 auto", height: 64}}>
+        <IconButton onClick={handleChartTypeChange}>
+          <Icon style={{fontSize: 24}}>{this.props.analytics.dataPaneConfig.chartType == "line" ? "bar_chart" : "show_chart"}</Icon>
+        </IconButton>
         <Select
           value={this.props.analytics.dataPaneConfig.metric_1}
           variant='outlined'
+          name={"metric_1"}
+          style={{margin: 0, marginLeft: 8, marginRight: 8, flex: "1 0 0", overflowX: "hidden"}}
+          onChange={handleMetricTypeChange}
+          input={<StyledInputBase/>}>
+          {optionNameItems}
+        </Select>
+        <Select
+          value={this.props.analytics.dataPaneConfig.metric_2}
+          variant='outlined'
+          name={"metric_2"}
           style={{margin: 0, marginRight: 8, flex: "1 0 0", overflowX: "hidden"}}
           onChange={handleMetricTypeChange}
           input={<StyledInputBase/>}>
           {optionNameItems}
         </Select>
         <Select
-          value={this.props.analytics.dataPaneConfig.display}
+          value={this.props.analytics.dataPaneConfig.metric_3}
           variant='outlined'
+          name={"metric_3"}
           style={{margin: 0, flex: "1 0 0", overflowX: "hidden"}}
-          onChange={handleDisplayTypeChange}
+          onChange={handleMetricTypeChange}
           input={<StyledInputBase/>}>
-          <MenuItem value={"table"}>{"Table"}</MenuItem>
-          <MenuItem value={"chart"}>{"Chart"}</MenuItem>
+          {optionNameItems}
         </Select>
       </Paper>
     );
