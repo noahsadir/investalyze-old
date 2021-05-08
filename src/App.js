@@ -75,8 +75,12 @@ export default class App extends React.Component {
         showProgress: false,
         progress: 0,
       },
-      chart: {
-        selectedPane: null,
+      analytics: {
+        selectedPane: "data",
+        dataPaneConfig: {
+          metric_1: "ask",
+          display: "chart",
+        }
       },
       list: {
         selectedItem: null,
@@ -189,7 +193,7 @@ export default class App extends React.Component {
           showProgress={this.state.toolbar.showProgress}
           progress={this.state.toolbar.progress}
           preferences={this.state.preferences}
-          isBuilder={this.state.chart.selectedPane == "builder"}
+          isBuilder={this.state.analytics.selectedPane == "builder"}
           onExpandToggle={(toggled) => {Cookies.set("expandToggled", toggled); setSubState(this, "toolbar", "expandToggled", toggled)}}
           onChartToggle={(toggled) => setSubState(this, "toolbar", "chartToggled", toggled)}
           onOptionTypeChange={(type) => setSubState(this, "preferences", "optionType", type)}
@@ -201,11 +205,14 @@ export default class App extends React.Component {
         <MainContent
           backgroundColor={BACKGROUND_COLOR}
           accentColor={ACCENT_COLOR}
+          analytics={this.state.analytics}
           optionsChain={this.state.data.optionsChain}
           preferences={this.state.preferences}
           chartToggled={this.state.toolbar.chartToggled}
           stickySelected={this.state.list.selectedItem}
           onOptionsListClick={optionsListItemClicked}
+          onAnalyticsPaneChange={(pane) => setSubState(this, "analytics", "selectedPane", pane)}
+          onDataAnalyticsConfigChange={(config) => setSubState(this, "analytics", "dataPaneConfig", config)}
           onRowConfigurationChange={(config) => {Cookies.set("rowConfiguration", config);setSubState(this, "preferences", "rowConfiguration", config)}}/>
         <div style={{flex: "0 0 auto"}}></div>
         <DisclaimerDialog

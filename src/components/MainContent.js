@@ -4,8 +4,28 @@ import { withStyles } from '@material-ui/core/styles';
 
 import SplitPane from 'react-split-pane';
 
+import {
+  ToggleButtonGroup,
+  ToggleButton
+} from '@material-ui/lab/';
+
 import OptionsList from "./OptionsList";
 import OptionsListHeader from "./OptionsListHeader";
+
+import DataAnalyticsPane from "./DataAnalyticsPane";
+import ProjectionAnalyticsPane from "./ProjectionAnalyticsPane";
+import BuilderAnalyticsPane from "./BuilderAnalyticsPane";
+
+const StyledChartToggle = withStyles((theme) => ({
+  root: {
+    width: "100%",
+    display: "flex",
+  },
+  grouped:{
+    height: 45,
+    flex: "1 0 0px",
+  }
+}))(ToggleButtonGroup);
 
 /**
  * Represents the main content for the app.
@@ -33,7 +53,11 @@ export default class MainContent extends React.Component {
             stickySelected={this.props.stickySelected}
             onOptionsListClick={this.props.onOptionsListClick}
             onRowConfigurationChange={this.props.onRowConfigurationChange}/>
-          <OptionsAnalyticsView/>
+          <OptionsAnalyticsView
+            optionsChain={this.props.optionsChain}
+            analytics={this.props.analytics}
+            onAnalyticsPaneChange={this.props.onAnalyticsPaneChange}
+            onDataAnalyticsConfigChange={this.props.onDataAnalyticsConfigChange}/>
         </SplitPane>
       </div>
     );
@@ -95,9 +119,43 @@ class OptionsAnalyticsView extends React.Component {
   }
 
   render() {
-    return (
-      <div style={{height: "100%"}}>
 
+    const handleAnalyticsPaneChange = (event, newAlignment) => {
+      if (this.props.onAnalyticsPaneChange != null && newAlignment != null) {
+        this.props.onAnalyticsPaneChange(newAlignment);
+      }
+    }
+
+    return (
+      <div style={{height: "100%", display: "flex", flexFlow: "column"}}>
+        <div style={{height: 64, flex: "0 0 auto", padding: 8}}>
+          <StyledChartToggle size="small" value={this.props.analytics.selectedPane} exclusive onChange={handleAnalyticsPaneChange}  aria-label="text alignment">
+            <ToggleButton value="data" aria-label="left aligned">Data</ToggleButton>
+            <ToggleButton value="projection" aria-label="right aligned">Projection</ToggleButton>
+            <ToggleButton value="builder" aria-label="right aligned">Builder</ToggleButton>
+          </StyledChartToggle>
+        </div>
+        <OptionsAnalyticsPanes
+          optionsChain={this.props.optionsChain}
+          analytics={this.props.analytics}
+          onDataAnalyticsConfigChange={this.props.onDataAnalyticsConfigChange}/>
+        <div style={{flex: "0 0 0"}}></div>
+      </div>
+    );
+  }
+}
+
+class OptionsAnalyticsPanes extends React.Component {
+  constructor(props) {
+    super(props);
+  }
+
+  render() {
+    return(
+      <div style={{overflowY: "none", flex: "1 0 0"}}>
+        <DataAnalyticsPane optionsChain={this.props.optionsChain} analytics={this.props.analytics} onDataAnalyticsConfigChange={this.props.onDataAnalyticsConfigChange}/>
+        <ProjectionAnalyticsPane optionsChain={this.props.optionsChain} analytics={this.props.analytics}/>
+        <BuilderAnalyticsPane optionsChain={this.props.optionsChain} analytics={this.props.analytics}/>
       </div>
     );
   }
