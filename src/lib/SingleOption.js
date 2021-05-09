@@ -1,7 +1,15 @@
+var Greeks = require('greeks');
+var BlackScholes = require('black-scholes');
+var ImpliedVolatility = require('implied-volatility');
+
 export default class SingleOption {
   constructor(rawData) {
     this.rawProps = rawData;
     this.calcProps = {};
+
+    var currentTime = (new Date()).getTime();
+    this.calcProps.mark = (this.rawProps.bid + this.rawProps.ask) / 2;
+
     this.propNames = {};
   }
 
@@ -24,6 +32,7 @@ export default class SingleOption {
     var valueFormats = {
       bid: "dollar",
       ask: "dollar",
+      mark: "dollar",
       volume: "integer",
       open_interest: "integer",
       strike: "decimal_2",

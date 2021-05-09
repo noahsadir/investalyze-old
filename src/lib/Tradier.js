@@ -22,7 +22,6 @@ export function formatSingleExpirationChain(rawData, dateMillis) {
         percent_change: optionObject.change_percentage,
         volume: optionObject.volume,
         open_interest: optionObject.open_interest,
-
       };
 
       //Get the option type and place into appropriate array
