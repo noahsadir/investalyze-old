@@ -43,6 +43,9 @@ Alternatively, you can set up the environment manually.
   react-split-pane
   fontsource-open-sans
   react-chartjs-2 chart.js
+  black-scholes
+  implied-volatility
+  greeks
   ```
 - (OPTIONAL) Build project or start in test environment to confirm that the code works
   ```
