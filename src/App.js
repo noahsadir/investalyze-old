@@ -83,6 +83,7 @@ export default class App extends React.Component {
           metric_3: null,
           display: "chart",
           chartType: "line",
+          showBothTypes: false,
         }
       },
       list: {

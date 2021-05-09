@@ -59,33 +59,59 @@ export default class DataAnalyticsPane extends React.Component {
   render() {
     var seriesData = [];
     if (this.props.optionsChain != null) {
-      var singleOptions = this.props.optionsChain.filter(this.props.preferences.comparisonType, this.props.preferences.selectedComparisonValue, this.props.preferences.optionType);
-      var keys = [this.props.analytics.dataPaneConfig.metric_1,this.props.analytics.dataPaneConfig.metric_2,this.props.analytics.dataPaneConfig.metric_3]
+
+      var selectedOptionType = this.props.preferences.optionType;
+      var unselectedOptionType = this.props.preferences.optionType == "calls" ? "puts" : "calls";
+
+      //Get chains for both calls and puts in case user wants to compare them.
+      var singleOptions = this.props.optionsChain.filter(this.props.preferences.comparisonType, this.props.preferences.selectedComparisonValue, selectedOptionType);
+      var singleOppositeOptions = this.props.optionsChain.filter(this.props.preferences.comparisonType, this.props.preferences.selectedComparisonValue, unselectedOptionType);
+
+      //If user wants to compare calls and puts, only allow for one metric. Otherwise, allow three.
+      var keys = [this.props.analytics.dataPaneConfig.metric_1,this.props.analytics.dataPaneConfig.metric_2,this.props.analytics.dataPaneConfig.metric_3];
+      if (this.props.analytics.dataPaneConfig.showBothTypes == true) {
+        keys = [this.props.analytics.dataPaneConfig.metric_1];
+      }
+
+      //Colors for different series
       var colors = ['#b085f5','#6ff9ff','#ffd95b'];
-      console.log(keys);
+      var opposingColors = ['#80e27e','#ff7961','#be9c91'];
+
+      //Go through each metric item selected by user
       for (var keyIndex in keys) {
         var desiredKey = keys[keyIndex];
         if (desiredKey != null) {
           var dataPoints = [];
+          var opposingPoints = [];
+
+          //Get points for every option type to plot on chart
           for (var index in singleOptions) {
             if (this.props.preferences.comparisonType == "strike") {
               dataPoints.push([singleOptions[index].get("date"), singleOptions[index].get(desiredKey)]);
+              opposingPoints.push([singleOppositeOptions[index].get("date"), singleOppositeOptions[index].get(desiredKey)]);
             } else if (this.props.preferences.comparisonType == "date") {
               dataPoints.push([singleOptions[index].get("strike"), singleOptions[index].get(desiredKey)]);
+              opposingPoints.push([singleOppositeOptions[index].get("strike"), singleOppositeOptions[index].get(desiredKey)]);
             }
           }
-          seriesData.push({label: desiredKey, color: colors[keyIndex], data: dataPoints});
+
+          //Add series for selected option type to chart
+          seriesData.push({label: desiredKey + " (" + selectedOptionType + ")", color: colors[keyIndex], data: dataPoints});
+
+          //If user desires, add series for unselectd option type for comparison
+          if (this.props.analytics.dataPaneConfig.showBothTypes == true) {
+            seriesData.push({label: desiredKey + " (" + unselectedOptionType + ")", color: opposingColors[keyIndex], data: opposingPoints});
+          }
+
         }
       }
     }
-
-    console.log(seriesData);
-
 
     return (
       <div style={{height: "100%", display: (this.props.analytics.selectedPane == "data" ? "flex" : "none"), flexFlow: "column"}}>
         <PaneConfiguration
           analytics={this.props.analytics}
+          preferences={this.props.preferences}
           optionNames={(this.props.optionsChain == null) ? null : this.props.optionsChain.names}
           onDataAnalyticsConfigChange={this.props.onDataAnalyticsConfigChange}/>
         <div style={{display: (this.props.analytics.dataPaneConfig.display == "chart" ? "flex" : "none"), flex: "1 1 auto"}}>
@@ -105,6 +131,8 @@ class PaneConfiguration extends React.Component {
 
     //Make list of menu items containing each option metric
     var optionNameItems = [];
+    var additionalDropdowns = null;
+
     optionNameItems.push(<MenuItem value={null}>{"None"}</MenuItem>);
     for (var key in this.props.optionNames) {
       optionNameItems.push(<MenuItem value={key}>{this.props.optionNames[key]}</MenuItem>);
@@ -129,6 +157,7 @@ class PaneConfiguration extends React.Component {
       }
     }
 
+    //Toggle chart type config (bar, line) and propogate entire data pane config object w/ updated value
     const handleChartTypeChange = () => {
       if (this.props.onDataAnalyticsConfigChange != null) {
         var configuration = this.props.analytics.dataPaneConfig;
@@ -141,11 +170,45 @@ class PaneConfiguration extends React.Component {
       }
     }
 
+    //If user only wants to see data for the selected option type, add two additional dropdowns
+    if (this.props.analytics.dataPaneConfig.showBothTypes == false) {
+      additionalDropdowns = [
+        (<Select
+          value={this.props.analytics.dataPaneConfig.metric_2}
+          variant='outlined'
+          name={"metric_2"}
+          style={{margin: 0, marginRight: 8, flex: "1 0 0", overflowX: "hidden"}}
+          onChange={handleMetricTypeChange}
+          input={<StyledInputBase/>}>
+          {optionNameItems}
+        </Select>),
+        (<Select
+          value={this.props.analytics.dataPaneConfig.metric_3}
+          variant='outlined'
+          name={"metric_3"}
+          style={{margin: 0, flex: "1 0 0", overflowX: "hidden"}}
+          onChange={handleMetricTypeChange}
+          input={<StyledInputBase/>}>
+          {optionNameItems}
+        </Select>)
+      ];
+    }
+
     return (
       <Paper style={{padding: 8, margin: 8, marginTop: 0, backgroundColor: "#222226", display: "flex", flex: "0 1 auto", height: 64}}>
         <IconButton onClick={handleChartTypeChange}>
           <Icon style={{fontSize: 24}}>{this.props.analytics.dataPaneConfig.chartType == "line" ? "bar_chart" : "show_chart"}</Icon>
         </IconButton>
+        <Select
+          value={this.props.analytics.dataPaneConfig.showBothTypes}
+          variant='outlined'
+          name={"showBothTypes"}
+          style={{margin: 0, marginLeft: 8, flex: "1 0 0", overflowX: "hidden"}}
+          onChange={handleMetricTypeChange}
+          input={<StyledInputBase/>}>
+          <MenuItem value={false}>{((this.props.preferences.optionType == "calls") ?  "Calls " : "Puts ") + " only"}</MenuItem>
+          <MenuItem value={true}>{"Calls & Puts"}</MenuItem>
+        </Select>
         <Select
           value={this.props.analytics.dataPaneConfig.metric_1}
           variant='outlined'
@@ -155,24 +218,7 @@ class PaneConfiguration extends React.Component {
           input={<StyledInputBase/>}>
           {optionNameItems}
         </Select>
-        <Select
-          value={this.props.analytics.dataPaneConfig.metric_2}
-          variant='outlined'
-          name={"metric_2"}
-          style={{margin: 0, marginRight: 8, flex: "1 0 0", overflowX: "hidden"}}
-          onChange={handleMetricTypeChange}
-          input={<StyledInputBase/>}>
-          {optionNameItems}
-        </Select>
-        <Select
-          value={this.props.analytics.dataPaneConfig.metric_3}
-          variant='outlined'
-          name={"metric_3"}
-          style={{margin: 0, flex: "1 0 0", overflowX: "hidden"}}
-          onChange={handleMetricTypeChange}
-          input={<StyledInputBase/>}>
-          {optionNameItems}
-        </Select>
+        {additionalDropdowns}
       </Paper>
     );
   }
