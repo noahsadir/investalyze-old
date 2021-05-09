@@ -1,10 +1,10 @@
 import SingleOption from './SingleOption';
 
 export default class OptionsChain {
-  constructor(rawData) {
+  constructor(rawData, spotPrice) {
     this.valueNames = getValueNamesForOption(rawData);
-    this.dateSortedData = sortByDates(rawData);
-    this.strikeSortedData = sortByStrikes(rawData);
+    this.dateSortedData = sortByDates(rawData, spotPrice);
+    this.strikeSortedData = sortByStrikes(rawData, spotPrice);
     this.dates = {calls: getAllKeys(this.dateSortedData.calls), puts: getAllKeys(this.dateSortedData.puts)};
     this.strikes = {calls: getAllKeys(this.strikeSortedData.calls), puts: getAllKeys(this.strikeSortedData.puts)};
   }
@@ -61,6 +61,7 @@ function getValueNamesForOption(rawData) {
         var valueNames = {
           bid: "Bid",
           ask: "Ask",
+          mark: "Mark",
           volume: "Volume",
           open_interest: "Open Interest",
           id: "ID",
@@ -93,7 +94,7 @@ function getValueNamesForOption(rawData) {
  * @param rawData the JSON object loaded from the API
  * @return an object of format {@code {calls: {"date_1":[SingleOption], "date_2":[SingleOption],...}, puts:...}}
  */
-function sortByDates(rawData) {
+function sortByDates(rawData, spotPrice) {
   var datesList = {calls: {}, puts: {}};
 
   //Go through every date in rawData
@@ -109,7 +110,7 @@ function sortByDates(rawData) {
 
       //Convert each option object into a SingleOption and add to datesList
       for (var optionIndex in rawData[date][type]) {
-        datesList[type][date].push(new SingleOption(rawData[date][type][optionIndex]));
+        datesList[type][date].push(new SingleOption(rawData[date][type][optionIndex], spotPrice));
       }
 
     }
@@ -124,7 +125,7 @@ function sortByDates(rawData) {
  * @param rawData the JSON object loaded from the API
  * @return an object of format {@code {calls: {"strike_1":[SingleOption], "strike_2":[SingleOption],...}, puts:...}}
  */
-function sortByStrikes(rawData) {
+function sortByStrikes(rawData, spotPrice) {
   var strikesList = {calls: {}, puts: {}};
 
   //Go through every date in rawData
@@ -143,7 +144,7 @@ function sortByStrikes(rawData) {
         }
 
         //Convert each option object into a SingleOption and add to strikesList
-        strikesList[type][optionObject.strike].push(new SingleOption(optionObject));
+        strikesList[type][optionObject.strike].push(new SingleOption(optionObject, spotPrice));
       }
     }
   }

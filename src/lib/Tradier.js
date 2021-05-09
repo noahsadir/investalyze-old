@@ -1,4 +1,4 @@
-export function formatSingleExpirationChain(rawData, dateMillis) {
+export function formatSingleExpirationChain(rawData, dateSecs) {
 
   //If data is valid, convert chain into processable format
   if (rawData.options != null && rawData.options.option) {
@@ -13,14 +13,16 @@ export function formatSingleExpirationChain(rawData, dateMillis) {
       var newObject = {
         id: optionObject.symbol,
         strike: optionObject.strike,
-        date: dateMillis,
+        expiration: (dateSecs * 1000),
         bid: optionObject.bid,
         ask: optionObject.ask,
+        description: optionObject.description,
         last_price: optionObject.last,
         last_trade: optionObject.trade_date,
         price_change: optionObject.change,
         percent_change: optionObject.change_percentage,
         volume: optionObject.volume,
+        type: optionObject.option_type,
         open_interest: optionObject.open_interest,
       };
 

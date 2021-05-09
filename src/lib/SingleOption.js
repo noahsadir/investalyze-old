@@ -3,12 +3,16 @@ var BlackScholes = require('black-scholes');
 var ImpliedVolatility = require('implied-volatility');
 
 export default class SingleOption {
-  constructor(rawData) {
+  constructor(rawData, spotPrice) {
     this.rawProps = rawData;
     this.calcProps = {};
 
     var currentTime = (new Date()).getTime();
     this.calcProps.mark = (this.rawProps.bid + this.rawProps.ask) / 2;
+    this.calcProps.time_to_expiration = this.get("expiration") - currentTime;
+    console.log();
+    this.calcProps.implied_volatility = parseFloat((ImpliedVolatility.getImpliedVolatility(this.get("mark"), spotPrice, this.get("strike"), (this.get("expiration") - currentTime) / 31536000000, 0.0015, this.get("type")) * 100).toFixed(2));
+
 
     this.propNames = {};
   }
@@ -33,10 +37,11 @@ export default class SingleOption {
       bid: "dollar",
       ask: "dollar",
       mark: "dollar",
+      spot: "dollar",
       volume: "integer",
       open_interest: "integer",
       strike: "decimal_2",
-      date: "integer",
+      expiration: "integer",
       last_price: "dollar",
       price_change: "dollar",
       percent_change: "percent",
@@ -81,6 +86,11 @@ export default class SingleOption {
     return data;
   }
 
+}
+
+function yearsBetweenMilliseconds(start, end) {
+  var difference = Math.abs(start - end);
+  return (difference / 31536000000);
 }
 
 /**

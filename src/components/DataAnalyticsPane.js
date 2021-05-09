@@ -86,8 +86,8 @@ export default class DataAnalyticsPane extends React.Component {
           //Get points for every option type to plot on chart
           for (var index in singleOptions) {
             if (this.props.preferences.comparisonType == "strike") {
-              dataPoints.push([singleOptions[index].get("date"), singleOptions[index].get(desiredKey)]);
-              opposingPoints.push([singleOppositeOptions[index].get("date"), singleOppositeOptions[index].get(desiredKey)]);
+              dataPoints.push([singleOptions[index].get("expiration"), singleOptions[index].get(desiredKey)]);
+              opposingPoints.push([singleOppositeOptions[index].get("expiration"), singleOppositeOptions[index].get(desiredKey)]);
             } else if (this.props.preferences.comparisonType == "date") {
               dataPoints.push([singleOptions[index].get("strike"), singleOptions[index].get(desiredKey)]);
               opposingPoints.push([singleOppositeOptions[index].get("strike"), singleOppositeOptions[index].get(desiredKey)]);

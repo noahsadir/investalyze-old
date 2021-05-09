@@ -245,22 +245,23 @@ export default class App extends React.Component {
  *                 Should accept single parameter representing updated app state.
  */
 function retrieveDataForSymbol(adjustedSymbol, state, isTest, callback, progressCallback) {
-  //Load options chain
-  retrieveOptionsChain(adjustedSymbol, isTest, (ocSuccess, ocData) => {
-    //If successful, save returned options chain
-    if (ocSuccess) {
-      var optionsChain = new OptionsChain(ocData);
-      state.data.optionsChain = optionsChain;
+
+  //Regardless of outcome for options chain, get basic data of underlying
+  makeAPIRequest("API_TRADIER_QUOTE", {symbol: adjustedSymbol, tradierKey: apiKeys.tradier}, (spID, spSuccess, spData) => {
+
+    //If successful, save data in relevant areas.
+    if (spSuccess && spData.quotes != null && spData.quotes.quote != null) {
+      state.data.underlyingPrice = spData.quotes.quote.last;
+      state.toolbar.title = spData.quotes.quote.description + " (" + spData.quotes.quote.symbol + ")";
+      state.toolbar.priceInfo = convertToMoneyValue(spData.quotes.quote.last) + " (" + spData.quotes.quote.change + "%)";
     }
 
-    //Regardless of outcome for options chain, get basic data of underlying
-    makeAPIRequest("API_TRADIER_QUOTE", {symbol: adjustedSymbol, tradierKey: apiKeys.tradier}, (spID, spSuccess, spData) => {
-
-      //If successful, save data in relevant areas.
-      if (spSuccess && spData.quotes != null && spData.quotes.quote != null) {
-        state.data.underlyingPrice = spData.quotes.quote.last;
-        state.toolbar.title = spData.quotes.quote.description + " (" + spData.quotes.quote.symbol + ")";
-        state.toolbar.priceInfo = convertToMoneyValue(spData.quotes.quote.last) + " (" + spData.quotes.quote.change + "%)";
+    //Load options chain
+    retrieveOptionsChain(adjustedSymbol, isTest, (ocSuccess, ocData) => {
+      //If successful, save returned options chain
+      if (ocSuccess) {
+        var optionsChain = new OptionsChain(ocData, state.data.underlyingPrice);
+        state.data.optionsChain = optionsChain;
       }
 
       makeAPIRequest("API_STOCK_HISTORICAL", {symbol: adjustedSymbol, avKey: apiKeys.alpha_vantage}, (shID, shSuccess, shData) => {
@@ -273,8 +274,8 @@ function retrieveDataForSymbol(adjustedSymbol, state, isTest, callback, progress
         state.toolbar.showProgress = false;
         callback(state);
       }, isTest);
-    }, isTest);
-  }, progressCallback);
+    }, progressCallback);
+  }, isTest);
 }
 
 /**
