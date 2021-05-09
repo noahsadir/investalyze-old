@@ -13,7 +13,6 @@ import {
 
 import LineChart from "./LineChart";
 
-
 const StyledInputBase = withStyles((theme) => ({
   root: {
     width: "100%",
