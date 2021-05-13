@@ -3,7 +3,7 @@ if (isset($_GET['symbol']) && isset($_GET['expiration']) && isset($_GET['apikey'
   // Version 7.2.17-0ubuntu0.18.04.1
   $ch = curl_init();
 
-  curl_setopt($ch, CURLOPT_URL, 'https://sandbox.tradier.com/v1/markets/options/chains?symbol='.$_GET['symbol'].'&expiration='.$_GET['expiration'].'&greeks=false');
+  curl_setopt($ch, CURLOPT_URL, 'https://sandbox.tradier.com/v1/markets/options/chains?symbol='.$_GET['symbol'].'&expiration='.$_GET['expiration'].'&greeks=true');
   curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
   curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'GET');
 

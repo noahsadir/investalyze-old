@@ -4,7 +4,7 @@ export default class OptionsChain {
   constructor(rawData, spotPrice) {
     this.valueNames = getValueNamesForOption(rawData);
     this.dateSortedData = sortByDates(rawData, spotPrice);
-    this.strikeSortedData = sortByStrikes(rawData, spotPrice);
+    this.strikeSortedData = sortByStrikes(this.dateSortedData, spotPrice);
     this.dates = {calls: getAllKeys(this.dateSortedData.calls), puts: getAllKeys(this.dateSortedData.puts)};
     this.strikes = {calls: getAllKeys(this.strikeSortedData.calls), puts: getAllKeys(this.strikeSortedData.puts)};
   }
@@ -62,15 +62,27 @@ function getValueNamesForOption(rawData) {
           bid: "Bid",
           ask: "Ask",
           mark: "Mark",
+          bid_ask_spread: "Bid-Ask Spread",
+          intrinsic_value: "Intrinsic",
+          extrinsic_value: "Extrinsic",
+          open_interest_value: "Open Interest Value",
+          open_interest_extrinsic: "Open Interest Extrinsic",
           volume: "Volume",
           open_interest: "Open Interest",
-          id: "ID",
-          date: "Date",
           strike: "Strike",
           last_price: "Last Price",
           last_trade: "Last Trade",
           price_change: "$ Change",
           percent_change: "% Change",
+          time_to_expiration: "Days to Exp.",
+          annual_extrinsic_value: "Annualized Extrinsic ($)",
+          annual_extrinsic_percent: "Annualized Extrinsic (%)",
+          leverage_ratio: "Leverage Ratio",
+          delta: "Delta",
+          gamma: "Gamma",
+          theta: "Theta",
+          vega: "Vega",
+          rho: "Rho",
           implied_volatility: "Implied Volatility"
         };
 
@@ -125,7 +137,39 @@ function sortByDates(rawData, spotPrice) {
  * @param rawData the JSON object loaded from the API
  * @return an object of format {@code {calls: {"strike_1":[SingleOption], "strike_2":[SingleOption],...}, puts:...}}
  */
-function sortByStrikes(rawData, spotPrice) {
+function sortByStrikes(dateSortedData, spotPrice) {
+  var strikesList = {calls: {}, puts: {}};
+
+  //For each date, go through both types (calls, puts)
+  for (var type in dateSortedData) {
+
+    //Go through every date in rawData
+    for (var date in dateSortedData[type]) {
+      //Go through each call/put for this date
+      for (var optionIndex in dateSortedData[type][date]) {
+        var optionObject = dateSortedData[type][date][optionIndex];
+
+        //Register new strike if it wasn't already
+        if (strikesList[type][optionObject.get("strike")] == null) {
+          strikesList[type][optionObject.get("strike")] = [];
+        }
+
+        //Convert each option object into a SingleOption and add to strikesList
+        strikesList[type][optionObject.get("strike")].push(optionObject);
+      }
+    }
+  }
+
+  return strikesList;
+}
+
+/**
+ * Separates data by calls and puts, then sorts by strike.
+ *
+ * @param rawData the JSON object loaded from the API
+ * @return an object of format {@code {calls: {"strike_1":[SingleOption], "strike_2":[SingleOption],...}, puts:...}}
+ */
+function sortByStrikesFromRaw(rawData, spotPrice) {
   var strikesList = {calls: {}, puts: {}};
 
   //Go through every date in rawData

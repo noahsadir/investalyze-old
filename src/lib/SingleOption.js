@@ -5,27 +5,65 @@ var ImpliedVolatility = require('implied-volatility');
 export default class SingleOption {
   constructor(rawData, spotPrice) {
     this.rawProps = rawData;
+    this.spot = spotPrice;
+    this.didCalculate = false;
     this.calcProps = {};
-
-    var currentTime = (new Date()).getTime();
-    this.calcProps.mark = (this.rawProps.bid + this.rawProps.ask) / 2;
-    this.calcProps.time_to_expiration = this.get("expiration") - currentTime;
-    console.log();
-    this.calcProps.implied_volatility = parseFloat((ImpliedVolatility.getImpliedVolatility(this.get("mark"), spotPrice, this.get("strike"), (this.get("expiration") - currentTime) / 31536000000, 0.0015, this.get("type")) * 100).toFixed(2));
-
 
     this.propNames = {};
   }
 
+  //Can be a very time consuming process; should only be run if needed
+  //TODO: Find a way to make async
+  calculate = (calculateGreeksManually) => {
+    var currentTime = (new Date()).getTime();
+    var spotPrice = this.spot;
+    this.calcProps.spot = spotPrice;
+    this.calcProps.mark = (this.rawProps.bid + this.rawProps.ask) / 2;
+    this.calcProps.bid_ask_spread = this.get("ask") - this.get("bid");
+    this.calcProps.open_interest_value = this.get("mark") * this.get("open_interest");
+    this.calcProps.time_to_expiration = roundFloat((this.get("expiration") - currentTime) / 1000 / 60 / 60 / 24, 2);
+
+    //Calculate greeks manually. Slow & Resource intensive,
+    //but more accurate than 1-hr delayed values provided by Tradier
+    if (calculateGreeksManually) {
+      this.calcProps.implied_volatility = roundFloat(ImpliedVolatility.getImpliedVolatility(this.get("mark"), this.get("spot"), this.get("strike"), (this.get("expiration") - currentTime) / 31536000000, 0.0015, this.get("type")) * 100, 2);
+      this.calcProps.delta = roundFloat(Greeks.getDelta(this.get("spot"), this.get("strike"), (this.get("expiration") - currentTime) / 31536000000, this.get("implied_volatility"), 0.0015, this.get("type")), 4);
+      this.calcProps.gamma = roundFloat(Greeks.getGamma(this.get("spot"), this.get("strike"), (this.get("expiration") - currentTime) / 31536000000, this.get("implied_volatility"), 0.0015, this.get("type")), 4);
+      this.calcProps.theta = roundFloat(Greeks.getTheta(this.get("spot"), this.get("strike"), (this.get("expiration") - currentTime) / 31536000000, this.get("implied_volatility"), 0.0015, this.get("type")), 4);
+      this.calcProps.vega = roundFloat(Greeks.getVega(this.get("spot"), this.get("strike"), (this.get("expiration") - currentTime) / 31536000000, this.get("implied_volatility"), 0.0015, this.get("type")), 4);
+      this.calcProps.rho = roundFloat(Greeks.getRho(this.get("spot"), this.get("strike"), (this.get("expiration") - currentTime) / 31536000000, this.get("implied_volatility"), 0.0015, this.get("type")), 4);
+    }
+
+    this.calcProps.intrinsic_value = calculateIntrinsicValue(this);
+    this.calcProps.extrinsic_value = calculateExtrinsicValue(this);
+    this.calcProps.open_interest_extrinsic = this.get("extrinsic_value") * this.get("open_interest");
+    this.calcProps.annual_extrinsic_value = roundFloat((this.get("extrinsic_value") / this.get("time_to_expiration")) * 365, 2);
+    this.calcProps.annual_extrinsic_percent = roundFloat((this.get("annual_extrinsic_value") / this.get("spot")) * 100, 2);
+    this.calcProps.leverage_ratio = roundFloat((this.get("spot") - this.get("mark")) / this.get("mark"), 2);
+  }
+
   get = (key) => {
-    return (this.rawProps[key] != null) ? this.rawProps[key] : this.calcProps[key];
+    if (this.didCalculate == false) {
+      this.didCalculate = true;
+      this.calculate(false);
+    }
+    //Return either a calculated or raw property, with priority for calc'd
+    return (this.calcProps[key] != null) ? this.calcProps[key] : this.rawProps[key];
   }
 
   name = (key) => {
+    if (this.didCalculate == false) {
+      this.didCalculate = true;
+      this.calculate(false);
+    }
     return (this.propNames[key] != null) ? this.propNames[key] : this.get(key);
   }
 
   formatted = (key) => {
+    if (this.didCalculate == false) {
+      this.didCalculate = true;
+      this.calculate(false);
+    }
     var value = this.get(key);
     //Return string "null" if value is null
     if (value == null) {
@@ -38,6 +76,13 @@ export default class SingleOption {
       ask: "dollar",
       mark: "dollar",
       spot: "dollar",
+      bid_ask_spread: "dollar",
+      intrinsic_value: "dollar",
+      extrinsic_value: "dollar",
+      open_interest_extrinsic: "dollar",
+      open_interest_value: "dollar",
+      annual_extrinsic_value: "dollar",
+      annual_extrinsic_percent: "percent",
       volume: "integer",
       open_interest: "integer",
       strike: "decimal_2",
@@ -46,6 +91,7 @@ export default class SingleOption {
       price_change: "dollar",
       percent_change: "percent",
       implied_volatility: "percent",
+      leverage_ratio: "multiplier",
       id: null,
     }
 
@@ -54,6 +100,8 @@ export default class SingleOption {
       return convertToMoneyValue(value);
     } else if (valueFormats[key] == "percent") {
       return value + "%";
+    } else if (valueFormats[key] == "multiplier") {
+      return value + "x";
     } else if (valueFormats[key] == "integer") {
       return parseInt(value);
     } else if (valueFormats[key] == "decimal_2") {
@@ -88,6 +136,34 @@ export default class SingleOption {
 
 }
 
+function calculateIntrinsicValue(object) {
+  var intrinsic = 0;
+
+  if (object.get("type") == "call") {
+    intrinsic = object.get("spot") - object.get("strike");
+  } else if (object.get("type") == "put") {
+    intrinsic = object.get("strike") - object.get("spot");
+  }
+
+  if (intrinsic < 0) {
+    intrinsic = 0;
+  }
+
+  return roundFloat(intrinsic, 2);
+}
+
+function calculateExtrinsicValue(object) {
+  var extrinsic = 0;
+
+  extrinsic = object.get("mark") - object.get("intrinsic_value");
+
+  if (extrinsic < 0) {
+    extrinsic = 0;
+  }
+
+  return roundFloat(extrinsic, 2);
+}
+
 function yearsBetweenMilliseconds(start, end) {
   var difference = Math.abs(start - end);
   return (difference / 31536000000);
@@ -105,6 +181,10 @@ function convertToMoneyValue(val){
   }else{
     return "$" + Math.abs(val).toFixed(2);
   }
+}
+
+function roundFloat(value, roundInt) {
+  return parseFloat(value.toFixed(roundInt));
 }
 
 /**

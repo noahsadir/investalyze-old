@@ -78,11 +78,11 @@ export default class App extends React.Component {
       analytics: {
         selectedPane: "data",
         dataPaneConfig: {
-          metric_1: "ask",
+          metric_1: "mark",
           metric_2: null,
           metric_3: null,
           display: "chart",
-          chartType: "line",
+          chartType: "bar",
           showBothTypes: false,
         }
       },

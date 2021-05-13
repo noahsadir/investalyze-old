@@ -24,6 +24,13 @@ export function formatSingleExpirationChain(rawData, dateSecs) {
         volume: optionObject.volume,
         type: optionObject.option_type,
         open_interest: optionObject.open_interest,
+        implied_volatility: optionObject.greeks.mid_iv,
+        smooth_implied_volatility: optionObject.greeks.smv_iv,
+        delta: optionObject.greeks.delta,
+        gamma: optionObject.greeks.gamma,
+        vega: optionObject.greeks.vega,
+        theta: optionObject.greeks.theta,
+        rho: optionObject.greeks.rho,
       };
 
       //Get the option type and place into appropriate array
