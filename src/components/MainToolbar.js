@@ -39,41 +39,7 @@ const StyledStepperToggle = withStyles((theme) => ({
   },
 }))(ToggleButtonGroup);
 
-const StyledInputBase = withStyles((theme) => ({
-  root: {
-    width: "calc(100% - 136px)",
-  'label + &': {
-    marginTop: theme.spacing(3),
-  },
-},
-input: {
-  borderRadius: 4,
-  position: 'relative',
-  border: '1px solid rgba(255, 255, 255, 0.12)',
-  fontSize: 16,
-  height: 20,
-  padding: '13px 26px 13px 12px',
-  transition: theme.transitions.create(['border-color', 'box-shadow']),
-  // Use the system font instead of the default Roboto font.
-  fontFamily: [
-    '-apple-system',
-    'BlinkMacSystemFont',
-    '"Segoe UI"',
-    'Roboto',
-    '"Helvetica Neue"',
-    'Arial',
-    'sans-serif',
-    '"Apple Color Emoji"',
-    '"Segoe UI Emoji"',
-    '"Segoe UI Symbol"',
-  ].join(','),
-  '&:focus': {
-    borderRadius: 4,
-    borderColor: '#80bdff',
-    boxShadow: '0 0 0 0.2rem rgba(0,123,255,.25)',
-  },
-},
-}))(InputBase);
+
 
 /**
  * Main toolbar for Investalyze.
@@ -143,24 +109,25 @@ export default class MainToolbar extends React.Component {
     }
 
     return (
-      <AppBar style={{backgroundColor: this.props.backgroundColor}} class="topToolbar" position="fixed">
+      <AppBar style={{backgroundColor: this.props.theme.foregroundColor}} class="topToolbar" position="fixed">
         <div id="header_container" style={{float:"left",height:64}}>
           <p id="investalyze_title" style={{fontWeight:600,textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{this.props.title}</p>
           <p id="name_label" tyle={{textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{this.props.priceInfo}</p>
         </div>
         <div id="searchbox_container" style={{display:"flex"}}>
-          <IconButton onClick={handleExpandButtonClick} id="settings_button" aria-label="settings">
+          <IconButton style={{color: this.props.theme.textColor}} onClick={handleExpandButtonClick} id="settings_button" aria-label="settings">
             <Icon style={{fontSize: 24}}>{this.props.expandToggled ? "expand_less" : "expand_more"}</Icon>
           </IconButton>
-          <IconButton onClick={handleSettingsButtonClick} id="settings_button" aria-label="settings">
+          <IconButton style={{color: this.props.theme.textColor}} onClick={handleSettingsButtonClick} id="settings_button" aria-label="settings">
             <Icon style={{fontSize: 24}}>tune</Icon>
           </IconButton>
-          <IconButton style={{color: (this.props.chartToggled ? this.props.accentColor : "#FFFFFF")}} onClick={handleChartButtonClick} id="chart_button" aria-label="chart">
+          <IconButton style={{color: (this.props.chartToggled ? this.props.theme.accentColor : this.props.theme.textColor)}} onClick={handleChartButtonClick} id="chart_button" aria-label="chart">
             <Icon style={{fontSize: 24}}>leaderboard</Icon>
           </IconButton>
-          <input class="searchbox" onKeyDown={handleKeyPress}></input>
+          <input class="searchbox" style={{backgroundColor: this.props.theme.altForegroundColor, color: this.props.theme.textColor}} onKeyDown={handleKeyPress}></input>
         </div>
         <ExpandedConfiguration
+          theme={this.props.theme}
           optionsChain={this.props.optionsChain}
           onOptionTypeChange={this.props.onOptionTypeChange}
           onStepperClick={this.props.onStepperClick}
@@ -246,8 +213,44 @@ class ExpandedConfiguration extends React.Component {
       }
     };
 
+    const StyledInputBase = withStyles((theme) => ({
+      root: {
+        width: "calc(100% - 136px)",
+      'label + &': {
+        marginTop: theme.spacing(3),
+      },
+    },
+    input: {
+      borderRadius: 4,
+      position: 'relative',
+      border: '1px solid ' + this.props.theme.borderColor,
+      fontSize: 16,
+      height: 20,
+      padding: '13px 26px 13px 12px',
+      transition: theme.transitions.create(['border-color', 'box-shadow']),
+      // Use the system font instead of the default Roboto font.
+      fontFamily: [
+        '-apple-system',
+        'BlinkMacSystemFont',
+        '"Segoe UI"',
+        'Roboto',
+        '"Helvetica Neue"',
+        'Arial',
+        'sans-serif',
+        '"Apple Color Emoji"',
+        '"Segoe UI Emoji"',
+        '"Segoe UI Symbol"',
+      ].join(','),
+      '&:focus': {
+        borderRadius: 4,
+        borderColor: this.props.theme.borderColor,
+        boxShadow: '0 0 0 0.2rem rgba(0,123,255,.25)',
+      },
+    },
+    }))(InputBase);
+
     return (
-      <Paper class="mainListToolbarPadding" style={{backgroundColor: this.props.isBuilder ? this.props.accentColor : this.props.backgroundColor, display: (this.props.open ? "block" : "none")}} >
+      <Paper class="mainListToolbarPadding" style={{backgroundColor: this.props.isBuilder ? this.props.theme.accentColor : this.props.theme.foregroundColor, display: (this.props.open ? "block" : "none")}} >
         <div id="toggleContainer">
           <StyledToggleButtonGroup value={this.props.preferences.optionType} exclusive onChange={handleOptionTypeToggleChange}  aria-label="text alignment">
             <ToggleButton value="calls" aria-label="left aligned">Calls</ToggleButton>

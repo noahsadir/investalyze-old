@@ -62,6 +62,7 @@ export default class MainContent extends React.Component {
         </div>
         <SplitPane split="vertical" defaultSize="50%" minSize={360} maxSize={-360} style={{flex: "999 0 0", position:"relative", display: (this.props.optionsChain != null ? "flex" : "none")}} >
           <OptionsListView
+            theme={this.props.theme}
             optionsChain={this.props.optionsChain}
             preferences={this.props.preferences}
             accentColor={this.props.accentColor}
@@ -69,10 +70,12 @@ export default class MainContent extends React.Component {
             onOptionsListClick={this.props.onOptionsListClick}
             onRowConfigurationChange={this.props.onRowConfigurationChange}/>
           <OptionsAnalyticsView
+            theme={this.props.theme}
             optionsChain={this.props.optionsChain}
             preferences={this.props.preferences}
             analytics={this.props.analytics}
             accentColor={this.props.accentColor}
+            backgroundColor={this.props.backgroundColor}
             onAnalyticsPaneChange={this.props.onAnalyticsPaneChange}
             onDataAnalyticsConfigChange={this.props.onDataAnalyticsConfigChange}/>
         </SplitPane>
@@ -117,10 +120,12 @@ class OptionsListView extends React.Component {
 
       <div style={{display: "flex", flexFlow: "column", height: "100%"}}>
         <OptionsListHeader
+          theme={this.props.theme}
           rowConfiguration={this.props.preferences.rowConfiguration}
           optionNames={(this.props.optionsChain == null) ? null : this.props.optionsChain.names}
           onConfigurationChange={this.props.onRowConfigurationChange}/>
         <OptionsList
+          theme={this.props.theme}
           optionsChain={this.props.optionsChain}
           preferences={this.props.preferences}
           accentColor={this.props.accentColor}
@@ -156,10 +161,12 @@ class OptionsAnalyticsView extends React.Component {
         </div>
         <div style={{overflowY: "none", flex: "1 0 0"}}>
           <DataAnalyticsPane
+            theme={this.props.theme}
             preferences={this.props.preferences}
             optionsChain={this.props.optionsChain}
             analytics={this.props.analytics}
             accentColor={this.props.accentColor}
+            backgroundColor={this.props.backgroundColor}
             onDataAnalyticsConfigChange={this.props.onDataAnalyticsConfigChange}/>
           <ProjectionAnalyticsPane optionsChain={this.props.optionsChain} analytics={this.props.analytics}/>
           <BuilderAnalyticsPane optionsChain={this.props.optionsChain} analytics={this.props.analytics}/>

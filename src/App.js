@@ -41,10 +41,29 @@ var apiKeys = require('./keys.json');
 var Cookies = require('./lib/Cookies');
 
 export default class App extends React.Component {
+  /*
+  //Light mode
 
+  backgroundColor: "#ffffff",
+  foregroundColor: "#e0e0e6",
+  altForegroundColor: "#ccccd6",
+  elevationColor: "#e0e0e6",
+  borderColor: "#00000022",
+  accentColor: "#c7a4ff",
+  textColor: "#000000",
+  */
   constructor(props) {
     super(props);
     this.state = {
+      theme: {
+        backgroundColor: "#000004",
+        foregroundColor: "#111115",
+        altForegroundColor: "#222226",
+        elevationColor: "#222226",
+        borderColor: "#ffffff22",
+        accentColor: "#593d99",
+        textColor: "#ffffff",
+      },
       cookies: {
         disclaimerAgreement: "Disclaimer Agreement",
         cookieAcknowledgement: "Cookie Preferences",
@@ -185,8 +204,9 @@ export default class App extends React.Component {
     }
 
     return (
-      <div style={{display: "flex", flexFlow: "column", height:"100%"}}>
+      <div style={{display: "flex", flexFlow: "column", height:"100%", backgroundColor: this.state.theme.backgroundColor, color: this.state.theme.textColor}}>
         <MainToolbar
+          theme={this.state.theme}
           backgroundColor={BACKGROUND_COLOR}
           accentColor={ACCENT_COLOR}
           optionsChain={this.state.data.optionsChain}
@@ -207,8 +227,9 @@ export default class App extends React.Component {
           onSymbolEnter={toolbarSymbolEntered}
           onStepperClick={toolbarStepperClicked}/>
         <MainContent
-          backgroundColor={BACKGROUND_COLOR}
-          accentColor={ACCENT_COLOR}
+          theme={this.state.theme}
+          backgroundColor={this.state.theme.backgroundColor}
+          accentColor={this.state.theme.accentColor}
           analytics={this.state.analytics}
           optionsChain={this.state.data.optionsChain}
           preferences={this.state.preferences}

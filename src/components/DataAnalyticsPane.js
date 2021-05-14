@@ -13,43 +13,6 @@ import {
 
 import LineChart from "./LineChart";
 
-const StyledInputBase = withStyles((theme) => ({
-  root: {
-    width: "100%",
-  'label + &': {
-    marginTop: theme.spacing(3),
-
-  }
-},
-input: {
-  borderRadius: 4,
-  position: 'relative',
-  border: '1px solid rgba(255, 255, 255, 0.12)',
-  fontSize: 14,
-  height: 16,
-  padding: '13px 26px 13px 12px',
-  transition: theme.transitions.create(['border-color', 'box-shadow']),
-  // Use the system font instead of the default Roboto font.
-  fontFamily: [
-    '-apple-system',
-    'BlinkMacSystemFont',
-    '"Segoe UI"',
-    'Roboto',
-    '"Helvetica Neue"',
-    'Arial',
-    'sans-serif',
-    '"Apple Color Emoji"',
-    '"Segoe UI Emoji"',
-    '"Segoe UI Symbol"',
-  ].join(','),
-  '&:focus': {
-    borderRadius: 4,
-    borderColor: '#80bdff',
-    boxShadow: '0 0 0 0.2rem rgba(0,123,255,.25)',
-  },
-},
-}))(InputBase);
-
 var colors = [
   '#666ad1',
   '#48a999',
@@ -204,16 +167,19 @@ export default class DataAnalyticsPane extends React.Component {
     return (
       <div style={{height: "100%", display: (this.props.analytics.selectedPane == "data" ? "flex" : "none"), flexFlow: "column"}}>
         <PaneConfiguration
+          theme={this.props.theme}
           analytics={this.props.analytics}
           preferences={this.props.preferences}
           optionNames={(this.props.optionsChain == null) ? null : this.props.optionsChain.names}
           onDataAnalyticsConfigChange={this.props.onDataAnalyticsConfigChange}/>
         <div style={{display: (this.props.analytics.dataPaneConfig.display == "chart" ? "flex" : "none"), flex: "1 1 auto"}}>
           <LineChart
+            theme={this.props.theme}
             xAxisLabel={this.props.preferences.comparisonType == "date" ? "Strike" : "Date"}
             scale={this.props.preferences.comparisonType == "strike" ? "time" : "linear"}
             type={chartType[this.props.analytics.dataPaneConfig.chartType]}
             stacked={this.props.analytics.dataPaneConfig.chartType == "bar_stacked"}
+            backgroundColor={this.props.backgroundColor}
             data={seriesData}/>
         </div>
       </div>
@@ -228,14 +194,51 @@ class PaneConfiguration extends React.Component {
 
   render() {
 
+    const StyledInputBase = withStyles((theme) => ({
+      root: {
+        width: "100%",
+      'label + &': {
+        marginTop: theme.spacing(3),
+
+      }
+    },
+    input: {
+      borderRadius: 4,
+      position: 'relative',
+      border: '1px solid ' + this.props.theme.borderColor,
+      fontSize: 14,
+      height: 16,
+      padding: '13px 26px 13px 12px',
+      transition: theme.transitions.create(['border-color', 'box-shadow']),
+      // Use the system font instead of the default Roboto font.
+      fontFamily: [
+        '-apple-system',
+        'BlinkMacSystemFont',
+        '"Segoe UI"',
+        'Roboto',
+        '"Helvetica Neue"',
+        'Arial',
+        'sans-serif',
+        '"Apple Color Emoji"',
+        '"Segoe UI Emoji"',
+        '"Segoe UI Symbol"',
+      ].join(','),
+      '&:focus': {
+        borderRadius: 4,
+        borderColor: this.props.theme.borderColor,
+        boxShadow: '0 0 0 0.2rem rgba(0,123,255,.25)',
+      },
+    },
+    }))(InputBase);
+
     //Make list of menu items containing each option metric
     var optionNameItems = [];
     var additionalDropdowns = null;
     var chartTypeIcons = {
-      line: "show_chart",
-      bar: "bar_chart",
-      bar_stacked: "stacked_bar_chart",
-      surface: "view_in_ar",
+      line: "bar_chart",
+      bar: "stacked_bar_chart",
+      bar_stacked: "view_in_ar",
+      surface: "show_chart",
     }
 
     optionNameItems.push(<MenuItem value={null}>{"None"}</MenuItem>);
@@ -304,7 +307,7 @@ class PaneConfiguration extends React.Component {
     }
 
     return (
-      <Paper style={{padding: 8, margin: 8, marginTop: 0, overflow: "hidden", backgroundColor: "#222226", display: "flex", flex: "0 1 auto", height: 64}}>
+      <Paper style={{padding: 8, margin: 8, marginTop: 0, overflow: "hidden", backgroundColor: this.props.theme.elevationColor, display: "flex", flex: "0 1 auto", height: 64}}>
         <IconButton onClick={handleChartTypeChange}>
           <Icon style={{fontSize: 24}}>{chartTypeIcons[this.props.analytics.dataPaneConfig.chartType]}</Icon>
         </IconButton>

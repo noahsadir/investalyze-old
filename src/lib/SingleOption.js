@@ -15,7 +15,7 @@ export default class SingleOption {
   //Can be a very time consuming process; should only be run if needed
   //TODO: Find a way to make async
   calculate = (calculateGreeksManually) => {
-    var currentTime = (new Date()).getTime();
+    var currentTime = (new Date()).getTime() - 86400000;
     var spotPrice = this.spot;
     this.calcProps.spot = spotPrice;
     this.calcProps.mark = (this.rawProps.bid + this.rawProps.ask) / 2;

@@ -10,42 +10,7 @@ import {
 
 import SingleOption from '../lib/SingleOption';
 
-const StyledInputBase = withStyles((theme) => ({
-  root: {
-    width: "100%",
-  'label + &': {
-    marginTop: theme.spacing(3),
 
-  }
-},
-input: {
-  borderRadius: 4,
-  position: 'relative',
-  border: '1px solid rgba(255, 255, 255, 0.12)',
-  fontSize: 14,
-  height: 16,
-  padding: '13px 26px 13px 12px',
-  transition: theme.transitions.create(['border-color', 'box-shadow']),
-  // Use the system font instead of the default Roboto font.
-  fontFamily: [
-    '-apple-system',
-    'BlinkMacSystemFont',
-    '"Segoe UI"',
-    'Roboto',
-    '"Helvetica Neue"',
-    'Arial',
-    'sans-serif',
-    '"Apple Color Emoji"',
-    '"Segoe UI Emoji"',
-    '"Segoe UI Symbol"',
-  ].join(','),
-  '&:focus': {
-    borderRadius: 4,
-    borderColor: '#80bdff',
-    boxShadow: '0 0 0 0.2rem rgba(0,123,255,.25)',
-  },
-},
-}))(InputBase);
 
 export default class OptionsListHeader extends React.Component {
   constructor(props) {
@@ -64,7 +29,7 @@ export default class OptionsListHeader extends React.Component {
     }
 
     for (var index in this.props.rowConfiguration) {
-      optionsListSelectItems.push(<OptionsListSelect index={index} selectedValue={this.props.rowConfiguration[index]} optionNames={this.props.optionNames} onChange={handleListSelectChange}/>);
+      optionsListSelectItems.push(<OptionsListSelect theme={this.props.theme} index={index} selectedValue={this.props.rowConfiguration[index]} optionNames={this.props.optionNames} onChange={handleListSelectChange}/>);
     }
 
     return (
@@ -81,6 +46,44 @@ class OptionsListSelect extends React.Component {
   }
 
   render() {
+
+    const StyledInputBase = withStyles((theme) => ({
+      root: {
+        width: "100%",
+      'label + &': {
+        marginTop: theme.spacing(3),
+
+      }
+    },
+    input: {
+      borderRadius: 4,
+      position: 'relative',
+      border: '1px solid ' + this.props.theme.borderColor,
+      fontSize: 14,
+      height: 16,
+      padding: '13px 26px 13px 12px',
+      transition: theme.transitions.create(['border-color', 'box-shadow']),
+      // Use the system font instead of the default Roboto font.
+      fontFamily: [
+        '-apple-system',
+        'BlinkMacSystemFont',
+        '"Segoe UI"',
+        'Roboto',
+        '"Helvetica Neue"',
+        'Arial',
+        'sans-serif',
+        '"Apple Color Emoji"',
+        '"Segoe UI Emoji"',
+        '"Segoe UI Symbol"',
+      ].join(','),
+      '&:focus': {
+        borderRadius: 4,
+        borderColor: this.props.theme.borderColor,
+        boxShadow: '0 0 0 0.2rem rgba(0,123,255,.25)',
+      },
+    },
+    }))(InputBase);
+
     var optionNameItems = [];
 
     for (var key in this.props.optionNames) {

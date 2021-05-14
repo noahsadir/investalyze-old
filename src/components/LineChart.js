@@ -22,22 +22,46 @@ export default class LineChart extends React.Component {
     */
     const Plot = createPlotlyComponent(Plotly);
     var chartData = [];
+    var maxHeight = 10;
     var xValues = [];
     var plotlyData = [{
-      x: [1, 2, 3, 4, 5, 2, 3, 4, 5, 6, 3, 4, 5, 6, 7],
-      y: [1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5],
-      z: [1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3],
-      type: 'bar',
+      x: [],
+      y: [],
+      z: [],
+      type: 'mesh3d',
     }];
+
+
 
     var zValues = [];
 
     //Set up data in a format which can be more easily processed
     //NOTE: Each {label:..., data:...} object represents a single series
     var inputData = this.props.data;
-
+    console.log(inputData);
 
     if (this.props.type == "surface") {
+
+      for (var key in inputData) {
+        for (var index in inputData[key].data) {
+          if (inputData[key].data[index][0] != null && inputData[key].data[index][1] != null) {
+            if (this.props.scale == "time") {
+              inputData[key].data[index][0] = time(inputData[key].data[index][0]);
+            }
+
+            if (inputData[key].data[index][1] > maxHeight) {
+              maxHeight = inputData[key].data[index][1];
+            }
+
+            plotlyData[0].x.push(inputData[key].data[index][0]);
+            plotlyData[0].z.push(inputData[key].data[index][1]);
+            plotlyData[0].y.push(key);
+
+
+          }
+        }
+      }
+
 
     } else {
       //Process data in each series
@@ -85,6 +109,29 @@ export default class LineChart extends React.Component {
       xValues.sort(function(a,b) { return a - b;});
     }
 
+    console.log("BACKGROUND_COLOR: " + this.props.backgroundColor)
+
+    var layout = {
+      scene: {
+        xaxis: {title: this.props.xAxisLabel},
+        yaxis: {title: this.props.yAxisLabel},
+        zaxis: {title: this.props.zAxisLabel},
+      },
+      font: {
+        color: this.props.theme.textColor,
+      },
+      plot_bgcolor: (this.props.theme.foregroundColor != null ? this.props.theme.foregroundColor : "#FFFFFF"),
+      paper_bgcolor: (this.props.theme.foregroundColor != null ? this.props.theme.foregroundColor : "#FFFFFF"),
+      autosize: true,
+      margin: {
+        l: 0,
+        r: 0,
+        t: 0,
+        b: 0,
+        pad: 0,
+      }
+    }
+
     const data = {
       datasets: chartData,
       labels: xValues,
@@ -125,7 +172,7 @@ export default class LineChart extends React.Component {
     } else if (this.props.type == "bar") {
       chartObject = (<Bar data={data} options={options} />);
     } else if (this.props.type == "surface") {
-      chartObject = (<Plot data={plotlyData}/>);
+      chartObject = (<Plot data={plotlyData} layout={layout} style={{margin: 0, width: "100%", height: "100%"}}/>);
     }
 
     //This chart does NOT like to be resized.
@@ -139,7 +186,7 @@ export default class LineChart extends React.Component {
         </div>
         <div style={{overflow: "hidden", display: "flex", flexFlow: "column", flex: "100 0 0"}}>
           <div style={{flex: "1 0 0"}}/>
-          <div style={{flex: "100 0 0", overflow: "hidden"}}>
+          <div style={{flex: "100 0 0", overflow: "hidden", borderRadius: 8}}>
             {chartObject}
           </div>
           <p style={{margin:0,padding:0,textAlign:"center",height:24,lineHeight:"24px"}}>{this.props.xAxisLabel}</p>

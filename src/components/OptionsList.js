@@ -39,6 +39,7 @@ export default class OptionsList extends React.Component {
           listItems.push(
             <ListItemLink style={{margin:0,padding:0}}>
               <OptionListItem
+                theme={this.props.theme}
                 singleOption={singleOptions[index]}
                 rowConfiguration={this.props.preferences.rowConfiguration}
                 premiumType={this.props.preferences.premiumType}
@@ -90,7 +91,7 @@ class OptionListItem extends React.Component {
 
     return (
       <div onClick={handleItemClick} style={{padding: 0,width:"100%"}}>
-        <div class="option_item" style={{backgroundColor: (isStickySelected  ? this.props.accentColor : "#000004CC")}}>
+        <div class="option_item" style={{backgroundColor: (isStickySelected  ? this.props.theme.accentColor : this.props.theme.backgroundColor)}}>
           {generateItemsToRender(this.props.singleOption, this.props.rowConfiguration, this.props.premiumType)}
         </div>
       </div>
