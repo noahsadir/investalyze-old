@@ -50,6 +50,27 @@ input: {
 },
 }))(InputBase);
 
+var colors = [
+  '#666ad1',
+  '#48a999',
+  '#fff263',
+  '#ff5f52',
+  '#ae52d4',
+  '#5eb8ff',
+  '#99d066',
+  '#ffad42',
+  '#ff7d47',
+  '#fa5788',
+  '#8559da',
+  '#63a4ff',
+  '#56c8d8',
+  '#6abf69',
+  '#e4e65e',
+  '#ffd149',
+];
+
+var Formats = require('../lib/Formats');
+
 export default class DataAnalyticsPane extends React.Component {
   constructor(props) {
     super(props);
@@ -57,8 +78,81 @@ export default class DataAnalyticsPane extends React.Component {
 
   render() {
     var seriesData = [];
-    if (this.props.optionsChain != null) {
+    var chartType = {
+      line: "line",
+      bar: "bar",
+      bar_stacked: "bar",
+      surface: "surface",
+    }
 
+    if (this.props.optionsChain != null) {
+      var optionsSets = [];
+      var setLabels = [];
+      var selectedOptionType = this.props.preferences.optionType;
+      var unselectedOptionType = this.props.preferences.optionType == "calls" ? "puts" : "calls";
+      //var colors = ['#b085f5','#6ff9ff','#ffd95b'];
+      //var opposingColors = ['#80e27e','#ff7961','#be9c91'];
+
+      var keys = [this.props.analytics.dataPaneConfig.metric_1,this.props.analytics.dataPaneConfig.metric_2,this.props.analytics.dataPaneConfig.metric_3];
+      if (this.props.analytics.dataPaneConfig.showBothTypes == "both_types" || this.props.analytics.dataPaneConfig.showBothTypes == "all_for_type") {
+
+      }
+
+      if (this.props.analytics.dataPaneConfig.showBothTypes == "selected_only") {
+        setLabels = keys;
+        optionsSets.push(this.props.optionsChain.filter(this.props.preferences.comparisonType, this.props.preferences.selectedComparisonValue, selectedOptionType));
+      } else if (this.props.analytics.dataPaneConfig.showBothTypes == "both_types") {
+        keys = [this.props.analytics.dataPaneConfig.metric_1];
+        setLabels = ["Calls", "Puts"];
+        optionsSets.push(this.props.optionsChain.filter(this.props.preferences.comparisonType, this.props.preferences.selectedComparisonValue, "calls"));
+        optionsSets.push(this.props.optionsChain.filter(this.props.preferences.comparisonType, this.props.preferences.selectedComparisonValue, "puts"));
+      } else if (this.props.analytics.dataPaneConfig.showBothTypes == "all_for_type" || this.props.analytics.dataPaneConfig.showBothTypes == "all_options") {
+        keys = [this.props.analytics.dataPaneConfig.metric_1];
+        for (var compIndex in this.props.preferences.availableComparisonValues) {
+          if (this.props.preferences.comparisonType == "date") {
+
+            if (this.props.analytics.dataPaneConfig.showBothTypes == "all_options") {
+              setLabels.push(Formats.time(this.props.preferences.availableComparisonValues[compIndex]) + " (" + selectedOptionType + ")");
+              setLabels.push(Formats.time(this.props.preferences.availableComparisonValues[compIndex]) + " (" + unselectedOptionType + ")");
+            } else {
+              setLabels.push(Formats.time(this.props.preferences.availableComparisonValues[compIndex]));
+            }
+          } else {
+            if (this.props.analytics.dataPaneConfig.showBothTypes == "all_options") {
+              setLabels.push("$" + this.props.preferences.availableComparisonValues[compIndex] + " (" + selectedOptionType + ")");
+              setLabels.push("$" + this.props.preferences.availableComparisonValues[compIndex] + " (" + unselectedOptionType + ")");
+            } else {
+              setLabels.push("$" + this.props.preferences.availableComparisonValues[compIndex]);
+            }
+
+          }
+
+          optionsSets.push(this.props.optionsChain.filter(this.props.preferences.comparisonType, this.props.preferences.availableComparisonValues[compIndex], selectedOptionType));
+          if (this.props.analytics.dataPaneConfig.showBothTypes == "all_options") {
+            optionsSets.push(this.props.optionsChain.filter(this.props.preferences.comparisonType, this.props.preferences.availableComparisonValues[compIndex], unselectedOptionType));
+          }
+
+        }
+      }
+
+      for (var keyIndex in keys) {
+        var desiredKey = keys[keyIndex];
+        if (desiredKey != null) {
+
+          for (var setIndex in optionsSets) {
+            var pointsForSet = [];
+            for (var index in optionsSets[setIndex]) {
+              var xAxisKey = (this.props.preferences.comparisonType == "strike" ? "expiration" : "strike");
+              pointsForSet.push([optionsSets[setIndex][index].get(xAxisKey), optionsSets[setIndex][index].get(desiredKey)]);
+            }
+
+            var colorIndex = (parseInt(setIndex) + parseInt(keyIndex)) % colors.length;
+            seriesData.push({label: setLabels[(parseInt(setIndex) + parseInt(keyIndex)) % setLabels.length], color: colors[colorIndex], data: pointsForSet});
+          }
+        }
+      }
+
+      /*
       var selectedOptionType = this.props.preferences.optionType;
       var unselectedOptionType = this.props.preferences.optionType == "calls" ? "puts" : "calls";
 
@@ -68,7 +162,7 @@ export default class DataAnalyticsPane extends React.Component {
 
       //If user wants to compare calls and puts, only allow for one metric. Otherwise, allow three.
       var keys = [this.props.analytics.dataPaneConfig.metric_1,this.props.analytics.dataPaneConfig.metric_2,this.props.analytics.dataPaneConfig.metric_3];
-      if (this.props.analytics.dataPaneConfig.showBothTypes == true) {
+      if (this.props.analytics.dataPaneConfig.showBothTypes == "both_types") {
         keys = [this.props.analytics.dataPaneConfig.metric_1];
       }
 
@@ -98,12 +192,13 @@ export default class DataAnalyticsPane extends React.Component {
           seriesData.push({label: desiredKey + " (" + selectedOptionType + ")", color: colors[keyIndex], data: dataPoints});
 
           //If user desires, add series for unselectd option type for comparison
-          if (this.props.analytics.dataPaneConfig.showBothTypes == true) {
+          if (this.props.analytics.dataPaneConfig.showBothTypes == "both_types") {
             seriesData.push({label: desiredKey + " (" + unselectedOptionType + ")", color: opposingColors[keyIndex], data: opposingPoints});
           }
 
         }
       }
+      */
     }
 
     return (
@@ -114,7 +209,12 @@ export default class DataAnalyticsPane extends React.Component {
           optionNames={(this.props.optionsChain == null) ? null : this.props.optionsChain.names}
           onDataAnalyticsConfigChange={this.props.onDataAnalyticsConfigChange}/>
         <div style={{display: (this.props.analytics.dataPaneConfig.display == "chart" ? "flex" : "none"), flex: "1 1 auto"}}>
-          <LineChart type={this.props.analytics.dataPaneConfig.chartType} data={seriesData}/>
+          <LineChart
+            xAxisLabel={this.props.preferences.comparisonType == "date" ? "Strike" : "Date"}
+            scale={this.props.preferences.comparisonType == "strike" ? "time" : "linear"}
+            type={chartType[this.props.analytics.dataPaneConfig.chartType]}
+            stacked={this.props.analytics.dataPaneConfig.chartType == "bar_stacked"}
+            data={seriesData}/>
         </div>
       </div>
     );
@@ -131,6 +231,12 @@ class PaneConfiguration extends React.Component {
     //Make list of menu items containing each option metric
     var optionNameItems = [];
     var additionalDropdowns = null;
+    var chartTypeIcons = {
+      line: "show_chart",
+      bar: "bar_chart",
+      bar_stacked: "stacked_bar_chart",
+      surface: "view_in_ar",
+    }
 
     optionNameItems.push(<MenuItem value={null}>{"None"}</MenuItem>);
     for (var key in this.props.optionNames) {
@@ -163,6 +269,10 @@ class PaneConfiguration extends React.Component {
         if (configuration.chartType == "line") {
           configuration.chartType = "bar";
         } else if (configuration.chartType == "bar") {
+          configuration.chartType = "bar_stacked";
+        } else if (configuration.chartType == "bar_stacked") {
+          configuration.chartType = "surface";
+        } else if (configuration.chartType == "surface") {
           configuration.chartType = "line";
         }
         this.props.onDataAnalyticsConfigChange(configuration);
@@ -170,7 +280,7 @@ class PaneConfiguration extends React.Component {
     }
 
     //If user only wants to see data for the selected option type, add two additional dropdowns
-    if (this.props.analytics.dataPaneConfig.showBothTypes == false) {
+    if (this.props.analytics.dataPaneConfig.showBothTypes == "selected_only") {
       additionalDropdowns = [
         (<Select
           value={this.props.analytics.dataPaneConfig.metric_2}
@@ -196,7 +306,7 @@ class PaneConfiguration extends React.Component {
     return (
       <Paper style={{padding: 8, margin: 8, marginTop: 0, overflow: "hidden", backgroundColor: "#222226", display: "flex", flex: "0 1 auto", height: 64}}>
         <IconButton onClick={handleChartTypeChange}>
-          <Icon style={{fontSize: 24}}>{this.props.analytics.dataPaneConfig.chartType == "line" ? "bar_chart" : "show_chart"}</Icon>
+          <Icon style={{fontSize: 24}}>{chartTypeIcons[this.props.analytics.dataPaneConfig.chartType]}</Icon>
         </IconButton>
         <Select
           value={this.props.analytics.dataPaneConfig.showBothTypes}
@@ -205,8 +315,10 @@ class PaneConfiguration extends React.Component {
           style={{margin: 0, marginLeft: 8, flex: "1 0 0", overflowX: "hidden"}}
           onChange={handleMetricTypeChange}
           input={<StyledInputBase/>}>
-          <MenuItem value={false}>{((this.props.preferences.optionType == "calls") ?  "Calls " : "Puts ") + " only"}</MenuItem>
-          <MenuItem value={true}>{"Calls & Puts"}</MenuItem>
+          <MenuItem value={"selected_only"}>{((this.props.preferences.optionType == "calls") ?  "Calls " : "Puts ") + " only"}</MenuItem>
+          <MenuItem value={"both_types"}>{"Calls & Puts"}</MenuItem>
+          <MenuItem value={"all_for_type"}>{"All " + ((this.props.preferences.optionType == "calls") ?  "Calls " : "Puts ")}</MenuItem>
+          <MenuItem value={"all_options"}>{"All Options"}</MenuItem>
         </Select>
         <Select
           value={this.props.analytics.dataPaneConfig.metric_1}

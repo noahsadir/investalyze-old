@@ -46,6 +46,8 @@ Alternatively, you can set up the environment manually.
   black-scholes
   implied-volatility
   greeks
+  react-plotly.js plotly.js
+  plotly.js-gl3d-dist
   ```
 - (OPTIONAL) Build project or start in test environment to confirm that the code works
   ```

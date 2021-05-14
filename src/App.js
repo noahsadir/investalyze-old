@@ -83,7 +83,7 @@ export default class App extends React.Component {
           metric_3: null,
           display: "chart",
           chartType: "bar",
-          showBothTypes: false,
+          showBothTypes: "selected_only",
         }
       },
       list: {

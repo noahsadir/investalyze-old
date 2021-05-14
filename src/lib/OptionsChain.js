@@ -205,7 +205,9 @@ function sortByStrikesFromRaw(rawData, spotPrice) {
 function getAllKeys(rawData) {
   var keys = [];
   for (var key in rawData) {
-    keys.push(key);
+    keys.push(parseFloat(key));
   }
+  keys.sort(function(a,b) { return a - b;});
+  console.log(keys);
   return keys;
 }

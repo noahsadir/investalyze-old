@@ -9,6 +9,10 @@ import {
   ToggleButton
 } from '@material-ui/lab/';
 
+import {
+  Icon
+} from "@material-ui/core/";
+
 import OptionsList from "./OptionsList";
 import OptionsListHeader from "./OptionsListHeader";
 
@@ -44,8 +48,19 @@ export default class MainContent extends React.Component {
   render() {
     return (
       <div style={{flex: "1 0 0", height: 0, display: "flex"}} class={((this.props.chartToggled == true) ? "splitPaneListOnly" : "splitPaneChartOnly")}>
-        <div style={{flex: "1 0 0"}}></div>
-        <SplitPane split="vertical" defaultSize="50%" minSize={360} maxSize={-360} style={{flex: "999 0 0", position:"relative", display: "flex"}} >
+        <div style={{flex: "999 0 0", display: (this.props.optionsChain == null ? "flex" : "none"), padding: 8}}>
+          <div style={{flex: "1 0 0", display: "flex", flexFlow: "column"}}>
+            <div style={{flex: "1 0 0"}}></div>
+            <div style={{display: "flex"}}>
+              <div style={{flex: "1 0 0"}}></div>
+              <Icon style={{fontSize: 48}}>search</Icon>
+              <div style={{flex: "1 0 0"}}></div>
+            </div>
+            <p style={{textAlign: "center"}}>Enter the symbol of a valid stock to view its options chain.</p>
+            <div style={{flex: "1 0 0"}}></div>
+          </div>
+        </div>
+        <SplitPane split="vertical" defaultSize="50%" minSize={360} maxSize={-360} style={{flex: "999 0 0", position:"relative", display: (this.props.optionsChain != null ? "flex" : "none")}} >
           <OptionsListView
             optionsChain={this.props.optionsChain}
             preferences={this.props.preferences}
@@ -99,6 +114,7 @@ class OptionsListView extends React.Component {
 
   render() {
     return (
+
       <div style={{display: "flex", flexFlow: "column", height: "100%"}}>
         <OptionsListHeader
           rowConfiguration={this.props.preferences.rowConfiguration}
