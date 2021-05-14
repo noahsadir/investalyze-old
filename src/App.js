@@ -253,7 +253,7 @@ function retrieveDataForSymbol(adjustedSymbol, state, isTest, callback, progress
     if (spSuccess && spData.quotes != null && spData.quotes.quote != null) {
       state.data.underlyingPrice = spData.quotes.quote.last;
       state.toolbar.title = spData.quotes.quote.description + " (" + spData.quotes.quote.symbol + ")";
-      state.toolbar.priceInfo = convertToMoneyValue(spData.quotes.quote.last) + " (" + spData.quotes.quote.change + "%)";
+      state.toolbar.priceInfo = convertToMoneyValue(spData.quotes.quote.last) + " (" + (spData.quotes.quote.change_percentage > 0 ? "+" : "") + spData.quotes.quote.change_percentage + "%)";
     }
 
     //Load options chain

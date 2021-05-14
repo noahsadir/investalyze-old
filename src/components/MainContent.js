@@ -43,8 +43,9 @@ export default class MainContent extends React.Component {
 
   render() {
     return (
-      <div style={{flex: "1 0 0", height: 0}} class={((this.props.chartToggled == true) ? "splitPaneListOnly" : "splitPaneChartOnly")}>
-        <SplitPane split="vertical" defaultSize="50%" minSize={360} maxSize={-360} style={{position:"relative", display: "flex"}} >
+      <div style={{flex: "1 0 0", height: 0, display: "flex"}} class={((this.props.chartToggled == true) ? "splitPaneListOnly" : "splitPaneChartOnly")}>
+        <div style={{flex: "1 0 0"}}></div>
+        <SplitPane split="vertical" defaultSize="50%" minSize={360} maxSize={-360} style={{flex: "999 0 0", position:"relative", display: "flex"}} >
           <OptionsListView
             optionsChain={this.props.optionsChain}
             preferences={this.props.preferences}
@@ -60,6 +61,7 @@ export default class MainContent extends React.Component {
             onAnalyticsPaneChange={this.props.onAnalyticsPaneChange}
             onDataAnalyticsConfigChange={this.props.onDataAnalyticsConfigChange}/>
         </SplitPane>
+        <div style={{flex: "1 0 0"}}></div>
       </div>
     );
   }

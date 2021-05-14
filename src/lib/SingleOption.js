@@ -22,24 +22,23 @@ export default class SingleOption {
     this.calcProps.bid_ask_spread = this.get("ask") - this.get("bid");
     this.calcProps.open_interest_value = this.get("mark") * this.get("open_interest");
     this.calcProps.time_to_expiration = roundFloat((this.get("expiration") - currentTime) / 1000 / 60 / 60 / 24, 2);
-
     //Calculate greeks manually. Slow & Resource intensive,
     //but more accurate than 1-hr delayed values provided by Tradier
     if (calculateGreeksManually) {
-      this.calcProps.implied_volatility = roundFloat(ImpliedVolatility.getImpliedVolatility(this.get("mark"), this.get("spot"), this.get("strike"), (this.get("expiration") - currentTime) / 31536000000, 0.0015, this.get("type")) * 100, 2);
-      this.calcProps.delta = roundFloat(Greeks.getDelta(this.get("spot"), this.get("strike"), (this.get("expiration") - currentTime) / 31536000000, this.get("implied_volatility"), 0.0015, this.get("type")), 4);
-      this.calcProps.gamma = roundFloat(Greeks.getGamma(this.get("spot"), this.get("strike"), (this.get("expiration") - currentTime) / 31536000000, this.get("implied_volatility"), 0.0015, this.get("type")), 4);
-      this.calcProps.theta = roundFloat(Greeks.getTheta(this.get("spot"), this.get("strike"), (this.get("expiration") - currentTime) / 31536000000, this.get("implied_volatility"), 0.0015, this.get("type")), 4);
-      this.calcProps.vega = roundFloat(Greeks.getVega(this.get("spot"), this.get("strike"), (this.get("expiration") - currentTime) / 31536000000, this.get("implied_volatility"), 0.0015, this.get("type")), 4);
-      this.calcProps.rho = roundFloat(Greeks.getRho(this.get("spot"), this.get("strike"), (this.get("expiration") - currentTime) / 31536000000, this.get("implied_volatility"), 0.0015, this.get("type")), 4);
+      this.calcProps.implied_volatility = ImpliedVolatility.getImpliedVolatility(this.get("mark"), this.get("spot"), this.get("strike"), (this.get("expiration") - currentTime) / 31536000000, 0.0015, this.get("type")) * 100;
+      this.calcProps.delta = Greeks.getDelta(this.get("spot"), this.get("strike"), (this.get("expiration") - currentTime) / 31536000000, this.get("implied_volatility"), 0.0015, this.get("type"));
+      this.calcProps.gamma = Greeks.getGamma(this.get("spot"), this.get("strike"), (this.get("expiration") - currentTime) / 31536000000, this.get("implied_volatility"), 0.0015, this.get("type"));
+      this.calcProps.theta = Greeks.getTheta(this.get("spot"), this.get("strike"), (this.get("expiration") - currentTime) / 31536000000, this.get("implied_volatility"), 0.0015, this.get("type"));
+      this.calcProps.vega = Greeks.getVega(this.get("spot"), this.get("strike"), (this.get("expiration") - currentTime) / 31536000000, this.get("implied_volatility"), 0.0015, this.get("type"));
+      this.calcProps.rho = Greeks.getRho(this.get("spot"), this.get("strike"), (this.get("expiration") - currentTime) / 31536000000, this.get("implied_volatility"), 0.0015, this.get("type"));
     }
 
     this.calcProps.intrinsic_value = calculateIntrinsicValue(this);
     this.calcProps.extrinsic_value = calculateExtrinsicValue(this);
     this.calcProps.open_interest_extrinsic = this.get("extrinsic_value") * this.get("open_interest");
-    this.calcProps.annual_extrinsic_value = roundFloat((this.get("extrinsic_value") / this.get("time_to_expiration")) * 365, 2);
-    this.calcProps.annual_extrinsic_percent = roundFloat((this.get("annual_extrinsic_value") / this.get("spot")) * 100, 2);
-    this.calcProps.leverage_ratio = roundFloat((this.get("spot") - this.get("mark")) / this.get("mark"), 2);
+    this.calcProps.annual_extrinsic_value = (this.get("extrinsic_value") / this.get("time_to_expiration")) * 365;
+    this.calcProps.annual_extrinsic_percent = (this.get("annual_extrinsic_value") / this.get("spot")) * 100;
+    this.calcProps.leverage_ratio = (this.get("spot") - this.get("mark")) / this.get("mark");
   }
 
   get = (key) => {
@@ -91,6 +90,12 @@ export default class SingleOption {
       price_change: "dollar",
       percent_change: "percent",
       implied_volatility: "percent",
+      smooth_implied_volatility: "percent",
+      delta: "decimal_4",
+      gamma: "decimal_4",
+      theta: "decimal_4",
+      vega: "decimal_4",
+      rho: "decimal_4",
       leverage_ratio: "multiplier",
       id: null,
     }
@@ -99,15 +104,15 @@ export default class SingleOption {
     if (valueFormats[key] == "dollar") {
       return convertToMoneyValue(value);
     } else if (valueFormats[key] == "percent") {
-      return value + "%";
+      return value.toFixed(2) + "%";
     } else if (valueFormats[key] == "multiplier") {
-      return value + "x";
+      return value.toFixed(2) + "x";
     } else if (valueFormats[key] == "integer") {
       return parseInt(value);
     } else if (valueFormats[key] == "decimal_2") {
-      return parseFloat(value.toFixed(2));
+      return value.toFixed(2);
     } else if (valueFormats[key] == "decimal_4") {
-      return parseFloat(value.toFixed(4));
+      return value.toFixed(4);
     }
 
     //Return the formatted value (or the unformatted value if format is unknown)

@@ -194,7 +194,7 @@ class PaneConfiguration extends React.Component {
     }
 
     return (
-      <Paper style={{padding: 8, margin: 8, marginTop: 0, backgroundColor: "#222226", display: "flex", flex: "0 1 auto", height: 64}}>
+      <Paper style={{padding: 8, margin: 8, marginTop: 0, overflow: "hidden", backgroundColor: "#222226", display: "flex", flex: "0 1 auto", height: 64}}>
         <IconButton onClick={handleChartTypeChange}>
           <Icon style={{fontSize: 24}}>{this.props.analytics.dataPaneConfig.chartType == "line" ? "bar_chart" : "show_chart"}</Icon>
         </IconButton>
@@ -219,6 +219,7 @@ class PaneConfiguration extends React.Component {
         </Select>
         {additionalDropdowns}
       </Paper>
+
     );
   }
 }

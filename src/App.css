@@ -369,6 +369,10 @@ html, body{
 .textfield_duo div{
   width: 100%;
 }
+
+.Pane {
+  overflow: auto;
+}
 /* RESPONSIVE */
 
 @media screen and (max-width: 768px){
@@ -379,7 +383,7 @@ html, body{
     top: 128px;
   }
 
-  #contentContainer .SplitPane .Resizer {
+  #contentContainer .Split .Resizer {
     display: none;
   }
 
