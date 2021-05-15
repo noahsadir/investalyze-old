@@ -17,9 +17,13 @@
 ----------------------------------------------------------------------*/
 
 import './App.css';
-import { withStyles } from '@material-ui/core/styles';
+import { ThemeProvider, withStyles, createMuiTheme } from '@material-ui/core/styles';
 import { convertToMoneyValue, time } from './lib/Formats';
 import { formatSingleExpirationChain } from './lib/Tradier';
+import 'fontsource-open-sans';
+import 'fontsource-open-sans/600.css';
+import 'fontsource-open-sans/300.css';
+import CssBaseline from '@material-ui/core/CssBaseline';
 import React from "react";
 
 
@@ -27,6 +31,7 @@ import MainToolbar from "./components/MainToolbar";
 import MainContent from "./components/MainContent";
 import DisclaimerDialog from "./components/DisclaimerDialog";
 import CookiesDialog from "./components/CookiesDialog";
+import SettingsDialog from "./components/SettingsDialog";
 
 import SingleOption from './lib/SingleOption';
 import OptionsChain from './lib/OptionsChain';
@@ -56,6 +61,7 @@ export default class App extends React.Component {
     super(props);
     this.state = {
       theme: {
+        darkMode: true,
         backgroundColor: "#000004",
         foregroundColor: "#111115",
         altForegroundColor: "#222226",
@@ -73,6 +79,7 @@ export default class App extends React.Component {
       },
       dialogs: {
         cookieAcknowledgementVisible: false,
+        settingsDialogVisible: false,
       },
       data: {
         optionsChain: null,
@@ -122,6 +129,47 @@ export default class App extends React.Component {
 
   render() {
 
+    if (this.state.theme.darkMode == false) {
+      this.state.theme.backgroundColor = "#ffffff";
+      this.state.theme.foregroundColor = "#e0e0e6";
+      this.state.theme.altForegroundColor = "#ccccd6";
+      this.state.theme.elevationColor = "#e0e0e6";
+      this.state.theme.borderColor = "#00000022";
+      this.state.theme.accentColor = "#c7a4ff";
+      this.state.theme.textColor = "#000000";
+    } else {
+      this.state.theme.backgroundColor = "#000004";
+      this.state.theme.foregroundColor = "#111115";
+      this.state.theme.altForegroundColor = "#222226";
+      this.state.theme.elevationColor = "#222226";
+      this.state.theme.borderColor = "#ffffff22";
+      this.state.theme.accentColor = "#593d99";
+      this.state.theme.textColor = "#ffffff";
+    }
+
+    const theme = createMuiTheme({
+      typography: {
+        fontFamily: "Open Sans, sans-serif",
+        fontWeight: 600,
+      },
+      palette: {
+        type: (this.state.theme.darkMode ? "dark" : "light"),
+        background: {
+          default: "#000004",
+        },
+        primary: {
+          light: "#111115",
+          main: "#111115",
+          dark: "#111115",
+        },
+        secondary: {
+          light: "#7953d2",
+          dark: "#7953d2",
+          main: "#7953d2"
+        }
+      }
+    });
+
     //Configure available comparison values
     if (this.state.data.optionsChain != null) {
       if (this.state.preferences.comparisonType == "date") {
@@ -133,7 +181,14 @@ export default class App extends React.Component {
 
     //toolbar settings clicked
     const toolbarSettingsButtonClicked = () => {
-      console.log("toolbar settings clicked!");
+      setSubState(this, "dialogs", "settingsDialogVisible", true);
+    }
+
+    const settingsDialogClose = () => {
+      setSubState(this, "dialogs", "settingsDialogVisible", false);
+    }
+    const settingsStateChanged = (newState) => {
+      this.setState({state: newState});
     }
 
     //toolbar symbol clicked
@@ -204,54 +259,67 @@ export default class App extends React.Component {
     }
 
     return (
+      <ThemeProvider theme={theme}>
+        <CssBaseline />
       <div style={{display: "flex", flexFlow: "column", height:"100%", backgroundColor: this.state.theme.backgroundColor, color: this.state.theme.textColor}}>
-        <MainToolbar
-          theme={this.state.theme}
-          backgroundColor={BACKGROUND_COLOR}
-          accentColor={ACCENT_COLOR}
-          optionsChain={this.state.data.optionsChain}
-          chartToggled={this.state.toolbar.chartToggled}
-          expandToggled={this.state.toolbar.expandToggled}
-          title={this.state.toolbar.title}
-          priceInfo={this.state.toolbar.priceInfo}
-          showProgress={this.state.toolbar.showProgress}
-          progress={this.state.toolbar.progress}
-          preferences={this.state.preferences}
-          isBuilder={this.state.analytics.selectedPane == "builder"}
-          onExpandToggle={(toggled) => {Cookies.set("expandToggled", toggled); setSubState(this, "toolbar", "expandToggled", toggled)}}
-          onChartToggle={(toggled) => setSubState(this, "toolbar", "chartToggled", toggled)}
-          onOptionTypeChange={(type) => setSubState(this, "preferences", "optionType", type)}
-          onComparisonTypeChange={(type) => setSubState(this, "preferences", "comparisonType", type)}
-          onComparisonValueChange={(value) => setSubState(this, "preferences", "selectedComparisonValue", value)}
-          onSettingsButtonClick={toolbarSettingsButtonClicked}
-          onSymbolEnter={toolbarSymbolEntered}
-          onStepperClick={toolbarStepperClicked}/>
-        <MainContent
-          theme={this.state.theme}
-          backgroundColor={this.state.theme.backgroundColor}
-          accentColor={this.state.theme.accentColor}
-          analytics={this.state.analytics}
-          optionsChain={this.state.data.optionsChain}
-          preferences={this.state.preferences}
-          chartToggled={this.state.toolbar.chartToggled}
-          stickySelected={this.state.list.selectedItem}
-          onOptionsListClick={optionsListItemClicked}
-          onAnalyticsPaneChange={(pane) => setSubState(this, "analytics", "selectedPane", pane)}
-          onDataAnalyticsConfigChange={(config) => setSubState(this, "analytics", "dataPaneConfig", config)}
-          onRowConfigurationChange={(config) => {Cookies.set("rowConfiguration", config);setSubState(this, "preferences", "rowConfiguration", config)}}/>
-        <div style={{flex: "0 0 auto"}}></div>
-        <DisclaimerDialog
-          open={Cookies.get("disclaimerAgreement", false) != true}
-          accentColor={ACCENT_COLOR}
-          onAction={disclaimerDialogAction}/>
-        <CookiesDialog
-          open={this.state.dialogs.cookieAcknowledgementVisible}
-          accentColor={ACCENT_COLOR}
-          cookiePrefs={Cookies.raw().preferences}
-          cookieItems={this.state.cookies}
-          onAction={cookieDialogAction}
-          onCookieToggle={cookieToggleAction}/>
+
+          <MainToolbar
+            theme={this.state.theme}
+            backgroundColor={BACKGROUND_COLOR}
+            accentColor={ACCENT_COLOR}
+            optionsChain={this.state.data.optionsChain}
+            chartToggled={this.state.toolbar.chartToggled}
+            expandToggled={this.state.toolbar.expandToggled}
+            title={this.state.toolbar.title}
+            priceInfo={this.state.toolbar.priceInfo}
+            showProgress={this.state.toolbar.showProgress}
+            progress={this.state.toolbar.progress}
+            preferences={this.state.preferences}
+            isBuilder={this.state.analytics.selectedPane == "builder"}
+            onExpandToggle={(toggled) => {Cookies.set("expandToggled", toggled); setSubState(this, "toolbar", "expandToggled", toggled)}}
+            onChartToggle={(toggled) => setSubState(this, "toolbar", "chartToggled", toggled)}
+            onOptionTypeChange={(type) => setSubState(this, "preferences", "optionType", type)}
+            onComparisonTypeChange={(type) => setSubState(this, "preferences", "comparisonType", type)}
+            onComparisonValueChange={(value) => setSubState(this, "preferences", "selectedComparisonValue", value)}
+            onSettingsButtonClick={toolbarSettingsButtonClicked}
+            onSymbolEnter={toolbarSymbolEntered}
+            onStepperClick={toolbarStepperClicked}/>
+          <MainContent
+            theme={this.state.theme}
+            backgroundColor={this.state.theme.backgroundColor}
+            accentColor={this.state.theme.accentColor}
+            analytics={this.state.analytics}
+            optionsChain={this.state.data.optionsChain}
+            preferences={this.state.preferences}
+            chartToggled={this.state.toolbar.chartToggled}
+            stickySelected={this.state.list.selectedItem}
+            onOptionsListClick={optionsListItemClicked}
+            onAnalyticsPaneChange={(pane) => setSubState(this, "analytics", "selectedPane", pane)}
+            onDataAnalyticsConfigChange={(config) => setSubState(this, "analytics", "dataPaneConfig", config)}
+            onRowConfigurationChange={(config) => {Cookies.set("rowConfiguration", config);setSubState(this, "preferences", "rowConfiguration", config)}}/>
+          <div style={{flex: "0 0 auto"}}></div>
+          <DisclaimerDialog
+            open={Cookies.get("disclaimerAgreement", false) != true}
+            accentColor={ACCENT_COLOR}
+            onAction={disclaimerDialogAction}/>
+          <SettingsDialog
+            appState={this.state}
+            handleStateChange={settingsStateChanged}
+            open={this.state.dialogs.settingsDialogVisible}
+            theme={this.state.theme}
+            accentColor={ACCENT_COLOR}
+            onClose={settingsDialogClose}/>
+          <CookiesDialog
+            open={this.state.dialogs.cookieAcknowledgementVisible}
+            accentColor={ACCENT_COLOR}
+            cookiePrefs={Cookies.raw().preferences}
+            cookieItems={this.state.cookies}
+            onAction={cookieDialogAction}
+            onCookieToggle={cookieToggleAction}/>
+
       </div>
+      </ThemeProvider>
+
     );
   }
 }

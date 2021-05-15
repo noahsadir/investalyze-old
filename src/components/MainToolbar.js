@@ -250,7 +250,7 @@ class ExpandedConfiguration extends React.Component {
     }))(InputBase);
 
     return (
-      <Paper class="mainListToolbarPadding" style={{backgroundColor: this.props.isBuilder ? this.props.theme.accentColor : this.props.theme.foregroundColor, display: (this.props.open ? "block" : "none")}} >
+      <Paper class="mainListToolbarPadding" style={{margin: "0px 8px 8px 8px", padding: 8, backgroundColor: this.props.isBuilder ? this.props.theme.accentColor : this.props.theme.foregroundColor, display: (this.props.open ? "block" : "none")}} >
         <div id="toggleContainer">
           <StyledToggleButtonGroup value={this.props.preferences.optionType} exclusive onChange={handleOptionTypeToggleChange}  aria-label="text alignment">
             <ToggleButton value="calls" aria-label="left aligned">Calls</ToggleButton>
