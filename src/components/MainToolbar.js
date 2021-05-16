@@ -14,6 +14,8 @@ import {
   CircularProgress
 } from "@material-ui/core/";
 
+import SettingsDialog from "./SettingsDialog";
+
 import {
   ToggleButton,
   ToggleButtonGroup
@@ -68,6 +70,9 @@ export default class MainToolbar extends React.Component {
 
   constructor(props) {
     super(props);
+    this.state = {
+      settingsDialogVisible: false,
+    }
   }
 
   render() {
@@ -86,6 +91,7 @@ export default class MainToolbar extends React.Component {
       if (this.props.onSettingsButtonClick != null) {
         this.props.onSettingsButtonClick();
       }
+      this.setState({settingsDialogVisible: true});
     }
 
     //Call parent function for chart toggle handler if one exists
@@ -96,6 +102,17 @@ export default class MainToolbar extends React.Component {
         } else {
           this.props.onChartToggle(true);
         }
+      }
+    }
+
+    const settingsDialogClose = () => {
+      this.setState({settingsDialogVisible: false});
+      //setSubState(this, "dialogs", "settingsDialogVisible", false);
+    }
+
+    const settingsStateChanged = (newState) => {
+      if (this.props.onSettingsChange != null) {
+        this.props.onSettingsChange(newState);
       }
     }
 
@@ -139,6 +156,11 @@ export default class MainToolbar extends React.Component {
           backgroundColor={this.props.backgroundColor}
           accentColor={this.props.accentColor}/>
         <CircularProgress style={{display: (this.props.showProgress ? "block" : "none")}} variant="determinate" value={this.props.progress} class="progressCircle" color="accent"/>
+        <SettingsDialog
+          onDarkModeToggle={this.props.onDarkModeToggle}
+          open={this.state.settingsDialogVisible}
+          theme={this.props.theme}
+          onClose={settingsDialogClose}/>
       </AppBar>
     );
   }

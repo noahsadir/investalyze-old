@@ -129,6 +129,7 @@ export default class App extends React.Component {
 
   render() {
 
+    //Change theme colors based on dark mode setting
     if (this.state.theme.darkMode == false) {
       this.state.theme.backgroundColor = "#ffffff";
       this.state.theme.foregroundColor = "#e0e0e6";
@@ -181,14 +182,15 @@ export default class App extends React.Component {
 
     //toolbar settings clicked
     const toolbarSettingsButtonClicked = () => {
-      setSubState(this, "dialogs", "settingsDialogVisible", true);
+      //setSubState(this, "dialogs", "settingsDialogVisible", true);
     }
 
     const settingsDialogClose = () => {
-      setSubState(this, "dialogs", "settingsDialogVisible", false);
+      //setSubState(this, "dialogs", "settingsDialogVisible", false);
     }
+
     const settingsStateChanged = (newState) => {
-      this.setState({state: newState});
+      //this.setState({state: newState});
     }
 
     //toolbar symbol clicked
@@ -276,6 +278,7 @@ export default class App extends React.Component {
             progress={this.state.toolbar.progress}
             preferences={this.state.preferences}
             isBuilder={this.state.analytics.selectedPane == "builder"}
+            onDarkModeToggle={(toggled) => setSubState(this, "theme", "darkMode", toggled)}
             onExpandToggle={(toggled) => {Cookies.set("expandToggled", toggled); setSubState(this, "toolbar", "expandToggled", toggled)}}
             onChartToggle={(toggled) => setSubState(this, "toolbar", "chartToggled", toggled)}
             onOptionTypeChange={(type) => setSubState(this, "preferences", "optionType", type)}
@@ -302,13 +305,6 @@ export default class App extends React.Component {
             open={Cookies.get("disclaimerAgreement", false) != true}
             accentColor={ACCENT_COLOR}
             onAction={disclaimerDialogAction}/>
-          <SettingsDialog
-            appState={this.state}
-            handleStateChange={settingsStateChanged}
-            open={this.state.dialogs.settingsDialogVisible}
-            theme={this.state.theme}
-            accentColor={ACCENT_COLOR}
-            onClose={settingsDialogClose}/>
           <CookiesDialog
             open={this.state.dialogs.cookieAcknowledgementVisible}
             accentColor={ACCENT_COLOR}

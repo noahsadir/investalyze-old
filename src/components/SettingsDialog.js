@@ -31,19 +31,14 @@ export default class SettingsDialog extends React.Component {
       }
     }
 
-    const handleStateChange = (state) => {
-      if (this.props.handleStateChange != null) {
-        this.props.handleStateChange(this.props.appState);
-      }
+    const handleStateChange = () => {
+
     }
 
     const darkModeSwitchChanged = (event) => {
-      if (appState.theme.darkMode == true) {
-        appState.theme.darkMode = false;
-      } else {
-        appState.theme.darkMode = true;
+      if (this.props.onDarkModeToggle != null) {
+        this.props.onDarkModeToggle(this.props.theme.darkMode != true);
       }
-      handleStateChange(appState);
     }
 
     return (
@@ -56,7 +51,7 @@ export default class SettingsDialog extends React.Component {
           <div style={{display: "flex", overflowY: "scroll", flexFlow: "column"}}>
             <div style={{display: "flex"}}>
               <p style={{flex: "1 0 0", width: 256, margin: 0, marginTop: 12, lineHeight: "100%"}}>Dark Mode</p>
-              <Switch onChange={darkModeSwitchChanged} checked={this.props.appState.theme.darkMode} value="darkModeSwitch" inputProps={{ 'aria-label': 'Dark Mode' }} />
+              <Switch onChange={darkModeSwitchChanged} checked={this.props.theme != null ? this.props.theme.darkMode : false} value="darkModeSwitch" inputProps={{ 'aria-label': 'Dark Mode' }} />
             </div>
           </div>
         </DialogContent>
