@@ -35,6 +35,12 @@ export default class SettingsDialog extends React.Component {
 
     }
 
+    const cookieSettingsClicked = () => {
+      if (this.props.onCookieSettingsClick != null) {
+        this.props.onCookieSettingsClick();
+      }
+    }
+
     const darkModeSwitchChanged = (event) => {
       if (this.props.onDarkModeToggle != null) {
         this.props.onDarkModeToggle(this.props.theme.darkMode != true);
@@ -53,7 +59,9 @@ export default class SettingsDialog extends React.Component {
               <p style={{flex: "1 0 0", width: 256, margin: 0, marginTop: 12, lineHeight: "100%"}}>Dark Mode</p>
               <Switch onChange={darkModeSwitchChanged} checked={this.props.theme != null ? this.props.theme.darkMode : false} value="darkModeSwitch" inputProps={{ 'aria-label': 'Dark Mode' }} />
             </div>
+            <Button onClick={cookieSettingsClicked} color={this.props.accentColor}>Cookie Settings</Button>
           </div>
+
         </DialogContent>
         <DialogActions>
           <Button value={true} onClick={handleClose} color={this.props.accentColor}>

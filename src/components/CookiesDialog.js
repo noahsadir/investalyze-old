@@ -64,7 +64,7 @@ export default class CookiesDialog extends React.Component {
       checkboxItems.push(
         <FormControlLabel
           disabled={(cookieItem == "disclaimerAgreement" || cookieItem == "cookieAcknowledgement")}
-          control={<Checkbox checked={this.props.cookiePrefs[cookieItem] == true}
+          control={<Checkbox onChange={handleCheckbox} checked={this.props.cookiePrefs[cookieItem] == true}
           name={cookieItem}/>}
           label={this.props.cookieItems[cookieItem]}/>
       );

@@ -49,9 +49,7 @@ export default class App extends React.Component {
   /*
   //Light mode
 
-  backgroundColor: "#ffffff",
-  foregroundColor: "#e0e0e6",
-  altForegroundColor: "#ccccd6",
+  backgroundColor: "#ffffff",  foregroundColor: "#e0e0e6",altForegroundColor: "#ccccd6",
   elevationColor: "#e0e0e6",
   borderColor: "#00000022",
   accentColor: "#c7a4ff",
@@ -60,7 +58,7 @@ export default class App extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      theme: {
+      theme: Cookies.get("theme", {
         darkMode: true,
         backgroundColor: "#000004",
         foregroundColor: "#111115",
@@ -69,13 +67,14 @@ export default class App extends React.Component {
         borderColor: "#ffffff22",
         accentColor: "#593d99",
         textColor: "#ffffff",
-      },
+      }),
       cookies: {
         disclaimerAgreement: "Disclaimer Agreement",
         cookieAcknowledgement: "Cookie Preferences",
         rowConfiguration: "Options Chain Columns",
         expandToggled: "Toolbar Configuration",
-        apiKeys: "API Keys"
+        apiKeys: "API Keys",
+        theme: "Theme",
       },
       dialogs: {
         cookieAcknowledgementVisible: false,
@@ -123,6 +122,7 @@ export default class App extends React.Component {
     for (var cookieName in this.state.cookies) {
       if (Cookies.getPref(cookieName) == null) {
         Cookies.setPref(cookieName, true);
+        setSubState(this, "dialogs", "cookieAcknowledgementVisible", true);
       }
     }
   }
@@ -147,6 +147,8 @@ export default class App extends React.Component {
       this.state.theme.accentColor = "#593d99";
       this.state.theme.textColor = "#ffffff";
     }
+
+    Cookies.set("theme", this.state.theme);
 
     const theme = createMuiTheme({
       typography: {
@@ -191,6 +193,13 @@ export default class App extends React.Component {
 
     const settingsStateChanged = (newState) => {
       //this.setState({state: newState});
+    }
+
+    const darkModeToggled = (toggled) => {
+      var newTheme = this.state.theme;
+      newTheme.darkMode = toggled;
+      Cookies.set("theme", newTheme);
+      setSubState(this, "theme", "darkMode", toggled)
     }
 
     //toolbar symbol clicked
@@ -278,7 +287,8 @@ export default class App extends React.Component {
             progress={this.state.toolbar.progress}
             preferences={this.state.preferences}
             isBuilder={this.state.analytics.selectedPane == "builder"}
-            onDarkModeToggle={(toggled) => setSubState(this, "theme", "darkMode", toggled)}
+            onCookieSettingsClick={() => setSubState(this, "dialogs", "cookieAcknowledgementVisible", true)}
+            onDarkModeToggle={darkModeToggled}
             onExpandToggle={(toggled) => {Cookies.set("expandToggled", toggled); setSubState(this, "toolbar", "expandToggled", toggled)}}
             onChartToggle={(toggled) => setSubState(this, "toolbar", "chartToggled", toggled)}
             onOptionTypeChange={(type) => setSubState(this, "preferences", "optionType", type)}

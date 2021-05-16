@@ -158,6 +158,7 @@ export default class MainToolbar extends React.Component {
         <CircularProgress style={{display: (this.props.showProgress ? "block" : "none")}} variant="determinate" value={this.props.progress} class="progressCircle" color="accent"/>
         <SettingsDialog
           onDarkModeToggle={this.props.onDarkModeToggle}
+          onCookieSettingsClick={this.props.onCookieSettingsClick}
           open={this.state.settingsDialogVisible}
           theme={this.props.theme}
           onClose={settingsDialogClose}/>
