@@ -72,12 +72,14 @@ export default class MainContent extends React.Component {
           <OptionsAnalyticsView
             theme={this.props.theme}
             optionsChain={this.props.optionsChain}
+            underlyingPrice={this.props.underlyingPrice}
             preferences={this.props.preferences}
             analytics={this.props.analytics}
             accentColor={this.props.accentColor}
             backgroundColor={this.props.backgroundColor}
             onAnalyticsPaneChange={this.props.onAnalyticsPaneChange}
-            onDataAnalyticsConfigChange={this.props.onDataAnalyticsConfigChange}/>
+            onDataAnalyticsConfigChange={this.props.onDataAnalyticsConfigChange}
+            onProjectionAnalyticsConfigChange={this.props.onProjectionAnalyticsConfigChange}/>
         </SplitPane>
         <div style={{flex: "1 0 0"}}></div>
       </div>
@@ -168,7 +170,15 @@ class OptionsAnalyticsView extends React.Component {
             accentColor={this.props.accentColor}
             backgroundColor={this.props.backgroundColor}
             onDataAnalyticsConfigChange={this.props.onDataAnalyticsConfigChange}/>
-          <ProjectionAnalyticsPane optionsChain={this.props.optionsChain} analytics={this.props.analytics}/>
+          <ProjectionAnalyticsPane
+            theme={this.props.theme}
+            preferences={this.props.preferences}
+            optionsChain={this.props.optionsChain}
+            underlyingPrice={this.props.underlyingPrice}
+            analytics={this.props.analytics}
+            accentColor={this.props.accentColor}
+            backgroundColor={this.props.backgroundColor}
+            onProjectionAnalyticsConfigChange={this.props.onProjectionAnalyticsConfigChange}/>
           <BuilderAnalyticsPane optionsChain={this.props.optionsChain} analytics={this.props.analytics}/>
         </div>
         <div style={{flex: "0 0 0"}}></div>

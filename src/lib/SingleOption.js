@@ -36,6 +36,7 @@ export default class SingleOption {
     this.calcProps.intrinsic_value = calculateIntrinsicValue(this);
     this.calcProps.extrinsic_value = calculateExtrinsicValue(this);
     this.calcProps.open_interest_extrinsic = this.get("extrinsic_value") * this.get("open_interest");
+    this.calcProps.open_interest_intrinsic = this.get("intrinsic_value") * this.get("open_interest");
     this.calcProps.annual_extrinsic_value = (this.get("extrinsic_value") / this.get("time_to_expiration")) * 365;
     this.calcProps.annual_extrinsic_percent = (this.get("annual_extrinsic_value") / this.get("spot")) * 100;
     this.calcProps.leverage_ratio = (this.get("spot") - this.get("mark")) / this.get("mark");
@@ -79,6 +80,7 @@ export default class SingleOption {
       intrinsic_value: "dollar",
       extrinsic_value: "dollar",
       open_interest_extrinsic: "dollar",
+      open_interest_intrinsic: "dollar",
       open_interest_value: "dollar",
       annual_extrinsic_value: "dollar",
       annual_extrinsic_percent: "percent",

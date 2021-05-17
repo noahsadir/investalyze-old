@@ -13,7 +13,6 @@ import {
 
 import MultiChart from "./MultiChart";
 
-
 var colors = [
   '#666ad1',
   '#48a999',

@@ -109,6 +109,10 @@ export default class App extends React.Component {
           display: "chart",
           chartType: "bar",
           showBothTypes: "selected_only",
+        },
+        projectionPaneConfig: {
+          chartType: "chart",
+          dataType: "implied_move_local",
         }
       },
       list: {
@@ -128,27 +132,6 @@ export default class App extends React.Component {
   }
 
   render() {
-
-    //Change theme colors based on dark mode setting
-    if (this.state.theme.darkMode == false) {
-      this.state.theme.backgroundColor = "#ffffff";
-      this.state.theme.foregroundColor = "#e0e0e6";
-      this.state.theme.altForegroundColor = "#ccccd6";
-      this.state.theme.elevationColor = "#e0e0e6";
-      this.state.theme.borderColor = "#00000022";
-      this.state.theme.accentColor = "#c7a4ff";
-      this.state.theme.textColor = "#000000";
-    } else {
-      this.state.theme.backgroundColor = "#000004";
-      this.state.theme.foregroundColor = "#111115";
-      this.state.theme.altForegroundColor = "#222226";
-      this.state.theme.elevationColor = "#222226";
-      this.state.theme.borderColor = "#ffffff22";
-      this.state.theme.accentColor = "#593d99";
-      this.state.theme.textColor = "#ffffff";
-    }
-
-    Cookies.set("theme", this.state.theme);
 
     const theme = createMuiTheme({
       typography: {
@@ -198,6 +181,25 @@ export default class App extends React.Component {
     const darkModeToggled = (toggled) => {
       var newTheme = this.state.theme;
       newTheme.darkMode = toggled;
+
+      if (newTheme.darkMode == false) {
+        newTheme.backgroundColor = "#ffffff";
+        newTheme.foregroundColor = "#e0e0e6";
+        newTheme.altForegroundColor = "#ccccd6";
+        newTheme.elevationColor = "#e0e0e6";
+        newTheme.borderColor = "#00000022";
+        newTheme.accentColor = "#c7a4ff";
+        newTheme.textColor = "#000000";
+      } else {
+        newTheme.backgroundColor = "#000004";
+        newTheme.foregroundColor = "#111115";
+        newTheme.altForegroundColor = "#222226";
+        newTheme.elevationColor = "#222226";
+        newTheme.borderColor = "#ffffff22";
+        newTheme.accentColor = "#593d99";
+        newTheme.textColor = "#ffffff";
+      }
+
       Cookies.set("theme", newTheme);
       setSubState(this, "theme", "darkMode", toggled)
     }
@@ -306,9 +308,11 @@ export default class App extends React.Component {
             preferences={this.state.preferences}
             chartToggled={this.state.toolbar.chartToggled}
             stickySelected={this.state.list.selectedItem}
+            underlyingPrice={this.state.data.underlyingPrice}
             onOptionsListClick={optionsListItemClicked}
             onAnalyticsPaneChange={(pane) => setSubState(this, "analytics", "selectedPane", pane)}
             onDataAnalyticsConfigChange={(config) => setSubState(this, "analytics", "dataPaneConfig", config)}
+            onProjectionAnalyticsConfigChange={(config) => setSubState(this, "analytics", "projectionPaneConfig", config)}
             onRowConfigurationChange={(config) => {Cookies.set("rowConfiguration", config);setSubState(this, "preferences", "rowConfiguration", config)}}/>
           <div style={{flex: "0 0 auto"}}></div>
           <DisclaimerDialog

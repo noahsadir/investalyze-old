@@ -22,3 +22,27 @@ export function time(s) {
   const dtFormat = new Intl.DateTimeFormat('en-US', {timeZone: "UTC"});
   return dtFormat.format(new Date((s * 1000)));
 }
+
+export function convertToTruncatedMoneyValue(rawValue, full){
+  var ending = "";
+  var object = rawValue;
+  if (object > 100000 && object < 1000000){
+    object /= 1000;
+    ending = full ? " Thousand" : "K";
+  }else if (object > 1000000 && object < 1000000000){
+    object /= 1000000;
+    ending = full ? " Million" : "M";
+  }else if (object > 1000000000 && object < 1000000000000){
+    object /= 1000000000;
+    ending = full ? " Billion" : "B";
+  }else if (object > 1000000000000){
+    object /= 1000000000000;
+    ending = full ? " Trillion" : "T";
+  }
+
+  if (object < 0){
+    return "-$" + Math.abs(object).toFixed(ending === "" ? 2 : 1) + ending;
+  }else{
+    return "$" + Math.abs(object).toFixed(ending === "" ? 2 : 1) + ending;
+  }
+}

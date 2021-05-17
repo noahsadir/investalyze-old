@@ -2,6 +2,8 @@ import SingleOption from './SingleOption';
 
 export default class OptionsChain {
   constructor(rawData, spotPrice) {
+    this.spot = spotPrice;
+    this.currentTime = (new Date()).getTime();
     this.valueNames = getValueNamesForOption(rawData);
     this.dateSortedData = sortByDates(rawData, spotPrice);
     this.strikeSortedData = sortByStrikes(this.dateSortedData, spotPrice);
@@ -23,6 +25,108 @@ export default class OptionsChain {
 
   forStrike = (strike, type) => {
     return this.strikeSortedData[type][strike];
+  }
+
+  ntmForDate = (date, type, underlyingPrice) => {
+    var chainForDate = this.forDate(date, type);
+    var upperItem = null;
+    var lowerItem = null;
+
+    if (underlyingPrice == null) {
+      underlyingPrice = this.spot;
+    }
+
+    for (var index in chainForDate) {
+      if (chainForDate[index].get("strike") < underlyingPrice) {
+        upperItem = chainForDate[index];
+      } else if (lowerItem == null) {
+        lowerItem = chainForDate[index];
+      }
+    }
+    return {upper: upperItem, lower: lowerItem};
+  }
+
+  impliedVolatility = (date, type) => {
+
+    if (type != "calls" && type != "puts") {
+      var callIV = this.impliedVolatility(date, "calls");
+      var putIV = this.impliedVolatility(date, "puts");
+      if (callIV != null && putIV != null) {
+        return (callIV + putIV) / 2;
+      }
+      return null;
+    }
+
+    //By now, it can be assured that type is either "calls" or "puts"
+    if (date == null) {
+      var ivSum = 0;
+      //Get sum of IV values for each date
+      for (var index in this.dates[type]) {
+        var ivForDate = this.impliedVolatility(this.dates[type][index], type);
+        if (ivForDate != null) {
+          ivSum += ivForDate;
+        }
+      }
+
+      //Get average (if array is populated)
+      if (this.dates[type].length > 0) {
+        return (ivSum /= this.dates[type].length);
+      }
+      return null;
+    }
+
+    var ntmChain = this.ntmForDate(date, type);
+
+    //Get average of both IV values
+    var iv = 0;
+    iv += (ntmChain.upper != null ? ntmChain.upper.get("implied_volatility") : 0);
+    iv += (ntmChain.lower != null ? ntmChain.lower.get("implied_volatility") : 0);
+    if (ntmChain.upper != null && ntmChain.lower != null) {
+      iv /= 2; //Both values were added; divide by 2 to get avg
+    }
+
+    return iv;
+  }
+
+  impliedMove = (date, impliedVolatility) => {
+    var iv = impliedVolatility;
+    if (impliedVolatility == null) {
+      iv = this.impliedVolatility(date);
+    }
+
+    return (this.spot * (iv / 100) * Math.sqrt(yearsBetweenMilliseconds(this.currentTime, date * 1000)));
+  }
+
+  getTotal = (metric, date, type) => {
+    if (type != "calls" && type != "puts") {
+      var callTotal = this.getTotal(metric, date, "calls");
+      var putTotal = this.getTotal(metric, date, "puts");
+      return (callTotal != null ? callTotal : 0) + (putTotal != null ? putTotal : 0);
+    }
+
+    //By now, it can be assured that type is either "calls" or "puts"
+    if (date == null) {
+      var totalSum = 0;
+      //Get sum of IV values for each date
+      for (var index in this.dates[type]) {
+        var sumForDate = this.getTotal(metric, this.dates[type][index], type);
+        if (sumForDate != null) {
+          totalSum += sumForDate;
+        }
+      }
+      return totalSum;
+    }
+
+    //Go through each SingleOption for date and get sum of desired metric
+    var chainForDate = this.forDate(date, type);
+    var chainSum = 0;
+    for (var index in chainForDate) {
+      if (chainForDate[index].get(metric) != null) {
+        chainSum += chainForDate[index].get(metric);
+      }
+    }
+
+    return chainSum;
   }
 
   //Returns 1D array of SingleOption objects based on the following criteria
@@ -66,6 +170,7 @@ function getValueNamesForOption(rawData) {
           intrinsic_value: "Intrinsic",
           extrinsic_value: "Extrinsic",
           open_interest_value: "Open Interest Value",
+          open_interest_intrinsic: "Open Interest Intrinsic",
           open_interest_extrinsic: "Open Interest Extrinsic",
           volume: "Volume",
           open_interest: "Open Interest",
@@ -210,4 +315,9 @@ function getAllKeys(rawData) {
   keys.sort(function(a,b) { return a - b;});
   console.log(keys);
   return keys;
+}
+
+function yearsBetweenMilliseconds(start, end) {
+  var difference = Math.abs(start - end);
+  return (difference / 31536000000);
 }
