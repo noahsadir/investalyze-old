@@ -73,6 +73,7 @@ export default class MainContent extends React.Component {
             theme={this.props.theme}
             optionsChain={this.props.optionsChain}
             underlyingPrice={this.props.underlyingPrice}
+            underlyingHistorical={this.props.underlyingHistorical}
             preferences={this.props.preferences}
             analytics={this.props.analytics}
             accentColor={this.props.accentColor}
@@ -175,6 +176,7 @@ class OptionsAnalyticsView extends React.Component {
             preferences={this.props.preferences}
             optionsChain={this.props.optionsChain}
             underlyingPrice={this.props.underlyingPrice}
+            underlyingHistorical={this.props.underlyingHistorical}
             analytics={this.props.analytics}
             accentColor={this.props.accentColor}
             backgroundColor={this.props.backgroundColor}

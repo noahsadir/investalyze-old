@@ -305,6 +305,7 @@ export default class App extends React.Component {
             accentColor={this.state.theme.accentColor}
             analytics={this.state.analytics}
             optionsChain={this.state.data.optionsChain}
+            underlyingHistorical={this.state.data.underlyingHistorical}
             preferences={this.state.preferences}
             chartToggled={this.state.toolbar.chartToggled}
             stickySelected={this.state.list.selectedItem}

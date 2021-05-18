@@ -21,6 +21,26 @@ import MultiChart from "./MultiChart";
 var Formats = require('../lib/Formats');
 var ExpandingInputBase = require('./ExpandingInputBase');
 
+var colors = [
+  '#666ad1',
+  '#48a999',
+  '#fff263',
+  '#ff5f52',
+  '#ae52d4',
+  '#5eb8ff',
+  '#99d066',
+  '#ffad42',
+  '#ff7d47',
+  '#fa5788',
+  '#8559da',
+  '#63a4ff',
+  '#56c8d8',
+  '#6abf69',
+  '#e4e65e',
+  '#ffd149',
+];
+
+
 export default class ProjectionAnalyticsPane extends React.Component {
   constructor(props) {
     super(props);
@@ -38,6 +58,8 @@ export default class ProjectionAnalyticsPane extends React.Component {
     }*/
 
     var data = {};
+    var chartData = [];
+
 
     if (this.props.optionsChain != null && this.props.analytics.selectedPane == "projection") {
       var dates = this.props.optionsChain.getDates("calls");
@@ -57,7 +79,14 @@ export default class ProjectionAnalyticsPane extends React.Component {
           puts: chainCalculation(this.props.optionsChain, calculationType, currentDate, "puts"),
         };
       }
+
+      //Only load chart data if visible (time consuming process)
+      if (this.props.analytics.projectionPaneConfig.chartType == "chart") {
+        chartData = createChartData(data, this.props.analytics.projectionPaneConfig.dataType, this.props.underlyingHistorical, this.props.underlyingPrice);
+      }
+
     }
+
 
     return (
       <div style={{height: "100%", display: (this.props.analytics.selectedPane == "projection" ? "flex" : "none"), flexFlow: "column"}}>
@@ -69,13 +98,13 @@ export default class ProjectionAnalyticsPane extends React.Component {
         <div style={{display: (this.props.analytics.projectionPaneConfig.chartType == "chart" ? "flex" : "none"), flex: "1 1 auto"}}>
           <MultiChart
             theme={this.props.theme}
-            xAxisLabel={"X-Axis"}
-            yAxisLabel={"Y-Axis"}
-            zAxisLabel={"Z-Axis"}
-            scale={this.props.preferences.comparisonType == "strike" ? "time" : "linear"}
-            type={"line"}
+            xAxisLabel={"Date"}
+            yAxisLabel={null}
+            zAxisLabel={null}
+            scale={(this.props.analytics.projectionPaneConfig.dataType == "implied_move_local" || this.props.analytics.projectionPaneConfig.dataType == "implied_move_general") ? "time_scaled" : "time"}
+            type={(this.props.analytics.projectionPaneConfig.dataType == "implied_move_local" || this.props.analytics.projectionPaneConfig.dataType == "implied_move_general" || this.props.analytics.projectionPaneConfig.dataType == "implied_volatility") ? "line" : "bar"}
             stacked={false}
-            data={null}/>
+            data={chartData}/>
         </div>
         <div style={{padding: 8, display: (this.props.analytics.projectionPaneConfig.chartType == "table" ? "flex" : "none"), flex: "1 1 auto", flexFlow: "column"}}>
           <ProjectionTable
@@ -100,6 +129,7 @@ class PaneConfiguration extends React.Component {
     //Make list of menu items containing each option metric
     var optionNameItems = [];
     var additionalDropdowns = null;
+
     var chartTypeIcons = {
       chart: "table_chart",
       table: "show_chart",
@@ -279,6 +309,61 @@ class ProjectionTable extends React.Component {
       </TableContainer>
     );
   }
+}
+
+function createChartData(data, calcType, underlyingHistorical, underlyingPrice) {
+  var chartData = [];
+  var currentTime = (new Date()).getTime();
+  if (calcType == "implied_volatility" || calcType == "open_interest" || calcType == "open_interest_value" || calcType == "open_interest_extrinsic" || calcType == "open_interest_intrinsic" || calcType == "volume") {
+    var callSeries = {label: "Calls", color: '#666ad1', data: []};
+    var putSeries = {label: "Puts", color: '#48a999', data: []};
+    var totalSeries = {label: "Total", color: '#fff263', data: []};
+    for (var dataKey in data) {
+      if (dataKey != "all") {
+        var dateVal = parseInt(dataKey) * 1000;
+
+        callSeries.data.push([dateVal, data[dataKey].calls]);
+        putSeries.data.push([dateVal, data[dataKey].puts]);
+        totalSeries.data.push([dateVal, data[dataKey].total]);
+      }
+    }
+    chartData = [callSeries, putSeries, totalSeries];
+  } else if (calcType == "implied_move_local" || calcType == "implied_move_general") {
+    var historicalSeries = {label: "Historical", color: '#666ad1', data: []};
+    var projectionSeries = {label: "Projection", color: '#666ad1', data: []};
+    var latestExpiration = 0;
+    var historicalData = underlyingHistorical != null ? underlyingHistorical.closingPrices : [];
+
+    if (historicalData.length > 2){
+      historicalSeries.color = (historicalData[0][1] > historicalData[historicalData.length - 1][1]) ? '#48a999' : '#ff5f52';
+
+    }
+
+
+    for (var dataKey in data) {
+      if (dataKey != "all") {
+        var high = underlyingPrice + data[dataKey].total;
+        var low = (underlyingPrice > data[dataKey].total) ? underlyingPrice - data[dataKey].total : 0;
+        projectionSeries.data.unshift([parseInt(dataKey) * 1000, high]);
+        projectionSeries.data.push([parseInt(dataKey) * 1000, low]);
+        if ((parseInt(dataKey) * 1000) > latestExpiration) {
+          latestExpiration = parseInt(dataKey) * 1000;
+        }
+      }
+    }
+
+    var earliestHistorical = currentTime - (latestExpiration - currentTime);
+
+    for (var index in historicalData) {
+      if (historicalData[index][0] >= earliestHistorical) {
+        historicalSeries.data.push([historicalData[index][0],historicalData[index][1]]);
+      }
+    }
+
+    chartData = [historicalSeries, projectionSeries];
+  }
+
+  return chartData;
 }
 
 function chainCalculation(optionsChain, calcType, date, optionType) {

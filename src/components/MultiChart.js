@@ -79,7 +79,7 @@ export default class MultiChart extends React.Component {
         ],
         xAxes: [
           {
-            type: 'time',
+            type: 'linear',
             position: 'top',
           },
         ],
@@ -158,11 +158,12 @@ function formatDataForChartJS(inputData, scale, stacked) {
     for (var index in inputData[key].data) {
       if (inputData[key].data[index][0] != null && inputData[key].data[index][1] != null) {
         var unformattedXValue = inputData[key].data[index][0];
-        if (scale == "time") {
-          inputData[key].data[index][0] = Formats.time(inputData[key].data[index][0]);
+        if (scale == "time_scaled" || scale == "time") {
+          inputData[key].data[index][0] = Formats.time(inputData[key].data[index][0] / 1000);
+          dataForSet.push({x: inputData[key].data[index][0], y: inputData[key].data[index][1]});
+        } else {
+          dataForSet.push({x: inputData[key].data[index][0], y: inputData[key].data[index][1]});
         }
-
-        dataForSet.push({x: inputData[key].data[index][0], y: inputData[key].data[index][1]});
 
         if (!xValues.includes(unformattedXValue)) {
           xValues.push(unformattedXValue);
@@ -176,9 +177,20 @@ function formatDataForChartJS(inputData, scale, stacked) {
 
   xValues.sort(function(a,b) { return a - b;});
 
-  if (scale == "time") {
+  if (scale == "time_scaled") {
+    var beginning = xValues[0];
+    var end = xValues[xValues.length - 1];
+    xValues = [];
+    while (end > beginning) {
+      xValues.push(beginning);
+      beginning += 86400000;
+    }
     for (var index in xValues) {
-      xValues[index] = Formats.time(xValues[index]);
+      xValues[index] = Formats.time(xValues[index] / 1000);
+    }
+  } else if (scale == "time"){
+    for (var index in xValues) {
+      xValues[index] = Formats.time(xValues[index] / 1000);
     }
   }
 
@@ -211,7 +223,7 @@ function formatDataForPlotlySurface(inputData, scale) {
     for (var index in inputData[key].data) {
       if (inputData[key].data[index][0] != null && inputData[key].data[index][1] != null) {
         if (scale == "time") {
-          inputData[key].data[index][0] = Formats.time(inputData[key].data[index][0]);
+          inputData[key].data[index][0] = Formats.time(inputData[key].data[index][0] / 1000);
         }
 
         if (inputData[key].data[index][1] > maxHeight) {

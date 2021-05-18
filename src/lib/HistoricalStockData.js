@@ -25,7 +25,7 @@ export default class HistoricalStockData {
  */
 function getPoints(seriesData) {
   var pointData = {close: []};
-  
+  console.log(seriesData);
   // Go through each date in series
   for (var date in seriesData) {
     var dateInMilliseconds = Date.parse(date); //Convert human-readable date into millis since epoch
