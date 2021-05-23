@@ -80,7 +80,12 @@ class OptionListItem extends React.Component {
 
     //check if sticky selected value equals this item's option ID.
     //make isStickySelected true if equal, false otherwise
-    var isStickySelected = (this.props.stickySelected != null) ? (this.props.stickySelected.get("id") == this.props.singleOption.get("id")) : null;
+    var isStickySelected = false;
+    for (var index in this.props.stickySelected) {
+      if (isStickySelected == false && this.props.stickySelected[index] == this.props.singleOption.get("id")) {
+        isStickySelected = true;
+      }
+    }
 
     //calls parent onClick function (if one exists) when item is clicked
     const handleItemClick = (event) => {

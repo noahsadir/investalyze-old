@@ -78,9 +78,11 @@ export default class MainContent extends React.Component {
             analytics={this.props.analytics}
             accentColor={this.props.accentColor}
             backgroundColor={this.props.backgroundColor}
+            onViewStrategyButtonClick={this.props.onViewStrategyButtonClick}
             onAnalyticsPaneChange={this.props.onAnalyticsPaneChange}
             onDataAnalyticsConfigChange={this.props.onDataAnalyticsConfigChange}
-            onProjectionAnalyticsConfigChange={this.props.onProjectionAnalyticsConfigChange}/>
+            onProjectionAnalyticsConfigChange={this.props.onProjectionAnalyticsConfigChange}
+            onBuilderAnalyticsConfigChange={this.props.onBuilderAnalyticsConfigChange}/>
         </SplitPane>
         <div style={{flex: "1 0 0"}}></div>
       </div>
@@ -153,6 +155,7 @@ class OptionsAnalyticsView extends React.Component {
       }
     }
 
+
     return (
       <div style={{height: "100%", display: "flex", flexFlow: "column"}}>
         <div style={{height: 64, flex: "0 0 auto", padding: 8}}>
@@ -181,7 +184,14 @@ class OptionsAnalyticsView extends React.Component {
             accentColor={this.props.accentColor}
             backgroundColor={this.props.backgroundColor}
             onProjectionAnalyticsConfigChange={this.props.onProjectionAnalyticsConfigChange}/>
-          <BuilderAnalyticsPane optionsChain={this.props.optionsChain} analytics={this.props.analytics}/>
+          <BuilderAnalyticsPane
+            theme={this.props.theme}
+            optionsChain={this.props.optionsChain}
+            underlyingPrice={this.props.underlyingPrice}
+            underlyingHistorical={this.props.underlyingHistorical}
+            analytics={this.props.analytics}
+            onViewStrategyButtonClick={this.props.onViewStrategyButtonClick}
+            onBuilderAnalyticsConfigChange={this.props.onBuilderAnalyticsConfigChange}/>
         </div>
         <div style={{flex: "0 0 0"}}></div>
       </div>

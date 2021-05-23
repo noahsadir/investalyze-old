@@ -12,6 +12,14 @@ export default class SingleOption {
     this.propNames = {};
   }
 
+  copy = () => {
+    var newObject = new SingleOption(JSON.parse(JSON.stringify(this.rawProps)), this.spot);
+    newObject.didCalculate = this.didCalculate ? true : false;
+    newObject.calcProps = JSON.parse(JSON.stringify(this.calcProps));
+    newObject.propNames = JSON.parse(JSON.stringify(this.propNames));
+    return newObject;
+  }
+
   //Can be a very time consuming process; should only be run if needed
   //TODO: Find a way to make async
   calculate = (calculateGreeksManually) => {
@@ -40,6 +48,10 @@ export default class SingleOption {
     this.calcProps.annual_extrinsic_value = (this.get("extrinsic_value") / this.get("time_to_expiration")) * 365;
     this.calcProps.annual_extrinsic_percent = (this.get("annual_extrinsic_value") / this.get("spot")) * 100;
     this.calcProps.leverage_ratio = (this.get("spot") - this.get("mark")) / this.get("mark");
+  }
+
+  set = (key, value) => {
+    this.calcProps[key] = value;
   }
 
   get = (key) => {

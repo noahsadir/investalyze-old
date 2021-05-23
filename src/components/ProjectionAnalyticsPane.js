@@ -60,17 +60,19 @@ export default class ProjectionAnalyticsPane extends React.Component {
     var data = {};
     var chartData = [];
 
-
+    //Get data for calls and puts at different dates, along with data for all dates combnined
     if (this.props.optionsChain != null && this.props.analytics.selectedPane == "projection") {
       var dates = this.props.optionsChain.getDates("calls");
       var calculationType = this.props.analytics.projectionPaneConfig.dataType;
 
+      //Data for all calls, puts, and both
       data.all = {
         total: chainCalculation(this.props.optionsChain, calculationType, null, null),
         calls: chainCalculation(this.props.optionsChain, calculationType, null, "calls"),
         puts: chainCalculation(this.props.optionsChain, calculationType, null, "puts"),
       };
 
+      //Data for calls, puts, and total for each date
       for (var dateIndex in dates) {
         var currentDate = dates[dateIndex];
         data[currentDate] = {
@@ -196,43 +198,44 @@ class ProjectionTable extends React.Component {
     var tableRows = [];
     var tableHeader = (<TableRow></TableRow>);
 
+    var headerStyle = {position: 'sticky',backgroundColor: this.props.theme.foregroundColor };
     //Header configuration
     if (this.props.dataType == "implied_volatility") {
       tableHeader = (
         <TableRow>
-          <TableCell>Date</TableCell>
-          <TableCell align="right" style={{position: 'sticky',backgroundColor:'#000004'}}>Calls</TableCell>
-          <TableCell align="right" style={{position: 'sticky',backgroundColor:'#000004'}}>Puts</TableCell>
-          <TableCell align="right" style={{position: 'sticky',backgroundColor:'#000004'}}>Total</TableCell>
+          <TableCell style={headerStyle}>Date</TableCell>
+          <TableCell align="right" style={headerStyle}>Calls</TableCell>
+          <TableCell align="right" style={headerStyle}>Puts</TableCell>
+          <TableCell align="right" style={headerStyle}>Total</TableCell>
         </TableRow>
       );
     } else if (this.props.dataType == "open_interest" || this.props.dataType == "volume") {
       tableHeader = (
         <TableRow>
-          <TableCell>Date</TableCell>
-          <TableCell align="right">Calls</TableCell>
-          <TableCell align="right">Puts</TableCell>
-          <TableCell align="right">Total</TableCell>
-          <TableCell align="right">P/C Ratio</TableCell>
+          <TableCell style={headerStyle}>Date</TableCell>
+          <TableCell align="right" style={headerStyle}>Calls</TableCell>
+          <TableCell align="right" style={headerStyle}>Puts</TableCell>
+          <TableCell align="right" style={headerStyle}>Total</TableCell>
+          <TableCell align="right" style={headerStyle}>P/C Ratio</TableCell>
         </TableRow>
       );
     } else if (this.props.dataType == "implied_move_general" || this.props.dataType == "implied_move_local") {
       tableHeader = (
         <TableRow>
-          <TableCell>Date</TableCell>
-          <TableCell align="right">Low</TableCell>
-          <TableCell align="right">High</TableCell>
-          <TableCell align="right">Change ($)</TableCell>
-          <TableCell align="right">Change (%)</TableCell>
+          <TableCell style={headerStyle}>Date</TableCell>
+          <TableCell align="right" style={headerStyle}>Low</TableCell>
+          <TableCell align="right" style={headerStyle}>High</TableCell>
+          <TableCell align="right" style={headerStyle}>Change ($)</TableCell>
+          <TableCell align="right" style={headerStyle}>Change (%)</TableCell>
         </TableRow>
       );
     } else if (this.props.dataType == "open_interest_value" || this.props.dataType == "open_interest_intrinsic" || this.props.dataType == "open_interest_extrinsic") {
       tableHeader = (
         <TableRow>
-          <TableCell>Date</TableCell>
-          <TableCell align="right">Calls</TableCell>
-          <TableCell align="right">Puts</TableCell>
-          <TableCell align="right">Total</TableCell>
+          <TableCell style={headerStyle}>Date</TableCell>
+          <TableCell align="right" style={headerStyle}>Calls</TableCell>
+          <TableCell align="right" style={headerStyle}>Puts</TableCell>
+          <TableCell align="right" style={headerStyle}>Total</TableCell>
         </TableRow>
       );
     }
@@ -311,10 +314,21 @@ class ProjectionTable extends React.Component {
   }
 }
 
+/**
+ * Convert data to valid format recognized by MultiChart
+ *
+ * @param data the calculated options data
+ * @param calcType the type of calculation done
+ * @param underlyingHistorical the historical data for the underlying
+ * @param underlyingPrice the current price of the underlying
+ * @return an array of objects formatted for MultiChart
+ *         Example: {@code [{label:..., color:..., data:[[x,y],[x,y],...]},...]}
+ */
 function createChartData(data, calcType, underlyingHistorical, underlyingPrice) {
   var chartData = [];
   var currentTime = (new Date()).getTime();
   if (calcType == "implied_volatility" || calcType == "open_interest" || calcType == "open_interest_value" || calcType == "open_interest_extrinsic" || calcType == "open_interest_intrinsic" || calcType == "volume") {
+    //Chart separated by calls and puts without historical data
     var callSeries = {label: "Calls", color: '#666ad1', data: []};
     var putSeries = {label: "Puts", color: '#48a999', data: []};
     var totalSeries = {label: "Total", color: '#fff263', data: []};
@@ -329,14 +343,16 @@ function createChartData(data, calcType, underlyingHistorical, underlyingPrice) 
     }
     chartData = [callSeries, putSeries, totalSeries];
   } else if (calcType == "implied_move_local" || calcType == "implied_move_general") {
+
+    //Line chart with historical data and total calculated data only
     var historicalSeries = {label: "Historical", color: '#666ad1', data: []};
     var projectionSeries = {label: "Projection", color: '#666ad1', data: []};
     var latestExpiration = 0;
     var historicalData = underlyingHistorical != null ? underlyingHistorical.closingPrices : [];
 
     if (historicalData.length > 2){
+      //Red if stock is down, green if up
       historicalSeries.color = (historicalData[0][1] > historicalData[historicalData.length - 1][1]) ? '#48a999' : '#ff5f52';
-
     }
 
 
@@ -353,7 +369,6 @@ function createChartData(data, calcType, underlyingHistorical, underlyingPrice) 
     }
 
     var earliestHistorical = currentTime - (latestExpiration - currentTime);
-
     for (var index in historicalData) {
       if (historicalData[index][0] >= earliestHistorical) {
         historicalSeries.data.push([historicalData[index][0],historicalData[index][1]]);
@@ -366,6 +381,17 @@ function createChartData(data, calcType, underlyingHistorical, underlyingPrice) 
   return chartData;
 }
 
+/**
+ * Perform a calculation requested by user.
+ *
+ * @param optionsChain a valid OptionsChain object
+ * @param calcType the type of calculation to perform
+ * @param date the expiration date to perform the calculation.
+ *             Will calculate for all dates if {@code null}.
+ * @param optionType the option type to perform the calculation ("calls" or "puts").
+ *                   Will calculate for both types if {@code null}.
+ * @return a value calculated based on the given parameters
+ */
 function chainCalculation(optionsChain, calcType, date, optionType) {
   if (calcType == "implied_volatility") {
     return optionsChain.impliedVolatility(date, optionType);

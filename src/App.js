@@ -35,6 +35,7 @@ import SettingsDialog from "./components/SettingsDialog";
 
 import SingleOption from './lib/SingleOption';
 import OptionsChain from './lib/OptionsChain';
+import OptionsStrategy from './lib/OptionsStrategy';
 import HistoricalStockData from './lib/HistoricalStockData';
 
 import JSON_RETRIEVE from './lib/Requests';
@@ -113,10 +114,15 @@ export default class App extends React.Component {
         projectionPaneConfig: {
           chartType: "chart",
           dataType: "implied_move_local",
+        },
+        builderPaneConfig: {
+          strategy: new OptionsStrategy(),
+          underlyingPrice: "",
+          underlyingQuantity: "",
         }
       },
       list: {
-        selectedItem: null,
+        selectedItem: [],
       }
     }
   }
@@ -268,7 +274,36 @@ export default class App extends React.Component {
     }
 
     const optionsListItemClicked = (singleOption) => {
-      console.log(singleOption.get("id") + " clicked!");
+      if (this.state.analytics.selectedPane == "builder") {
+        var optionsStrategy = new OptionsStrategy();
+        if (this.state.analytics.builderPaneConfig.strategy != null) {
+          optionsStrategy = this.state.analytics.builderPaneConfig.strategy;
+        }
+
+        if (optionsStrategy.indexOf(singleOption) == null) {
+          optionsStrategy.add(singleOption, 1);
+        } else {
+          optionsStrategy.remove(singleOption);
+        }
+
+        this.state.analytics.builderPaneConfig.strategy = optionsStrategy;
+
+        this.state.list.selectedItem = [];
+        for (var index in optionsStrategy.singleOptions) {
+          this.state.list.selectedItem.push(optionsStrategy.singleOptions[index].option.get("id"));
+        }
+
+        this.setState({state: this.state});
+      } else {
+        var optionsStrategy = new OptionsStrategy();
+        optionsStrategy.add(singleOption, 1);
+        viewStrategyButtonClicked(optionsStrategy);
+      }
+
+    }
+
+    const viewStrategyButtonClicked = (strategy) => {
+      console.log(strategy);
     }
 
     return (
@@ -311,9 +346,11 @@ export default class App extends React.Component {
             stickySelected={this.state.list.selectedItem}
             underlyingPrice={this.state.data.underlyingPrice}
             onOptionsListClick={optionsListItemClicked}
+            onViewStrategyButtonClick={viewStrategyButtonClicked}
             onAnalyticsPaneChange={(pane) => setSubState(this, "analytics", "selectedPane", pane)}
             onDataAnalyticsConfigChange={(config) => setSubState(this, "analytics", "dataPaneConfig", config)}
             onProjectionAnalyticsConfigChange={(config) => setSubState(this, "analytics", "projectionPaneConfig", config)}
+            onBuilderAnalyticsConfigChange={(config) => setSubState(this, "analytics", "builderPaneConfig", config)}
             onRowConfigurationChange={(config) => {Cookies.set("rowConfiguration", config);setSubState(this, "preferences", "rowConfiguration", config)}}/>
           <div style={{flex: "0 0 auto"}}></div>
           <DisclaimerDialog
