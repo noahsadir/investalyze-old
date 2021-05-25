@@ -381,11 +381,11 @@ export default class App extends React.Component {
 /**
  * Retrieve all the data needed for analysis.
  *
- * @param adjustedSymbol the cleaned-up symbol specified by the user
- * @param state the app's state
- * @param isTest boolean indicating whether test mode is activated
- * @param callback the function to call when all data has been loaded.
- *                 Should accept single parameter representing updated app state.
+ * @param {string} adjustedSymbol the cleaned-up symbol specified by the user
+ * @param {Object} state the app's state
+ * @param {boolean} isTest boolean indicating whether test mode is activated
+ * @callback callback the function to call when all data has been loaded.
+ *                            Should accept single parameter representing updated app state.
  */
 function retrieveDataForSymbol(adjustedSymbol, state, isTest, callback, progressCallback) {
 
@@ -424,12 +424,12 @@ function retrieveDataForSymbol(adjustedSymbol, state, isTest, callback, progress
 /**
  * Retrieve options chain using Tradier API.
  *
- * @param adjustedSymbol the cleaned-up symbol specified by the user
- * @param isTest boolean indicating whether test mode is activated
- * @param callback the function to call when options chain has loaded.
- *                 Should accept two parameters:
- *                 1) A boolean indicating whether the operation was successful.
- *                 2) A JSON object representing the options chain JSON.
+ * @param {string} adjustedSymbol the cleaned-up symbol specified by the user
+ * @param {boolean} isTest indicates whether test mode is activated
+ * @callback callback the function to call when options chain has loaded.
+ *                            Should accept two parameters:
+ *                            1) A boolean indicating whether the operation was successful.
+ *                            2) A JSON object representing the options chain JSON.
  */
 function retrieveOptionsChain(adjustedSymbol, isTest, callback, progressCallback) {
   makeAPIRequest("API_TRADIER_EXPIRATIONS", {symbol: adjustedSymbol, tradierKey: apiKeys.tradier}, (teID, teSuccess, teData) => {
@@ -477,13 +477,13 @@ function retrieveOptionsChain(adjustedSymbol, isTest, callback, progressCallback
  * Otherwise, the function will call itself but increment {@code expIndex} by 1
  * until last index of {@code expirations} is reached (base case).
  *
- * @param data the currently loaded state of the options chain
- * @param adjustedSymbol the cleaned-up symbol specified by the user
- * @param isTest indicates whether test mode is activated
- * @param expirations the array of expirations
- * @param expIndex the index of the {@code expirations} array to load.
- * @param callback the function to call when data for all expirations has loaded.
- *                 Should accept single parameter for options chain JSON.
+ * @param {Object} data the currently loaded state of the options chain
+ * @param {string} adjustedSymbol the cleaned-up symbol specified by the user
+ * @param {boolean} isTest indicates whether test mode is activated
+ * @param {string[]} expirations the array of expirations
+ * @param {number} expIndex the index of the expirations array to load.
+ * @callback the function to call when data for all expirations has loaded.
+ *           Should accept single parameter for options chain JSON.
  */
 function recursiveTradierChainRequest(data, adjustedSymbol, isTest, expirations, expIndex, callback, progressCallback) {
   var chainData = data;
@@ -507,6 +507,14 @@ function recursiveTradierChainRequest(data, adjustedSymbol, isTest, expirations,
   }, isTest);
 }
 
+/**
+ * Perform a preset GET request to a RESTful API.
+ *
+ * @param {string} jobID the preset request to make
+ * @param {Object} args the arguments accepted by the API, expressed as a JSON object
+ * @callback the function to call when the request is finished; accepts three params {@code (jobID (string), success (bool), data (json))}
+ * @param {boolean} testMode a boolean indicating whether to make an actual request or just fetch sample data
+ */
 function makeAPIRequest(jobID, args, callback, testMode) {
   if (testMode){
     //Retrieve sample data if API is not available
@@ -538,19 +546,24 @@ function makeAPIRequest(jobID, args, callback, testMode) {
   }
 }
 
-//Update a child of an object in a state
-function setSubState(component, parentKey, childkey, value) {
-  /*
-  component.state = {
-    parentKey: {
-      childKey: (oldValue --> value),
-      ...
-    },
-    ...
-  };
-  */
+/**
+ * Update a child of an object in a state
+ * component.state = {
+ *   parentKey: {
+ *     childKey: (oldValue --> value),
+ *     ...
+ *  },
+ *  ...
+ * };
+ *
+ * @param {Object} component the object to update
+ * @param {string} parentKey the key of the parent property
+ * @param {string} childKey the child key
+ * @param {*} value the value to set for the child property
+ */
+function setSubState(component, parentKey, childKey, value) {
   var obj = component.state[parentKey]; //Make copy of target state object
-  obj[childkey] = value; //Set the target child with the desired value
+  obj[childKey] = value; //Set the target child with the desired value
   var container = {};
   container[parentKey] = obj;
   component.setState(obj); //update the state with the modified object

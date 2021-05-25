@@ -204,12 +204,6 @@ function yearsBetweenMilliseconds(start, end) {
   return (difference / 31536000000);
 }
 
-/**
- * Convert double into dollar amount, positive or negative.
- *
- * @param val the value to convert
- * @return the value represented as a dollar amount
- */
 function convertToMoneyValue(val){
   if (val < 0){
     return "-$" + Math.abs(val).toFixed(2);
@@ -222,12 +216,6 @@ function roundFloat(value, roundInt) {
   return parseFloat(value.toFixed(roundInt));
 }
 
-/**
- * Convert time in seconds to formatted date.
- *
- * @param s the time in seconds from epoch
- * @return a Intl.DateTimeFormat object
- */
 function time(s) {
   const dtFormat = new Intl.DateTimeFormat('en-US', {timeZone: "UTC"});
   return dtFormat.format(new Date((s * 1000)));

@@ -316,12 +316,12 @@ class ProjectionTable extends React.Component {
 /**
  * Convert data to valid format recognized by MultiChart
  *
- * @param data the calculated options data
- * @param calcType the type of calculation done
- * @param underlyingHistorical the historical data for the underlying
- * @param underlyingPrice the current price of the underlying
- * @return an array of objects formatted for MultiChart
- *         Example: {@code [{label:..., color:..., data:[[x,y],[x,y],...]},...]}
+ * @param {Object} data the calculated options data
+ * @param {string} calcType the type of calculation done
+ * @param {HistoricalStockData} underlyingHistorical the historical data for the underlying
+ * @param {number} underlyingPrice the current price of the underlying
+ * @returns {Object[]} an array of objects formatted for MultiChart
+ *         Example: [{label:..., color:..., data:[[x,y],[x,y],...]},...]
  */
 function createChartData(data, calcType, underlyingHistorical, underlyingPrice) {
   var chartData = [];
@@ -383,13 +383,13 @@ function createChartData(data, calcType, underlyingHistorical, underlyingPrice) 
 /**
  * Perform a calculation requested by user.
  *
- * @param optionsChain a valid OptionsChain object
- * @param calcType the type of calculation to perform
- * @param date the expiration date to perform the calculation.
+ * @param {OptionsChain} optionsChain a valid OptionsChain object
+ * @param {string} calcType the type of calculation to perform
+ * @param {number} date the expiration date to perform the calculation.
  *             Will calculate for all dates if {@code null}.
- * @param optionType the option type to perform the calculation ("calls" or "puts").
+ * @param {string} optionType the option type to perform the calculation ("calls" or "puts").
  *                   Will calculate for both types if {@code null}.
- * @return a value calculated based on the given parameters
+ * @returns {number} a value calculated based on the given parameters
  */
 function chainCalculation(optionsChain, calcType, date, optionType) {
   if (calcType == "implied_volatility") {

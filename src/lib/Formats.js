@@ -1,8 +1,8 @@
 /**
  * Convert double into dollar amount, positive or negative.
  *
- * @param val the value to convert
- * @return the value represented as a dollar amount
+ * @param {number} val the value to convert
+ * @returns {string} the value represented as a dollar amount
  */
 export function convertToMoneyValue(val){
   if (val < 0){
@@ -12,25 +12,36 @@ export function convertToMoneyValue(val){
   }
 }
 
-export function percentChange(initialVal, newVal) {
-  return ((newVal / initialVal) - 1) * 100;
-}
-
 /**
  * Convert time in seconds to formatted date.
  *
- * @param s the time in seconds from epoch
- * @return a Intl.DateTimeFormat object
+ * @param {number} s the time in seconds from epoch
+ * @returns a Intl.DateTimeFormat object
  */
 export function time(s) {
   const dtFormat = new Intl.DateTimeFormat('en-US', {timeZone: "UTC"});
   return dtFormat.format(new Date((s * 1000)));
 }
 
+/**
+ * Get the time between two times.
+ *
+ * @param {number} firstTime the first time
+ * @param {number} secondTime the second time
+ * @returns {number} the time between the two times
+ */
 export function timeBetween(firstTime, secondTime) {
   return Math.abs(firstTime - secondTime);
 }
 
+/**
+ * Convert a (likely large) dollar amount into a shorter, more easily understood value.
+ * Example: 4578293619 can be expressed as $4.58B
+ *
+ * @param {number} rawValue the dollar value to truncate
+ * @param {boolean} full indicates whether the value should be written out or expressed in a single character. Example: "Billion" vs "B"
+ * @returns {string} a string representing the truncated dollar amount
+ */
 export function convertToTruncatedMoneyValue(rawValue, full){
   var ending = "";
   var object = rawValue;

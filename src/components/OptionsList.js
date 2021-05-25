@@ -11,17 +11,6 @@ import SplitPane from 'react-split-pane';
 import SingleOption from '../lib/SingleOption';
 import OptionsChain from '../lib/OptionsChain';
 
-/**
- * Represents the options chain list
- *
- * @param singleOptions an array of SingleOption objects
- * @param rowConfiguration the current row configuration
- * @param premiumType the price type used to measure the option's value (e.g. "mark" or "bid")
- * @param comparisonType the type of comparison ("date" or "strike")
- * @param accentColor the accent color
- * @param stickySelected the SingleOption object that is selected
- * @param onClick a function that is called when the item is clicked which accepts a SingleOption object
- */
 export default class OptionsList extends React.Component {
   constructor(props) {
     super(props);
@@ -60,17 +49,6 @@ export default class OptionsList extends React.Component {
   }
 }
 
-/**
- * Represents a list item for a single option
- *
- * @param singleOption the option object to display data for
- * @param rowConfiguration the current row configuration
- * @param premiumType the price type used to measure the option's value (e.g. "mark" or "bid")
- * @param comparisonType the type of comparison ("date" or "strike")
- * @param accentColor the accent color
- * @param stickySelected the SingleOption object that is selected
- * @param onClick a function that is called when the item is clicked which accepts a SingleOption object
- */
 class OptionListItem extends React.Component {
   constructor(props) {
     super(props);
@@ -104,13 +82,24 @@ class OptionListItem extends React.Component {
   }
 }
 
-//Primarily in charge of ripple effect
+/**
+ * Generate ListItem with material ripple effect
+ *
+ * @param props the properties of the ListItem
+ * @returns a ListItem object
+ */
 function ListItemLink(props) {
   return <ListItem button component="a" {...props} />;
 }
 
-//Generate list item for specified option
-function generateItemsToRender(singleOption, rowConfiguration, premiumType, comparisonType) {
+/**
+ * Generate the content of the list item with the given SingleOption and row configuration
+ *
+ * @param {SingleOption} singleOption the option to get data from
+ * @param {string[]} rowConfiguration the current configuration of the row
+ * @returns the columns of an options list item
+ */
+function generateItemsToRender(singleOption, rowConfiguration) {
   var itemsToRender = [];
 
   //Go through row configuration value

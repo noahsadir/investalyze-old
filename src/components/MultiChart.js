@@ -122,9 +122,10 @@ export default class MultiChart extends React.Component {
 /**
  * Format series data in a way which can be interpreted by ChartJS.
  *
- * @param inputData the data for each series
- * @param scale the scale for the chart (e.g. "time" or "linear")
- * @param stacked a boolean indicating whether the series should be stacked on top of each other
+ * @param {number[][]} inputData the data for each series
+ * @param {string} scale the scale for the chart (e.g. "time" or "linear")
+ * @param {boolean} stacked a boolean indicating whether the series should be stacked on top of each other
+ * @returns {Object} the data in the ChartJS format
  */
 function formatDataForChartJS(inputData, scale, stacked) {
 
@@ -205,10 +206,11 @@ function formatDataForChartJS(inputData, scale, stacked) {
 /**
  * Format series data in a way which can be interpreted by Plotly.
  * NOTE: Multiple series needed in order for chart to display, with
- *       {@code label} attribute being the value for the third axis.
+ *       label attribute being the value for the third axis.
  *
- * @param inputData the data for each series (Plotly y-axis)
- * @param scale the scale for the chart (e.g. "time" or "linear")
+ * @param {number[][]} inputData the data for each series (Plotly y-axis)
+ * @param {string} scale the scale for the chart (e.g. "time" or "linear")
+ * @returns {Object} the data in Plotly format
  */
 function formatDataForPlotlySurface(inputData, scale) {
   var maxHeight = 10;

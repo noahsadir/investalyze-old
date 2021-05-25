@@ -41,31 +41,6 @@ const StyledStepperToggle = withStyles((theme) => ({
   },
 }))(ToggleButtonGroup);
 
-
-
-/**
- * Main toolbar for Investalyze.
- *
- * @param title the title for the toolbar
- * @param priceInfo the subtitle containing price information
- * @param expandToggled a boolean indicating whether the toolbar should expand
- * @param chartToggled a boolean indicating whether the chart view is currently toggled
- * @param preferences an object representing the current state of filter preferences
- * @param isBuilder a boolean representing whether or not builder mode is activated
- * @param open a boolean indicating whether this object should be visible or not
- * @param backgroundColor the background color
- * @param accentColor the accent color
- * @param showProgress a boolean indicating whether the progress indicator should be shown
- *
- * @param onExpandToggle a function which accepts a boolean that is called when the expand toggle button is selected
- * @param onChartToggle a funciton which accepts a boolean that is called when the chart toggle button is selected
- * @param onSettingsButtonClick a function that is called when the settings button is clicked
- * @param onSymbolEnter a function that is called when a new symbol is entered
- * @param onOptionTypeChange a function which accepts a string that is activated when option type changes; the string returned is either "calls" or "puts"
- * @param onStepperChange a function which accepts a string that is activated when the stepper is clicked; the string returned is either "increment" or "decrement"
- * @param onComparisonTypeChange a function which accepts a string that is activated when comparison type changes; the string returned is either "date" or "strike"
- * @param onComparisonValueChange a function which accepts a number that is activated when the comparison value changes; the number returned is the comparison value
- */
 export default class MainToolbar extends React.Component {
 
   constructor(props) {
@@ -167,20 +142,6 @@ export default class MainToolbar extends React.Component {
   }
 }
 
-/**
- * Handles specific configs to filter options data.
- *
- * @param preferences an object representing the current state of filter preferences
- * @param isBuilder a boolean representing whether or not builder mode is activated
- * @param open a boolean indicating whether this object should be visible or not
- * @param backgroundColor the background color
- * @param accentColor the accent color
- *
- * @param onOptionTypeChange a function which accepts a string that is activated when option type changes; the string returned is either "calls" or "puts"
- * @param onStepperChange a function which accepts a string that is activated when the stepper is clicked; the string returned is either "increment" or "decrement"
- * @param onComparisonTypeChange a function which accepts a string that is activated when comparison type changes; the string returned is either "date" or "strike"
- * @param onComparisonValueChange a function which accepts a number that is activated when the comparison value changes; the number returned is the comparison value
- */
 class ExpandedConfiguration extends React.Component {
   constructor(props) {
     super(props);

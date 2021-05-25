@@ -11,9 +11,6 @@ import {
   DialogTitle,
 } from '@material-ui/core/';
 
-/**
- * Lawsuits are no fun. Let's try to prevent one.
- */
 export default class DisclaimerDialog extends React.Component {
   constructor(props) {
     super(props);

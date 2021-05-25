@@ -151,8 +151,8 @@ export default class OptionsChain {
 /**
  * Get list of human-readable names for option values.
  *
- * @param rawValue the raw JSON returned by the API
- * @return a JSON object with format: {@code {bid: "Bid", ask: "Ask", volume: "Volume",...}}
+ * @param {Object} rawValue the raw JSON returned by the API
+ * @returns {Object} a JSON object with format: {@code {bid: "Bid", ask: "Ask", volume: "Volume",...}}
  */
 function getValueNamesForOption(rawData) {
   for (var date in rawData) {
@@ -208,8 +208,8 @@ function getValueNamesForOption(rawData) {
 /**
  * Separates data by calls and puts, then sorts by date.
  *
- * @param rawData the JSON object loaded from the API
- * @return an object of format {@code {calls: {"date_1":[SingleOption], "date_2":[SingleOption],...}, puts:...}}
+ * @param {Object} rawData the JSON object loaded from the API
+ * @returns {Object} an object of format {@code {calls: {"date_1":[SingleOption], "date_2":[SingleOption],...}, puts:...}}
  */
 function sortByDates(rawData, spotPrice) {
   var datesList = {calls: {}, puts: {}};
@@ -239,8 +239,8 @@ function sortByDates(rawData, spotPrice) {
 /**
  * Separates data by calls and puts, then sorts by strike.
  *
- * @param rawData the JSON object loaded from the API
- * @return an object of format {@code {calls: {"strike_1":[SingleOption], "strike_2":[SingleOption],...}, puts:...}}
+ * @param {Object} rawData the JSON object loaded from the API
+ * @returns {Object} an object of format {@code {calls: {"strike_1":[SingleOption], "strike_2":[SingleOption],...}, puts:...}}
  */
 function sortByStrikes(dateSortedData, spotPrice) {
   var strikesList = {calls: {}, puts: {}};
@@ -271,8 +271,8 @@ function sortByStrikes(dateSortedData, spotPrice) {
 /**
  * Separates data by calls and puts, then sorts by strike.
  *
- * @param rawData the JSON object loaded from the API
- * @return an object of format {@code {calls: {"strike_1":[SingleOption], "strike_2":[SingleOption],...}, puts:...}}
+ * @param {Object} rawData the JSON object loaded from the API
+ * @returns {Object} an object of format {@code {calls: {"strike_1":[SingleOption], "strike_2":[SingleOption],...}, puts:...}}
  */
 function sortByStrikesFromRaw(rawData, spotPrice) {
   var strikesList = {calls: {}, puts: {}};
@@ -304,8 +304,8 @@ function sortByStrikesFromRaw(rawData, spotPrice) {
 /**
  * Retreives all of the keys (non-recursively) in a JSON object.
  *
- * @param rawData the JSON object to get keys from
- * @return an array with only the keys for the top level of that object
+ * @param {Object} rawData the JSON object to get keys from
+ * @returns {string[]} an array with only the keys for the top level of that object
  */
 function getAllKeys(rawData) {
   var keys = [];

@@ -132,7 +132,6 @@ export default class OptionsStrategy {
   }
 
   identify = () => {
-    var underlyingStatus = getLongShortStatus(this.underlyingShareCount);
     var legsCount = this.singleOptions.length;
     if (legsCount == 0) {
       return zeroLegStrategy(this.underlyingShareCount);
@@ -343,13 +342,4 @@ function twoLegStrategy(underlyingQuantity, firstLeg, secondLeg) {
     }
   }
   return "Unknown Strategy";
-}
-
-function getLongShortStatus(quantity) {
-  if (quantity > 0) {
-    return "long";
-  } else if (quantity < 0) {
-    return "short";
-  }
-  return "none";
 }

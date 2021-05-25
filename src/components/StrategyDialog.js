@@ -51,6 +51,20 @@ var colors = [
   '#ffd149',
 ];
 
+/**
+ * @class
+ * @alias StrategyDialog
+ * @extends React.Component
+ *
+ * A window which contains analytics for an options strategy.
+ *
+ * @param {boolean} open indicates whether window should be visible or not
+ * @param {Object} theme the theme of the application
+ * @param {number} underlyingPrice the price of the underlying stock
+ * @param {HistoricalStockData} underlyingHistorical the historical data of the underlying
+ * @param {OptionsChain} optionsChain the full options chain
+ * @param {OptionsStrategy} optionsStrategy the options strategy to analyze
+ */
 export default class StrategyDialog extends React.Component {
   constructor(props) {
     super(props);
@@ -119,9 +133,10 @@ class PriceCalculationTable extends React.Component {
     var chartData = [];
 
     var daysUntilExpiration = Math.floor(Formats.timeBetween(this.props.currentTime, strategy.expiration()) / 86400000);
-    var dteList = getTimeIncrements(this.props.currentTime, daysUntilExpiration, this.props.configuration.stepColumns);
+
+    //Get time and spot price intervals to make projections
+    var dteList = getTimeIncrements(this.props.currentTime, daysUntilExpiration, this.props.configuration.stepColumns); //DTE = Days to expiration
     var spotList = getSpotPrices(this.props.underlyingPrice, this.props.configuration.stepType, this.props.configuration.stepValue, this.props.configuration.stepCount, this.props.strategy);
-    var timeList = [];
 
     if (this.props.configuration.chartType == "table") {
 
@@ -168,18 +183,22 @@ class PriceCalculationTable extends React.Component {
           {tableHeaderColumns}
         </TableRow>
       );
+
     } else if (this.props.configuration.chartType == "line_chart") {
+
+      //Make a chart series for every date
       for (var dteIndex in dteList) {
         var timeSecsAtDTE = (this.props.currentTime / 1000) + ((daysUntilExpiration - dteList[dteIndex]) * 86400);
-        var colorIndex = dteIndex % colors.length;
+        var colorIndex = dteIndex % colors.length; //Rotate through list of colors
         var chartSeries = {label: Formats.time(timeSecsAtDTE), color: colors[colorIndex], data: []};
+
+        //Add coordinate points for each spot price for series at this time value
         for (var spotIndex in spotList) {
           var predictedPrice = strategy.blackScholesPrice(dteList[dteIndex], spotList[spotIndex]);
           chartSeries.data.push([spotList[spotIndex], predictedPrice]);
         }
         chartData.push(chartSeries);
       }
-
     }
 
     return (
@@ -321,21 +340,39 @@ class ConfigurationBar extends React.Component {
   }
 }
 
+/**
+ * Generate a list of spot prices which deviate from the current spot.
+ *
+ * Example: getSpotPrices(250, "percent_change", 10, 3, strategy) with strategy being a 270/280 call spread.
+ *          This generates an array of prices with 3 deviations of 25 (10% of 250) in both directions, including strikes of strategy and spot.
+ *          OUTPUT: [325, 300, 280, 275, 270, 250, 225, 200, 175]
+ *
+ * @param {number} currentSpot the spot price to deviate from (spot itself is also included in array)
+ * @param {string} stepType the type of step to make; accepts "percent_change" and "dollar_change"
+ * @param {number} stepValue the amount to deviate for each step
+ * @param {number} the amount of deviations to make
+ * @param {OptionsStrategy} strategy the options strategy used to make projections for (used to get strike prices)
+ * @return {number[]} an array of potential spot prices
+ */
 function getSpotPrices(currentSpot, stepType, stepValue, stepCount, strategy) {
   var spotList = strategy.getStrikes();
   spotList.push(currentSpot);
 
   for (var step = 1; step <= stepCount; step++) {
     var adjustedStepValue = 0;
+
+    //Calculate dollar value to increment/decrement from spot price,
+    //Then multiply by the current step
     if (stepType == "percent_change") {
       adjustedStepValue = (((stepValue * step) / 100) * currentSpot);
     } else if (stepType == "dollar_change") {
       adjustedStepValue = stepValue * step;
     }
 
-    spotList.unshift(parseFloat((currentSpot + adjustedStepValue).toFixed(2)));
+    //Add upper bound spot price to array
+    spotList.push(parseFloat((currentSpot + adjustedStepValue).toFixed(2)));
 
-    //Only add to list if spot price won't be negative,
+    //Only add lower bound to list if it isn't negative,
     //otherwise add zero if not added already
     if (currentSpot > adjustedStepValue) {
       spotList.push(parseFloat((currentSpot - adjustedStepValue).toFixed(2)));
@@ -344,12 +381,24 @@ function getSpotPrices(currentSpot, stepType, stepValue, stepCount, strategy) {
     }
   }
 
+  //Sort array values in descending order
   spotList.sort(function(a,b) { return a - b;});
   spotList.reverse();
 
   return spotList;
 }
 
+/**
+ * Generate a list of different days to expiration leading up to the expiration date at an interval which
+ * allows the list to be of length at or below the number specified by maxIncrements.
+ *
+ * Example: getTimeIncrements(currentTime, 200, 50) will return the array 0, 4, 8, ... , 192, 196, 200]
+ *
+ * @param {number} currentTime the current time in milliseconds
+ * @param {number} daysUntilExpiration the days from now to expiration
+ * @param {number} maxIncrements the maximum amount of increments to make
+ * @returns {number[]} an array of days, increasing by the calculated interval
+ */
 function getTimeIncrements(currentTime, daysUntilExpiration, maxIncrements) {
   var timeList = [];
 
@@ -366,19 +415,24 @@ function getTimeIncrements(currentTime, daysUntilExpiration, maxIncrements) {
   return timeList;
 }
 
-//Update a child of an object in a state
-function setSubState(component, parentKey, childkey, value) {
-  /*
-  component.state = {
-    parentKey: {
-      childKey: (oldValue --> value),
-      ...
-    },
-    ...
-  };
-  */
+/**
+ * Update a child of an object in a state
+ * component.state = {
+ *   parentKey: {
+ *     childKey: (oldValue --> value),
+ *     ...
+ *  },
+ *  ...
+ * };
+ *
+ * @param {Object} component the object to update
+ * @param {string} parentKey the key of the parent property
+ * @param {string} childKey the child key
+ * @param {*} value the value to set for the child property
+ */
+function setSubState(component, parentKey, childKey, value) {
   var obj = component.state[parentKey]; //Make copy of target state object
-  obj[childkey] = value; //Set the target child with the desired value
+  obj[childKey] = value; //Set the target child with the desired value
   var container = {};
   container[parentKey] = obj;
   component.setState(obj); //update the state with the modified object

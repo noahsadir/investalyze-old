@@ -205,30 +205,6 @@ class StrategyListItem extends React.Component {
   }
 }
 
-/*
-
-<div style={{width:"100%",display:"flex",marginTop:8}}>
-  <div style={{flex:"2 0 0px"}}>
-    <StyledToggleButtonGroup id={index} style={{width: "100%", root:{width: "100%"}}} value={optionObjectsSelectedByBuilder[objectIndex].transaction + "-" + objectIndex.toString()} exclusive onChange={handleBuilderOptionTransactionToggleChange} aria-label="text alignment">
-      <ToggleButton value={"buy-" + objectIndex.toString()} aria-label="left aligned">Buy</ToggleButton>
-      <ToggleButton value={"sell-" + objectIndex.toString()} aria-label="right aligned">Sell</ToggleButton>
-    </StyledToggleButtonGroup>
-  </div>
-  <div style={{flex:"2 0 0px",paddingLeft: 8}}>
-    <p style={{fontSize: 18,margin:0,lineHeight:"30px"}}>{"$" + optionObjectsSelectedByBuilder[objectIndex].strike + " " + (optionObjectsSelectedByBuilder[objectIndex].type == "calls" ? "Call" : "Put")}</p>
-    <p style={{fontSize: 12,margin:0,lineHeight:"18px"}}>{"Expires " + Formats.time(optionObjectsSelectedByBuilder[objectIndex].date)}</p>
-  </div>
-  <div style={{flex:"1 0 0px",minWidth:80}}>
-    <TextField inputProps={{style:{padding:'14.5px 14px'},startAdornment: <InputAdornment position="start">$</InputAdornment>,}} id={objectIndex.toString()} variant="outlined" onChange={handleOptionObjectPriceChange} placeholder={optionObjectsSelectedByBuilder[objectIndex].defaultPrice.toFixed(2)} style={{width:"calc(100%)",margin:0}}>D</TextField>
-  </div>
-  <div style={{flex:"1 0 0px",marginLeft:8,maxWidth:48}}>
-    <IconButton style={{marginLeft:0}} id={objectIndex.toString()} edge="start" color="#FFAAAA" onClick={handleDeleteBuilderSelectedClose} aria-label={objectIndex.toString()}>
-      <Icon id={objectIndex.toString()} style={{fontSize: 24,color:"#FFAAAA"}}>close</Icon>
-    </IconButton>
-  </div>
-</div>
-*/
-
 class PaneConfiguration extends React.Component {
   constructor(props) {
     super(props);
@@ -405,6 +381,13 @@ class PaneConfiguration extends React.Component {
   }
 }
 
+/**
+ * Create a human-readable description of the greek status of the options strategy.
+ *
+ * @param {number} value the value to inspect
+ * @param {number} tolerance the amount before greek is determined to have a definite direction
+ * @returns {string} the human-readable description
+ */
 function getDirection(value, tolerance) {
   if (value > 0) {
     if (value > tolerance) {

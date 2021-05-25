@@ -18,10 +18,10 @@ export default class HistoricalStockData {
  *       AlphaVantage. If another API is used, this code needs
  *       to be updated accordingly.
  *
- * @param seriesData the data to process
- * @return an object containing 2D arrays for various data points.
+ * @param {Object} seriesData the data to process
+ * @returns {Object} an object containing 2D arrays for various data points.
  *         It should have the following format:
- *         {@code {type_1: [[date_millis_1, value_1],[date_millis_2, value_2],...], type_2:...}}
+ *         {type_1: [[date_millis_1, value_1],[date_millis_2, value_2],...], type_2:...}
  */
 function getPoints(seriesData) {
   var pointData = {close: []};

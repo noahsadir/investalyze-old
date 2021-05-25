@@ -31,15 +31,6 @@ const StyledChartToggle = withStyles((theme) => ({
   }
 }))(ToggleButtonGroup);
 
-/**
- * Represents the main content for the app.
- *
- * @param singleOptions an array of SingleOption objects
- * @param preferences the current preferences
- * @param accentColor the accent color
- * @param stickySelected the SingleOption object that is selected
- * @param onOptionsListClick a function that is called when the item is clicked which accepts a SingleOption object
- */
 export default class MainContent extends React.Component {
   constructor(props) {
     super(props);
@@ -89,31 +80,6 @@ export default class MainContent extends React.Component {
     );
   }
 }
-
-/*
-<div style={{display: "flex", width:"100%"}} class="topToolbarBottomExpandContainer">
-  <div id="optionsListHeaderContainer" class="topToolbar">
-    <OptionsListHeader parent={this} value={genericOptionItem}/>
-  </div>
-  <div id="optionsListContainer" style={{height:0,overflow:'scroll'}} class="bottomExpand">
-    <OptionsList id="optionsList"/>
-  </div>
-</div>
-<div style={{display: "flex"}} class="topToolbarBottomExpandContainer" style={{padding:"0px 16px 0px 16px"}}>
-  <div class="topToolbar" style={{padding:"8px 0px 8px 0px"}}>
-    <StyledChartToggle parent={this} value={this.state.chartType} exclusive onChange={handleChartTypeChange} aria-label="text alignment">
-      <ToggleButton style={{overflow:"auto"}} parent={this} value="data" aria-label="left aligned"><span style={{overflow:"auto"}}>Data</span></ToggleButton>
-      <ToggleButton style={{overflow:"auto"}} parent={this} value="metrics" aria-label="right aligned"><span style={{overflow:"auto"}}>Metrics</span></ToggleButton>
-      <ToggleButton style={{overflow:"auto"}} parent={this} value="projection" aria-label="right aligned"><span style={{overflow:"auto"}}>Projection</span></ToggleButton>
-      <ToggleButton style={{overflow:"auto"}} parent={this} value="builder" aria-label="right aligned"><span style={{overflow:"auto"}}>Builder</span></ToggleButton>
-    </StyledChartToggle>
-  </div>
-  <DataPane visible={this.state.chartType === "data"}/>
-  <MetricsPane visible={this.state.chartType === "metrics"}/>
-  <ProjectionPane visible={this.state.chartType === "projection"}/>
-  <BuilderPane visible={this.state.chartType === "builder"}/>
-</div>
-*/
 
 class OptionsListView extends React.Component {
   constructor(props) {
