@@ -12,6 +12,10 @@ export function convertToMoneyValue(val){
   }
 }
 
+export function percentChange(initialVal, newVal) {
+  return ((newVal / initialVal) - 1) * 100;
+}
+
 /**
  * Convert time in seconds to formatted date.
  *
@@ -21,6 +25,10 @@ export function convertToMoneyValue(val){
 export function time(s) {
   const dtFormat = new Intl.DateTimeFormat('en-US', {timeZone: "UTC"});
   return dtFormat.format(new Date((s * 1000)));
+}
+
+export function timeBetween(firstTime, secondTime) {
+  return Math.abs(firstTime - secondTime);
 }
 
 export function convertToTruncatedMoneyValue(rawValue, full){

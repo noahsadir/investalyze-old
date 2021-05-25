@@ -56,6 +56,14 @@ export default class OptionsStrategy {
     return total;
   }
 
+  getAdjustedTotal = (key) => {
+    var total = 0;
+    for (var index in this.singleOptions) {
+      total += (this.singleOptions[index].option.get(key) * this.singleOptions[index].quantity * 100);
+    }
+    return total;
+  }
+
   getAverage = (key) => {
     var sum = 0;
     var denominator = 0;
@@ -66,8 +74,37 @@ export default class OptionsStrategy {
     return (sum / denominator);
   }
 
+  getStrikes = () => {
+    var strikesList = [];
+    for (var index in this.singleOptions) {
+      if (!strikesList.includes(this.singleOptions[index].option.get("strike"))) {
+        strikesList.push(this.singleOptions[index].option.get("strike"));
+      }
+    }
+    return strikesList;
+  }
+
   markDebitCredit = () => {
     return ((this.getTotal("mark") * 100) + (this.underlyingPrice * this.underlyingShareCount)) * -1;
+  }
+
+  predictedDebitCredit = (daysToExpiration, spotPrice, impliedVolatility) => {
+    var total = 0;
+    for (var index in this.singleOptions) {
+      total += (this.singleOptions[index].option.blackScholesPrice(daysToExpiration, spotPrice, impliedVolatility) * this.singleOptions[index].quantity);
+    }
+    return ((total * 100) + (this.underlyingPrice * this.underlyingShareCount)) * -1;
+  }
+
+  blackScholesPrice = (daysToExpiration, spotPrice, impliedVolatility) => {
+    var total = 0;
+    for (var index in this.singleOptions) {
+      var price = this.singleOptions[index].option.blackScholesPrice(daysToExpiration, spotPrice, impliedVolatility);
+      if (!isNaN(price)) {
+        total += (price * this.singleOptions[index].quantity);
+      }
+    }
+    return total;
   }
 
   bidDebitCredit = () => {
@@ -107,6 +144,16 @@ export default class OptionsStrategy {
       return "What are you doing?";
     }
     return "Unknown Strategy";
+  }
+
+  expiration = () => {
+    var nearestExpiration = null;
+    for (var index in this.singleOptions) {
+      if (nearestExpiration == null || nearestExpiration > this.singleOptions[index].option.get("expiration")) {
+        nearestExpiration = this.singleOptions[index].option.get("expiration");
+      }
+    }
+    return nearestExpiration;
   }
 
 }

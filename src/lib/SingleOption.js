@@ -71,6 +71,22 @@ export default class SingleOption {
     return (this.propNames[key] != null) ? this.propNames[key] : this.get(key);
   }
 
+  blackScholesPrice = (daysToExpiration, spotPrice, impliedVolatility) => {
+    if (daysToExpiration == null) {
+      daysToExpiration = this.get("time_to_expiration");
+    }
+
+    if (spotPrice == null) {
+      spotPrice = this.spot;
+    }
+
+    if (impliedVolatility == null) {
+      impliedVolatility = this.get("implied_volatility");
+    }
+
+    return BlackScholes.blackScholes(spotPrice, this.get("strike"), daysToExpiration / 365, impliedVolatility / 100, 0.015, this.get("type"));
+  }
+
   formatted = (key) => {
     if (this.didCalculate == false) {
       this.didCalculate = true;

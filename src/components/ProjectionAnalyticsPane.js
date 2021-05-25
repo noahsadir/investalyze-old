@@ -183,7 +183,6 @@ class PaneConfiguration extends React.Component {
         </Select>
         {additionalDropdowns}
       </Paper>
-
     );
   }
 }

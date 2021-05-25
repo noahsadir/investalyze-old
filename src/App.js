@@ -32,6 +32,7 @@ import MainContent from "./components/MainContent";
 import DisclaimerDialog from "./components/DisclaimerDialog";
 import CookiesDialog from "./components/CookiesDialog";
 import SettingsDialog from "./components/SettingsDialog";
+import StrategyDialog from "./components/StrategyDialog";
 
 import SingleOption from './lib/SingleOption';
 import OptionsChain from './lib/OptionsChain';
@@ -46,16 +47,10 @@ const ACCENT_COLOR = "#593d99";
 var apiKeys = require('./keys.json');
 var Cookies = require('./lib/Cookies');
 
-export default class App extends React.Component {
-  /*
-  //Light mode
+var internalAPIUrl = "https://investalyze.noahsadir.io/api/";
 
-  backgroundColor: "#ffffff",  foregroundColor: "#e0e0e6",altForegroundColor: "#ccccd6",
-  elevationColor: "#e0e0e6",
-  borderColor: "#00000022",
-  accentColor: "#c7a4ff",
-  textColor: "#000000",
-  */
+export default class App extends React.Component {
+
   constructor(props) {
     super(props);
     this.state = {
@@ -80,11 +75,13 @@ export default class App extends React.Component {
       dialogs: {
         cookieAcknowledgementVisible: false,
         settingsDialogVisible: false,
+        strategyDialogVisible: false,
       },
       data: {
         optionsChain: null,
         underlyingPrice: null,
         underlyingHistorical: null,
+        strategy: null,
       },
       preferences: {
         optionType: "calls",
@@ -117,8 +114,7 @@ export default class App extends React.Component {
         },
         builderPaneConfig: {
           strategy: new OptionsStrategy(),
-          underlyingPrice: "",
-          underlyingQuantity: "",
+          viewType: "config",
         }
       },
       list: {
@@ -169,6 +165,12 @@ export default class App extends React.Component {
       } else if (this.state.preferences.comparisonType == "strike") {
         this.state.preferences.availableComparisonValues = this.state.data.optionsChain.getStrikes(this.state.preferences.optionType);
       }
+    }
+
+    //Update list of selected option items
+    this.state.list.selectedItem = [];
+    for (var index in this.state.analytics.builderPaneConfig.strategy.singleOptions) {
+      this.state.list.selectedItem.push(this.state.analytics.builderPaneConfig.strategy.singleOptions[index].option.get("id"));
     }
 
     //toolbar settings clicked
@@ -288,11 +290,6 @@ export default class App extends React.Component {
 
         this.state.analytics.builderPaneConfig.strategy = optionsStrategy;
 
-        this.state.list.selectedItem = [];
-        for (var index in optionsStrategy.singleOptions) {
-          this.state.list.selectedItem.push(optionsStrategy.singleOptions[index].option.get("id"));
-        }
-
         this.setState({state: this.state});
       } else {
         var optionsStrategy = new OptionsStrategy();
@@ -303,7 +300,8 @@ export default class App extends React.Component {
     }
 
     const viewStrategyButtonClicked = (strategy) => {
-      console.log(strategy);
+      setSubState(this, "data", "strategy", strategy);
+      setSubState(this, "dialogs", "strategyDialogVisible", true);
     }
 
     return (
@@ -364,7 +362,15 @@ export default class App extends React.Component {
             cookieItems={this.state.cookies}
             onAction={cookieDialogAction}
             onCookieToggle={cookieToggleAction}/>
-
+          <StrategyDialog
+            currentTime={(new Date()).getTime()}
+            open={this.state.dialogs.strategyDialogVisible}
+            theme={this.state.theme}
+            underlyingPrice={this.state.data.underlyingPrice}
+            underlyingHistorical={this.state.data.underlyingHistorical}
+            optionsChain={this.state.data.optionsChain}
+            strategy={this.state.data.strategy}
+            onClose={() => setSubState(this, "dialogs", "strategyDialogVisible", false)}/>
       </div>
       </ThemeProvider>
 
