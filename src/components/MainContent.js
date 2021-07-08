@@ -31,6 +31,29 @@ const StyledChartToggle = withStyles((theme) => ({
   }
 }))(ToggleButtonGroup);
 
+/**
+ * The main content of the application.
+ *
+ * @class
+ * @alias MainContent
+ * @extends React.Component
+ *
+ * @param {Object} props the properties of the component.
+ * @param {Object} props.theme the theme of the application
+ * @param {Object} props.analytics the analytics object of the app's state
+ * @param {Object} props.preferences the preferences object of the app's state
+ * @param {boolean} props.chartToggled indicates whether the analytics view is toggled; primarily for small screens
+ * @param {SingleOption[]} props.stickySelected an array of SingleOption objects that are currently selected
+ * @param {OptionsChain} props.optionsChain the options chain
+ * @param {HistoricalStockData} props.underlyingHistorical the historical data of the underlying
+ * @param {function(SingleOption)} props.onOptionsListClick the event handler for when an item in the options list is clicked. Returns the selected SingleOption.
+ * @param {function(config)} props.onRowConfigurationChange the event handler for when a row configuration changes for the options list. Returns entire row configuration string array.
+ * @param {function(string)} props.onAnalyticsPaneChange the event handler for when an analytics pane is changed. Returns the string representing the newly selected pane.
+ * @param {function(Object)} props.onDataAnalyticsConfigChange the event handler for when the data analytics config changes. Returns entire config object, even if just one item changed.
+ * @param {function(Object)} props.onProjectionAnalyticsConfigChange the event handler for when the projection analytics config changes. Returns entire config object, even if just one item changed.
+ * @param {function(Object)} props.onBuilderAnalyticsConfigChange the event handler for when the builder analytics config changes. Returns entire config object, even if just one item changed.
+ * @param {function(OptionsStrategy)} props.onViewStrategyButtonClick the event handler for when the "view" button of the options builder is clicked
+ */
 export default class MainContent extends React.Component {
   constructor(props) {
     super(props);

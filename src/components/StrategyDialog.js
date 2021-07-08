@@ -52,18 +52,20 @@ var colors = [
 ];
 
 /**
+ * A window which contains analytics for an options strategy.
+ *
  * @class
  * @alias StrategyDialog
  * @extends React.Component
  *
- * A window which contains analytics for an options strategy.
- *
- * @param {boolean} open indicates whether window should be visible or not
- * @param {Object} theme the theme of the application
- * @param {number} underlyingPrice the price of the underlying stock
- * @param {HistoricalStockData} underlyingHistorical the historical data of the underlying
- * @param {OptionsChain} optionsChain the full options chain
- * @param {OptionsStrategy} optionsStrategy the options strategy to analyze
+ * @param {Object} props the properties of the component
+ * @param {boolean} props.open indicates whether window should be visible or not
+ * @param {Object} props.theme the theme of the application
+ * @param {number} props.underlyingPrice the price of the underlying stock
+ * @param {HistoricalStockData} props.underlyingHistorical the historical data of the underlying
+ * @param {OptionsChain} props.optionsChain the full options chain
+ * @param {OptionsStrategy} props.optionsStrategy the options strategy to analyze
+ * @param {function} props.onClose the event handler for when the dialog is closed
  */
 export default class StrategyDialog extends React.Component {
   constructor(props) {

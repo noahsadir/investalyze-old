@@ -128,7 +128,7 @@ export default class App extends React.Component {
     for (var cookieName in this.state.cookies) {
       if (Cookies.getPref(cookieName) == null) {
         Cookies.setPref(cookieName, true);
-        setSubState(this, "dialogs", "cookieAcknowledgementVisible", true);
+        //setSubState(this, "dialogs", "cookieAcknowledgementVisible", true);
       }
     }
   }
@@ -332,6 +332,7 @@ export default class App extends React.Component {
             onSettingsButtonClick={toolbarSettingsButtonClicked}
             onSymbolEnter={toolbarSymbolEntered}
             onStepperClick={toolbarStepperClicked}/>
+
           <MainContent
             theme={this.state.theme}
             backgroundColor={this.state.theme.backgroundColor}
@@ -384,7 +385,7 @@ export default class App extends React.Component {
  * @param {string} adjustedSymbol the cleaned-up symbol specified by the user
  * @param {Object} state the app's state
  * @param {boolean} isTest boolean indicating whether test mode is activated
- * @callback callback the function to call when all data has been loaded.
+ * @param {function} callback the function to call when all data has been loaded.
  *                            Should accept single parameter representing updated app state.
  */
 function retrieveDataForSymbol(adjustedSymbol, state, isTest, callback, progressCallback) {
@@ -426,7 +427,7 @@ function retrieveDataForSymbol(adjustedSymbol, state, isTest, callback, progress
  *
  * @param {string} adjustedSymbol the cleaned-up symbol specified by the user
  * @param {boolean} isTest indicates whether test mode is activated
- * @callback callback the function to call when options chain has loaded.
+ * @param {function} callback the function to call when options chain has loaded.
  *                            Should accept two parameters:
  *                            1) A boolean indicating whether the operation was successful.
  *                            2) A JSON object representing the options chain JSON.
@@ -482,7 +483,7 @@ function retrieveOptionsChain(adjustedSymbol, isTest, callback, progressCallback
  * @param {boolean} isTest indicates whether test mode is activated
  * @param {string[]} expirations the array of expirations
  * @param {number} expIndex the index of the expirations array to load.
- * @callback the function to call when data for all expirations has loaded.
+ * @param {function} callback the function to call when data for all expirations has loaded.
  *           Should accept single parameter for options chain JSON.
  */
 function recursiveTradierChainRequest(data, adjustedSymbol, isTest, expirations, expIndex, callback, progressCallback) {
@@ -512,7 +513,7 @@ function recursiveTradierChainRequest(data, adjustedSymbol, isTest, expirations,
  *
  * @param {string} jobID the preset request to make
  * @param {Object} args the arguments accepted by the API, expressed as a JSON object
- * @callback the function to call when the request is finished; accepts three params {@code (jobID (string), success (bool), data (json))}
+ * @param {function} the function to call when the request is finished; accepts three params {@code (jobID (string), success (bool), data (json))}
  * @param {boolean} testMode a boolean indicating whether to make an actual request or just fetch sample data
  */
 function makeAPIRequest(jobID, args, callback, testMode) {

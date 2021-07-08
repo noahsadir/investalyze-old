@@ -15,7 +15,7 @@ function checkAndLoad(repeatOnError){
           checkAndLoad(false);
         }
       }
-      console.log(cookie);
+      //console.log(cookie);
     }
   }else{
     console.log("cookie is null");
