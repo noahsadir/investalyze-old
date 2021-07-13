@@ -1,5 +1,6 @@
 # Investalyze
 Analytics for stock market and options trading.
+![screenshot of application](demo.png)
 
 ## How to Install
 
@@ -38,26 +39,25 @@ Alternatively, you can set up the environment manually.
   # Using Yarn:
   # yarn add [DEPENDENCY]
 
+  fontsource-open-sans
   @material-ui/core
   @material-ui/lab
   react-split-pane
-  fontsource-open-sans
-  react-chartjs-2 chart.js
   black-scholes
   implied-volatility
   greeks
+  react-chartjs-2 chart.js
   react-plotly.js plotly.js
   plotly.js-gl3d-dist
   ```
-- (OPTIONAL) Build project or start in test environment to confirm that the code works
-  ```
-  # BUILD using *ONE* of the following:
-  npm run build
-  yarn build
-  # START using *ONE* of the following:
-  npm start
-  yarn start
-  ```
+
+#### A Note on Memory Requirements
+
+Web servers or computers with <= 2GB RAM may encounter out-of-memory issues when compiling. To fix this, remove Plotly and all references to it (3D charts will no longer work, obviously).
+
+This is also why ChartJS is used for non-3D charts, as I wanted to minimize usage of Plotly due to my personal web server having only 2 GB of RAM.
+
+You may also notice some JSdoc comments in the source code. While I wanted to have proper documentation, the library requires quite a lot of memory and is extremely difficult to compile together with Plotly in a low memory environment.
 
 ### Post-configuration Setup
 
