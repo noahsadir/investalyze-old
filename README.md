@@ -1,5 +1,6 @@
 # Investalyze
 Analytics for stock market and options trading.
+
 ![screenshot of application](demo.png)
 
 ## How to Install
