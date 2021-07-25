@@ -1,13 +1,62 @@
+var Formats = require('./Formats');
 export default class HistoricalStockData {
   constructor(rawData) {
     var points = getPoints(rawData["Time Series (Daily)"]);
+    var dates = [];
+    for (var index in points.close) {
+      dates.push(points.close[index][0]);
+    }
+
+    this.dates = dates;
     this.closings = points.close;
+    this.rawData = rawData;
+    this.jsonData = formatDataAsJSON(this.dates, this.closings);
+    this.csvData = formatDataAsCSV(this.jsonData);
   }
 
   get closingPrices() {
     return this.closings;
   }
 
+}
+
+function formatDataAsCSV(jsonData) {
+  var csvData = "";
+  for (var dateKey in jsonData) {
+    if (csvData == "") {
+      csvData = "date,";
+      for (var pointType in jsonData[dateKey]) {
+        csvData += pointType + ",";
+      }
+    }
+
+    var formattedDate = Formats.time(parseInt(dateKey) / 1000);
+    var csvLine = formattedDate + ",";
+    for (var pointType in jsonData[dateKey]) {
+      csvLine += jsonData[dateKey][pointType] + ",";
+    }
+
+    csvData += "\n" + csvLine;
+  }
+
+  return csvData;
+}
+
+function formatDataAsJSON(dates, closings) {
+  var outputData = {};
+  for (var dateIndex in dates) {
+    var dateValue = dates[dateIndex];
+    outputData[dateValue.toString()] = {};
+  }
+
+  for (var index in closings) {
+    var closePoint = closings[index];
+    if (outputData[closePoint[0].toString()] != null) {
+      outputData[closePoint[0].toString()].close = closePoint[1];
+    }
+  }
+
+  return outputData;
 }
 
 /**

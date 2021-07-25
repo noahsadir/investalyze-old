@@ -134,6 +134,9 @@ export default class MainToolbar extends React.Component {
         <SettingsDialog
           onDarkModeToggle={this.props.onDarkModeToggle}
           onCookieSettingsClick={this.props.onCookieSettingsClick}
+          onDownloadDataButtonClick={this.props.onDownloadDataButtonClick}
+          onAPIKeyChange={this.props.onAPIKeyChange}
+          apiKeys={this.props.apiKeys}
           open={this.state.settingsDialogVisible}
           theme={this.props.theme}
           onClose={settingsDialogClose}/>

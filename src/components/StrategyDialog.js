@@ -133,6 +133,7 @@ class PriceCalculationTable extends React.Component {
     var tableHeaderColumns = [];
     var tableRows = [];
     var chartData = [];
+    var colorInterval = null;
 
     var daysUntilExpiration = Math.floor(Formats.timeBetween(this.props.currentTime, strategy.expiration()) / 86400000);
 
@@ -187,6 +188,9 @@ class PriceCalculationTable extends React.Component {
       );
 
     } else if (this.props.configuration.chartType == "line_chart") {
+      var minPrice = null;
+      var maxPrice = null;
+      var premiumValue = strategy.getTotal("mark");
 
       //Make a chart series for every date
       for (var dteIndex in dteList) {
@@ -194,12 +198,36 @@ class PriceCalculationTable extends React.Component {
         var colorIndex = dteIndex % colors.length; //Rotate through list of colors
         var chartSeries = {label: Formats.time(timeSecsAtDTE), color: colors[colorIndex], data: []};
 
+
+
         //Add coordinate points for each spot price for series at this time value
         for (var spotIndex in spotList) {
           var predictedPrice = strategy.blackScholesPrice(dteList[dteIndex], spotList[spotIndex]);
+          if (minPrice == null || minPrice > predictedPrice) {
+            minPrice = predictedPrice;
+          } else if (maxPrice == null || maxPrice < predictedPrice) {
+            maxPrice = predictedPrice;
+          }
+
           chartSeries.data.push([spotList[spotIndex], predictedPrice]);
         }
+
         chartData.push(chartSeries);
+      }
+
+      //Configure 3D chart colors
+      if (minPrice != null && maxPrice != null) {
+
+        if (minPrice < 0) {
+          maxPrice = maxPrice + Math.abs(minPrice);
+          premiumValue = premiumValue + Math.abs(minPrice);
+          minPrice = 0;
+        }
+
+        colorInterval = [[0, '#880e4f'],
+                    [premiumValue / maxPrice, '#e91e63'],
+                    [premiumValue / maxPrice, '#4caf50'],
+                    [1, '#2e7d32']];
       }
     }
 
@@ -224,6 +252,7 @@ class PriceCalculationTable extends React.Component {
             scale={"linear"}
             type={"surface"}
             stacked={false}
+            colorInterval={colorInterval}
             data={chartData}/>
         </div>
         <div style={{flex: "0 0 0"}}/>

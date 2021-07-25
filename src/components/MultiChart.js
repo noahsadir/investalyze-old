@@ -32,9 +32,9 @@ export default class MultiChart extends React.Component {
     //Set up data in a format which can be more easily processed
     //NOTE: Each {label:..., data:...} object represents a single series
     if (this.props.type == "surface") {
-      plotlyData = formatDataForPlotlySurface(this.props.data, this.props.scale);
+      plotlyData = formatDataForPlotlySurface(this.props.data, this.props.scale, this.props.colorInterval);
     } else {
-      chartJSData = formatDataForChartJS(this.props.data, this.props.scale, this.props.stacked);
+      chartJSData = formatDataForChartJS(this.props.data, this.props.scale, this.props.stacked, this.props.colorInterval);
     }
 
     //Note: the y-axis and z-axis are flipped for compatibility with 2D charts
@@ -128,7 +128,7 @@ export default class MultiChart extends React.Component {
  * @param {boolean} stacked a boolean indicating whether the series should be stacked on top of each other
  * @returns {Object} the data in the ChartJS format
  */
-function formatDataForChartJS(inputData, scale, stacked) {
+function formatDataForChartJS(inputData, scale, stacked, colorInterval) {
 
   var chartData = [];
   var xValues = [];
@@ -213,15 +213,15 @@ function formatDataForChartJS(inputData, scale, stacked) {
  * @param {string} scale the scale for the chart (e.g. "time" or "linear")
  * @returns {Object} the data in Plotly format
  */
-function formatDataForPlotlySurface(inputData, scale) {
+function formatDataForPlotlySurface(inputData, scale, colorInterval) {
   var maxHeight = 10;
-  var intensity = [0, 0.14285714285714285, 0.2857142857142857, 0.42857142857142855, 0.5714285714285714, 0.7142857142857143, 0.8571428571428571, 1];
+  var intensity = [0, 0.5, 1];
   var plotlyData = [{
     x: [],
     y: [],
     z: [],
     type: 'mesh3d',
-    colorscale: 'Viridis',
+    colorscale: (colorInterval == null ? 'Viridis' : colorInterval)
   }];
 
   for (var key in inputData) {

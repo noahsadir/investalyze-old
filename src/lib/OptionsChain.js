@@ -3,6 +3,7 @@ import SingleOption from './SingleOption';
 export default class OptionsChain {
   constructor(rawData, spotPrice) {
     this.spot = spotPrice;
+    this.rawData = rawData;
     this.currentTime = (new Date()).getTime();
     this.valueNames = getValueNamesForOption(rawData);
     this.dateSortedData = sortByDates(rawData, spotPrice);

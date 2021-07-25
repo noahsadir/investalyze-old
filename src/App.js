@@ -33,6 +33,7 @@ import DisclaimerDialog from "./components/DisclaimerDialog";
 import CookiesDialog from "./components/CookiesDialog";
 import SettingsDialog from "./components/SettingsDialog";
 import StrategyDialog from "./components/StrategyDialog";
+import DownloadDataDialog from "./components/DownloadDataDialog";
 
 import SingleOption from './lib/SingleOption';
 import OptionsChain from './lib/OptionsChain';
@@ -44,8 +45,8 @@ import JSON_RETRIEVE from './lib/Requests';
 const BACKGROUND_COLOR = "#111115";
 const ACCENT_COLOR = "#593d99";
 
-var apiKeys = require('./keys.json');
 var Cookies = require('./lib/Cookies');
+var apiKeys = Cookies.get("apiKeys", {"tradier": ""});
 
 var internalAPIUrl = "https://investalyze.noahsadir.io/api/";
 
@@ -72,15 +73,18 @@ export default class App extends React.Component {
         apiKeys: "API Keys",
         theme: "Theme",
       },
+      apiKeys: Cookies.get("apiKeys", {"tradier": ""}),
       dialogs: {
         cookieAcknowledgementVisible: false,
         settingsDialogVisible: false,
         strategyDialogVisible: false,
+        downloadDataDialogVisible: false,
       },
       data: {
         optionsChain: null,
         underlyingPrice: null,
         underlyingHistorical: null,
+        companyQuote: null,
         strategy: null,
       },
       preferences: {
@@ -134,6 +138,8 @@ export default class App extends React.Component {
   }
 
   render() {
+
+    apiKeys = this.state.apiKeys;
 
     const theme = createMuiTheme({
       typography: {
@@ -195,7 +201,7 @@ export default class App extends React.Component {
         newTheme.foregroundColor = "#e0e0e6";
         newTheme.altForegroundColor = "#ccccd6";
         newTheme.elevationColor = "#e0e0e6";
-        newTheme.borderColor = "#00000022";
+        newTheme.borderColor = "#00000033";
         newTheme.accentColor = "#c7a4ff";
         newTheme.textColor = "#000000";
       } else {
@@ -203,7 +209,7 @@ export default class App extends React.Component {
         newTheme.foregroundColor = "#111115";
         newTheme.altForegroundColor = "#222226";
         newTheme.elevationColor = "#222226";
-        newTheme.borderColor = "#ffffff22";
+        newTheme.borderColor = "#ffffff33";
         newTheme.accentColor = "#593d99";
         newTheme.textColor = "#ffffff";
       }
@@ -321,10 +327,13 @@ export default class App extends React.Component {
             showProgress={this.state.toolbar.showProgress}
             progress={this.state.toolbar.progress}
             preferences={this.state.preferences}
+            apiKeys={this.state.apiKeys}
             isBuilder={this.state.analytics.selectedPane == "builder"}
             onCookieSettingsClick={() => setSubState(this, "dialogs", "cookieAcknowledgementVisible", true)}
+            onDownloadDataButtonClick={() => setSubState(this, "dialogs", "downloadDataDialogVisible", true)}
             onDarkModeToggle={darkModeToggled}
             onExpandToggle={(toggled) => {Cookies.set("expandToggled", toggled); setSubState(this, "toolbar", "expandToggled", toggled)}}
+            onAPIKeyChange={(keys) => {Cookies.set("apiKeys", keys); this.setState({apiKeys: keys})}}
             onChartToggle={(toggled) => setSubState(this, "toolbar", "chartToggled", toggled)}
             onOptionTypeChange={(type) => setSubState(this, "preferences", "optionType", type)}
             onComparisonTypeChange={(type) => setSubState(this, "preferences", "comparisonType", type)}
@@ -332,7 +341,6 @@ export default class App extends React.Component {
             onSettingsButtonClick={toolbarSettingsButtonClicked}
             onSymbolEnter={toolbarSymbolEntered}
             onStepperClick={toolbarStepperClicked}/>
-
           <MainContent
             theme={this.state.theme}
             backgroundColor={this.state.theme.backgroundColor}
@@ -372,6 +380,11 @@ export default class App extends React.Component {
             optionsChain={this.state.data.optionsChain}
             strategy={this.state.data.strategy}
             onClose={() => setSubState(this, "dialogs", "strategyDialogVisible", false)}/>
+          <DownloadDataDialog
+            open={this.state.dialogs.downloadDataDialogVisible}
+            theme={this.state.theme}
+            data={this.state.data}
+            onClose={() => setSubState(this, "dialogs", "downloadDataDialogVisible", false)}/>
       </div>
       </ThemeProvider>
 
@@ -395,6 +408,7 @@ function retrieveDataForSymbol(adjustedSymbol, state, isTest, callback, progress
 
     //If successful, save data in relevant areas.
     if (spSuccess && spData.quotes != null && spData.quotes.quote != null) {
+      state.data.companyQuote = spData;
       state.data.underlyingPrice = spData.quotes.quote.last;
       state.toolbar.title = spData.quotes.quote.description + " (" + spData.quotes.quote.symbol + ")";
       state.toolbar.priceInfo = convertToMoneyValue(spData.quotes.quote.last) + " (" + (spData.quotes.quote.change_percentage > 0 ? "+" : "") + spData.quotes.quote.change_percentage + "%)";
@@ -406,18 +420,22 @@ function retrieveDataForSymbol(adjustedSymbol, state, isTest, callback, progress
       if (ocSuccess) {
         var optionsChain = new OptionsChain(ocData, state.data.underlyingPrice);
         state.data.optionsChain = optionsChain;
+
+        makeAPIRequest("API_STOCK_HISTORICAL", {symbol: adjustedSymbol, avKey: apiKeys.alpha_vantage}, (shID, shSuccess, shData) => {
+          if (shSuccess) {
+            var historicalStockData = new HistoricalStockData(shData);
+            state.data.underlyingHistorical = historicalStockData;
+          } else {
+            console.log("Error Fetching Alpha Vantage Data");
+          }
+
+          //Regardless of outcome, hide progress and initiate callback
+          state.toolbar.showProgress = false;
+          callback(state);
+        }, isTest);
+      } else {
+        console.log("Error Fetching Tradier Data");
       }
-
-      makeAPIRequest("API_STOCK_HISTORICAL", {symbol: adjustedSymbol, avKey: apiKeys.alpha_vantage}, (shID, shSuccess, shData) => {
-        if (shSuccess) {
-          var historicalStockData = new HistoricalStockData(shData);
-          state.data.underlyingHistorical = historicalStockData;
-        }
-
-        //Regardless of outcome, hide progress and initiate callback
-        state.toolbar.showProgress = false;
-        callback(state);
-      }, isTest);
     }, progressCallback);
   }, isTest);
 }
