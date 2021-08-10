@@ -8,8 +8,8 @@ import {
 } from "@material-ui/core/";
 
 import SplitPane from 'react-split-pane';
-import SingleOption from '../lib/SingleOption';
-import OptionsChain from '../lib/OptionsChain';
+import SingleOption from '../objects/SingleOption';
+import OptionsChain from '../objects/OptionsChain';
 
 export default class OptionsList extends React.Component {
   constructor(props) {

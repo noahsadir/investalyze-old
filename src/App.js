@@ -6,20 +6,19 @@
 *  rewritten April 29, 2021        *
 * -------------------------------- */
 
-/*---------------------------------------------------------------------
-    *****    *******    *****    *      *   *     *    *****    ******
-   *            *      *     *   **     *   *   *     *         ******
-   *            *      *     *   * *    *   * *       *          ****
-    *****       *      *     *   *  *   *   **         *****     ****
-         *      *      *     *   *   *  *   * *             *     **
-         *      *      *     *   *    * *   *   *           *
-    *****       *       *****    *     **   *     *    *****      **
-----------------------------------------------------------------------*/
+/*
+   _________ __________   ________    ____    __   __   __    _________   ____
+  /  ______/ \__    __/  /  ___   \  /    \  |  \ |  | /  /  /  ______/  \    /
+ |  |______     |  |    |  |   |  | |  |\  \ |  | |  |/  /  |  |______    \  /
+ \______   \    |  |    |  |   |  | |  | \  \|  | |     |   \______   \    \/
+  ______|  |    |  |    |  |___|  | |  |  \  |  | |  |\  \   ______|  |    __
+ \________/     |__|    \________/  \__/   \___/  \__| \__\ \________/    |__|
+*/
 
 import './App.css';
 import { ThemeProvider, withStyles, createMuiTheme } from '@material-ui/core/styles';
-import { convertToMoneyValue, time } from './lib/Formats';
-import { formatSingleExpirationChain } from './lib/Tradier';
+import { convertToMoneyValue, time } from './libraries/Formats';
+import { formatSingleExpirationChain } from './libraries/Tradier';
 import 'fontsource-open-sans';
 import 'fontsource-open-sans/600.css';
 import 'fontsource-open-sans/300.css';
@@ -35,17 +34,17 @@ import SettingsDialog from "./components/SettingsDialog";
 import StrategyDialog from "./components/StrategyDialog";
 import DownloadDataDialog from "./components/DownloadDataDialog";
 
-import SingleOption from './lib/SingleOption';
-import OptionsChain from './lib/OptionsChain';
-import OptionsStrategy from './lib/OptionsStrategy';
-import HistoricalStockData from './lib/HistoricalStockData';
+import SingleOption from './objects/SingleOption';
+import OptionsChain from './objects/OptionsChain';
+import OptionsStrategy from './objects/OptionsStrategy';
+import HistoricalStockData from './objects/HistoricalStockData';
 
-import JSON_RETRIEVE from './lib/Requests';
+import JSON_RETRIEVE from './libraries/Requests';
+var Cookies = require('./libraries/Cookies');
 
 const BACKGROUND_COLOR = "#111115";
 const ACCENT_COLOR = "#593d99";
 
-var Cookies = require('./lib/Cookies');
 var apiKeys = Cookies.get("apiKeys", {"tradier": ""});
 
 var internalAPIUrl = "https://investalyze.noahsadir.io/api/";
@@ -375,6 +374,7 @@ export default class App extends React.Component {
             currentTime={(new Date()).getTime()}
             open={this.state.dialogs.strategyDialogVisible}
             theme={this.state.theme}
+            apiKeys={this.state.apiKeys}
             underlyingPrice={this.state.data.underlyingPrice}
             underlyingHistorical={this.state.data.underlyingHistorical}
             optionsChain={this.state.data.optionsChain}
@@ -421,12 +421,15 @@ function retrieveDataForSymbol(adjustedSymbol, state, isTest, callback, progress
         var optionsChain = new OptionsChain(ocData, state.data.underlyingPrice);
         state.data.optionsChain = optionsChain;
 
-        makeAPIRequest("API_STOCK_HISTORICAL", {symbol: adjustedSymbol, avKey: apiKeys.alpha_vantage}, (shID, shSuccess, shData) => {
+        //Get date from 3 years ago in yyyy-mm-dd format
+        var startDate = (new Date((new Date()).getTime() - 94608000000)).toISOString().split("T")[0];
+
+        makeAPIRequest("API_STOCK_HISTORICAL", {symbol: adjustedSymbol, tradierKey: apiKeys.tradier, start: startDate}, (shID, shSuccess, shData) => {
           if (shSuccess) {
             var historicalStockData = new HistoricalStockData(shData);
             state.data.underlyingHistorical = historicalStockData;
           } else {
-            console.log("Error Fetching Alpha Vantage Data");
+            console.log("Error Fetching Tradier Historical Data");
           }
 
           //Regardless of outcome, hide progress and initiate callback
@@ -545,10 +548,10 @@ function makeAPIRequest(jobID, args, callback, testMode) {
 
     //Converts API job ID to fetch-able URL
     var urlBindings = {
-      API_TRADIER_EXPIRATIONS: ("../../api/tradier_expirations.php?symbol=" + args.symbol + "&apikey=" + args.tradierKey),
-      API_TRADIER_CHAIN: ("../../api/tradier_chain.php?symbol=" + args.symbol + "&expiration=" + args.expiration + "&apikey=" + args.tradierKey),
-      API_TRADIER_QUOTE: ("../../api/tradier_quote.php?symbol=" + args.symbol + "&apikey=" + args.tradierKey),
-      API_STOCK_HISTORICAL: ("https://www.alphavantage.co/query?function=TIME_SERIES_DAILY_ADJUSTED&symbol=" + args.symbol + "&interval=1y&outputsize=full&apikey=" + args.avKey)
+      API_TRADIER_EXPIRATIONS: ("../../api/tradier.php?calltype=expirations&symbol=" + args.symbol + "&apikey=" + args.tradierKey),
+      API_TRADIER_CHAIN: ("../../api/tradier.php?calltype=options_chain&symbol=" + args.symbol + "&expiration=" + args.expiration + "&apikey=" + args.tradierKey),
+      API_TRADIER_QUOTE: ("../../api/tradier.php?calltype=company_quote&symbol=" + args.symbol + "&apikey=" + args.tradierKey),
+      API_STOCK_HISTORICAL: ("../../api/tradier.php?&calltype=historical&symbol=" + args.symbol + "&apikey=" + args.tradierKey + "&start=" + args.start)
     };
 
     //Ensure job ID exists, otherwise initiate callback indicating failure.

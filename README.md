@@ -62,11 +62,4 @@ You may also notice some JSdoc comments in the source code. While I wanted to ha
 
 ### Post-configuration Setup
 
-In order to use the APIs, create a file called keys.json in the src folder with the following text:
-```
-{
-  "alpha_vantage": "YOUR_API_KEY_HERE",
-  "tradier": "YOUR_API_KEY_HERE"
-}
-```
-Then, replace YOUR_API_KEY_HERE with a valid API key.
+In order to use the APIs, add the key(s) in the Settings dialog.

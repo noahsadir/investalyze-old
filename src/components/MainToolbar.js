@@ -1,7 +1,7 @@
 import '../App.css';
 import React from "react";
 import { withStyles } from '@material-ui/core/styles';
-import { convertToMoneyValue, time } from '../lib/Formats';
+import { convertToMoneyValue, time } from '../libraries/Formats';
 
 import {
   AppBar,

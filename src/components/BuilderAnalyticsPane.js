@@ -1,7 +1,7 @@
 import '../App.css';
 import React from "react";
 import { withStyles } from '@material-ui/core/styles';
-import OptionsStrategy from '../lib/OptionsStrategy';
+import OptionsStrategy from '../objects/OptionsStrategy';
 
 import {
   Select,
@@ -28,7 +28,7 @@ import {
   ToggleButtonGroup
 } from "@material-ui/lab";
 
-var Formats = require('../lib/Formats');
+var Formats = require('../libraries/Formats');
 var ExpandingInputBase = require('./ExpandingInputBase');
 
 var colors = [

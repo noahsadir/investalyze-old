@@ -8,7 +8,7 @@ import {
   MenuItem
 } from "@material-ui/core/";
 
-import SingleOption from '../lib/SingleOption';
+import SingleOption from '../objects/SingleOption';
 var ExpandingInputBase = require('./ExpandingInputBase');
 
 export default class OptionsListHeader extends React.Component {

@@ -32,7 +32,7 @@ var colors = [
   '#ffd149',
 ];
 
-var Formats = require('../lib/Formats');
+var Formats = require('../libraries/Formats');
 var ExpandingInputBase = require('./ExpandingInputBase');
 
 export default class DataAnalyticsPane extends React.Component {

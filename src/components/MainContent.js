@@ -149,8 +149,8 @@ class OptionsAnalyticsView extends React.Component {
       <div style={{height: "100%", display: "flex", flexFlow: "column"}}>
         <div style={{height: 64, flex: "0 0 auto", padding: 8}}>
           <StyledChartToggle size="small" value={this.props.analytics.selectedPane} exclusive onChange={handleAnalyticsPaneChange}  aria-label="text alignment">
-            <ToggleButton value="data" aria-label="left aligned">Data</ToggleButton>
-            <ToggleButton value="projection" aria-label="right aligned">Projection</ToggleButton>
+            <ToggleButton value="data" aria-label="left aligned">Values</ToggleButton>
+            <ToggleButton value="projection" aria-label="right aligned">Metrics</ToggleButton>
             <ToggleButton value="builder" aria-label="right aligned">Builder</ToggleButton>
           </StyledChartToggle>
         </div>

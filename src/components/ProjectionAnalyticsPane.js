@@ -18,7 +18,7 @@ import {
 } from "@material-ui/core/";
 
 import MultiChart from "./MultiChart";
-var Formats = require('../lib/Formats');
+var Formats = require('../libraries/Formats');
 var ExpandingInputBase = require('./ExpandingInputBase');
 
 var colors = [
@@ -142,7 +142,6 @@ class PaneConfiguration extends React.Component {
       if (this.props.onProjectionAnalyticsConfigChange != null) {
         var configuration = this.props.analytics.projectionPaneConfig;
         configuration[event.target.name] = event.target.value;
-        console.log(event);
         this.props.onProjectionAnalyticsConfigChange(configuration);
       }
     }
@@ -347,13 +346,20 @@ function createChartData(data, calcType, underlyingHistorical, underlyingPrice) 
     var historicalSeries = {label: "Historical", color: '#666ad1', data: []};
     var projectionSeries = {label: "Projection", color: '#666ad1', data: []};
     var latestExpiration = 0;
-    var historicalData = underlyingHistorical != null ? underlyingHistorical.closingPrices : [];
+    var fullHistoricalData = underlyingHistorical != null ? underlyingHistorical.closingPrices : [];
+    var historicalData = [];
+
+    //Only include approximately 100 data points
+    for (var index in fullHistoricalData) {
+      if (index % Math.ceil(fullHistoricalData.length / 100) == 0) {
+        historicalData.push(fullHistoricalData[index]);
+      }
+    }
 
     if (historicalData.length > 2){
       //Red if stock is down, green if up
       historicalSeries.color = (historicalData[0][1] > historicalData[historicalData.length - 1][1]) ? '#48a999' : '#ff5f52';
     }
-
 
     for (var dataKey in data) {
       if (dataKey != "all") {

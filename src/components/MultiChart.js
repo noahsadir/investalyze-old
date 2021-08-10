@@ -6,7 +6,7 @@ import { Line, Bar } from 'react-chartjs-2';
 import Plotly from 'plotly.js-gl3d-dist';
 import createPlotlyComponent from "react-plotly.js/factory";
 
-var Formats = require('../lib/Formats');
+var Formats = require('../libraries/Formats');
 
 //TODO: Fix tooltip displaying wrong x-value with bar chart for all
 export default class MultiChart extends React.Component {
@@ -146,7 +146,7 @@ function formatDataForChartJS(inputData, scale, stacked, colorInterval) {
     var dataSet = {
       label: inputData[key].label,
       data: dataForSet,
-      pointRadius: 1,
+      pointRadius: 2,
       fill: false,
       backgroundColor: color,
       borderColor: color,

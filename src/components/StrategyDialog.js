@@ -19,15 +19,19 @@ import {
   TableContainer,
   TableHead,
   TableRow,
+  Tabs,
+  Tab,
 } from '@material-ui/core/';
 import MultiChart from './MultiChart';
+import HistoricalStockData from '../objects/HistoricalStockData';
+
+var ExpandingInputBase = require('./ExpandingInputBase');
+var Formats = require('../libraries/Formats');
+var Requests = require('../libraries/Requests');
 
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
 });
-
-var ExpandingInputBase = require('./ExpandingInputBase');
-var Formats = require('../lib/Formats');
 
 var stepValueDefault = 3;
 var stepColumnsDefault = 30;
@@ -77,14 +81,25 @@ export default class StrategyDialog extends React.Component {
         stepType: "percent_change",
         stepColumns: stepColumnsDefault,
         chartType: "table",
-      }
+      },
+      tabType: "projection"
     }
   }
 
   render() {
+
+
     const handleClose = () => {
       if (this.props.onClose != null) {
         this.props.onClose();
+      }
+    }
+
+    const handleTabChange = (event, newValue) => {
+      if (newValue == 0) {
+        this.setState({tabType: "projection"})
+      } else if (newValue == 1) {
+        this.setState({tabType: "historical"})
       }
     }
 
@@ -99,8 +114,12 @@ export default class StrategyDialog extends React.Component {
               {this.props.strategy != null ? this.props.strategy.identify() : "Unknown Strategy"}
             </Typography>
           </Toolbar>
+          <Tabs value={this.state.tabType == "historical" ? 1 : 0} onChange={handleTabChange} aria-label="simple tabs example">
+            <Tab label="Projection"/>
+            <Tab label="Historical"/>
+          </Tabs>
         </AppBar>
-        <div style={{margin: 0, padding: 8, display: "flex", background: this.props.theme.backgroundColor, width: "100%", flexFlow: "column", height: "100%"}}>
+        <div style={{margin: 0, padding: 8, display: (this.state.tabType == "projection" ? "flex" : "none"), background: this.props.theme.backgroundColor, width: "100%", flexFlow: "column", height: "100%"}}>
           <ConfigurationBar
             theme={this.props.theme}
             configuration={this.state.configuration}
@@ -116,8 +135,64 @@ export default class StrategyDialog extends React.Component {
             strategy={this.props.strategy}
             underlyingPrice={this.props.underlyingPrice}/>
         </div>
+        <div style={{margin: 0, padding: 8, display: (this.state.tabType == "historical" ? "flex" : "none"), background: this.props.theme.backgroundColor, width: "100%", flexFlow: "column", height: "100%"}}>
+          <HistoricalOptionsChart
+            theme={this.props.theme}
+            tabType={this.state.tabType}
+            open={this.props.open}
+            strategy={this.props.strategy}
+            apiKeys={this.props.apiKeys}/>
+        </div>
       </Dialog>
     );
+  }
+}
+
+class HistoricalOptionsChart extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      closePoints: [],
+    }
+  }
+
+  render() {
+
+    var chartData = [{label: "Historical", color: '#666ad1', data: this.state.closePoints}];
+
+    console.log(this.state.closePoints);
+    if (this.props.strategy != null && this.props.open && this.props.tabType == "historical") {
+      this.props.strategy.loadHistorical(this.props.apiKeys.tradier,
+        //Progress
+        (count) => {
+          console.log("Loading " + count.toString());
+        },
+        //Finished
+        (success) => {
+          if (success) {
+            this.setState({closePoints: this.props.strategy.historicalClosings()});
+          }
+        }
+      );
+    }
+
+    return (
+      <div style={{flex: "1 0 0", display: "flex", flexFlow: "column"}}>
+        <div style={{flex: "1 1 auto", display: "flex"}}>
+          <MultiChart
+            theme={this.props.theme}
+            xAxisLabel={"Date"}
+            yAxisLabel={null}
+            zAxisLabel={null}
+            scale={"time"}
+            type={"line"}
+            stacked={false}
+            data={chartData}/>
+        </div>
+        <div style={{flex: "0 0 0"}}/>
+      </div>
+
+    )
   }
 }
 
@@ -318,7 +393,7 @@ class ConfigurationBar extends React.Component {
     }
 
     return (
-      <Paper style={{padding: 8, marginBottom: 8, overflow: "hidden", backgroundColor: this.props.theme.elevationColor, display: "flex", flex: "0 1 auto", height: 64, minHeight: 64}}>
+      <Paper style={{padding: 8, marginBottom: 8, overflow: "hidden", backgroundColor: this.props.theme.elevationColor, display: "flex", flexWrap: "wrap", flex: "0 1 auto", minHeight: 64}}>
         <IconButton onClick={handleChartTypeChange}>
           <Icon style={{fontSize: 24}}>{this.props.configuration.chartType == "table" ? "show_chart" : "table_chart"}</Icon>
         </IconButton>
@@ -348,6 +423,7 @@ class ConfigurationBar extends React.Component {
           <MenuItem value={"percent_change"}>{"% Change"}</MenuItem>
           <MenuItem value={"dollar_change"}>{"$ Change"}</MenuItem>
         </Select>
+        <div class="flex-break"></div>
         <TextField
           variant="outlined"
           style={{flex: "1 0 0", marginLeft: 8, marginTop: 2}}
