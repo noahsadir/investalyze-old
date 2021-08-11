@@ -143,6 +143,50 @@ export default class OptionsChain {
     return null;
   }
 
+  maxPain = (date) => {
+    var maxPainPrice = null;
+
+    if (date != null) {
+      var callsForDate = this.forDate(date, "calls");
+      var putsForDate = this.forDate(date, "puts");
+      var cumulativePain = {};
+      var maxPainValue = 0;
+
+      //Iterate through each strike value
+      for (var index in callsForDate) {
+        var strikePrice = callsForDate[index].get("strike");
+        cumulativePain[strikePrice.toString()] = {calls: 0, puts: 0, total: 0};
+
+        //For given strike value, calculate total value at expiration for all calls
+        for (var callIndex in callsForDate) {
+          if (callsForDate[callIndex].get("strike") < strikePrice) {
+            cumulativePain[strikePrice.toString()].calls += (callsForDate[callIndex].get("open_interest") * (strikePrice - callsForDate[callIndex].get("strike")));
+          }
+        }
+
+        //For given strike value, calculate total value at expiration for all puts
+        for (var putIndex in putsForDate) {
+          if (putsForDate[putIndex].get("strike") > strikePrice) {
+            cumulativePain[strikePrice.toString()].puts += (putsForDate[putIndex].get("open_interest") * (putsForDate[putIndex].get("strike") - strikePrice));
+          }
+        }
+
+        //Add the total put and call values to get total pain
+        cumulativePain[strikePrice.toString()].total = cumulativePain[strikePrice.toString()].calls + cumulativePain[strikePrice.toString()].puts;
+      }
+
+      //Find strike with most pain to option buyers (least value at expiration)
+      for (var strikeKey in cumulativePain) {
+        if (maxPainPrice == null || maxPainValue > cumulativePain[strikeKey].total) {
+          maxPainPrice = strikeKey;
+          maxPainValue = cumulativePain[strikeKey].total;
+        }
+      }
+    }
+
+    return maxPainPrice;
+  }
+
   get names() {
     return this.valueNames;
   }

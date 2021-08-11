@@ -104,7 +104,7 @@ export default class ProjectionAnalyticsPane extends React.Component {
             yAxisLabel={null}
             zAxisLabel={null}
             scale={(this.props.analytics.projectionPaneConfig.dataType == "implied_move_local" || this.props.analytics.projectionPaneConfig.dataType == "implied_move_general") ? "time_scaled" : "time"}
-            type={(this.props.analytics.projectionPaneConfig.dataType == "implied_move_local" || this.props.analytics.projectionPaneConfig.dataType == "implied_move_general" || this.props.analytics.projectionPaneConfig.dataType == "implied_volatility") ? "line" : "bar"}
+            type={(this.props.analytics.projectionPaneConfig.dataType == "implied_move_local" || this.props.analytics.projectionPaneConfig.dataType == "implied_move_general" || this.props.analytics.projectionPaneConfig.dataType == "implied_volatility" || this.props.analytics.projectionPaneConfig.dataType == "max_pain") ? "line" : "bar"}
             stacked={false}
             data={chartData}/>
         </div>
@@ -178,6 +178,7 @@ class PaneConfiguration extends React.Component {
           <MenuItem value={"open_interest_value"}>{"Open Interest Value"}</MenuItem>
           <MenuItem value={"open_interest_intrinsic"}>{"Open Interest Intrinsic"}</MenuItem>
           <MenuItem value={"open_interest_extrinsic"}>{"Open Interest Extrinsic"}</MenuItem>
+          <MenuItem value={"max_pain"}>{"Max Pain"}</MenuItem>
           <MenuItem value={"volume"}>{"Volume"}</MenuItem>
         </Select>
         {additionalDropdowns}
@@ -236,6 +237,13 @@ class ProjectionTable extends React.Component {
           <TableCell align="right" style={headerStyle}>Total</TableCell>
         </TableRow>
       );
+    } else if (this.props.dataType == "max_pain") {
+      tableHeader = (
+        <TableRow>
+          <TableCell style={headerStyle}>Date</TableCell>
+          <TableCell align="right" style={headerStyle}>Max Pain</TableCell>
+        </TableRow>
+      );
     }
 
     //Body Configuration
@@ -287,6 +295,16 @@ class ProjectionTable extends React.Component {
             <TableCell align="right">{Formats.convertToTruncatedMoneyValue(this.props.data[dateKey].total, false)}</TableCell>
           </TableRow>
         );
+      } else if (this.props.dataType == "max_pain") {
+        var impliedMove = this.props.data[dateKey].total;
+        if (dateKey != "all") {
+          rowItem = (
+            <TableRow key={dateKey}>
+              <TableCell component="th" scope="row">{dateKey == "all" ? "All" : Formats.time(dateKey)}</TableCell>
+              <TableCell align="right">{"$" + parseFloat(this.props.data[dateKey].total).toFixed(2)}</TableCell>
+            </TableRow>
+          );
+        }
       }
 
       if (dateKey == "all" && rowItem != null) {
@@ -340,6 +358,16 @@ function createChartData(data, calcType, underlyingHistorical, underlyingPrice) 
       }
     }
     chartData = [callSeries, putSeries, totalSeries];
+  } else if (calcType == "max_pain") {
+    //Chart separated by calls and puts without historical data
+    var totalSeries = {label: "Max Pain", color: '#fff263', data: []};
+    for (var dataKey in data) {
+      if (dataKey != "all") {
+        var dateVal = parseInt(dataKey) * 1000;
+        totalSeries.data.push([dateVal, data[dataKey].total]);
+      }
+    }
+    chartData = [totalSeries];
   } else if (calcType == "implied_move_local" || calcType == "implied_move_general") {
 
     //Line chart with historical data and total calculated data only
@@ -415,6 +443,10 @@ function chainCalculation(optionsChain, calcType, date, optionType) {
     return optionsChain.getTotal("open_interest_intrinsic", date, optionType);
   } else if (calcType == "open_interest_extrinsic") {
     return optionsChain.getTotal("open_interest_extrinsic", date, optionType);
+  } else if (calcType == "max_pain") {
+    if (optionType == null) {
+      return optionsChain.maxPain(date);
+    }
   }
   return null;
 }
