@@ -209,8 +209,10 @@ export default class OptionsStrategy {
       return singleLegStrategy(this.underlyingShareCount, this.singleOptions[0]);
     } else if (legsCount == 2) {
       return twoLegStrategy(this.underlyingShareCount, this.singleOptions[0], this.singleOptions[1]);
+    } else if (legsCount == 4) {
+      return fourLegStrategy(this.underlyingShareCount, this.singleOptions[0], this.singleOptions[1], this.singleOptions[2], this.singleOptions[3]);
     } else if (legsCount > 8) {
-      return "What are you doing?";
+      return "More legs than a spider";
     }
     return "Unknown Strategy";
   }
@@ -420,5 +422,72 @@ function twoLegStrategy(underlyingQuantity, firstLeg, secondLeg) {
       }
     }
   }
+  return "Unknown Strategy";
+}
+
+function fourLegStrategy(underlyingQuantity, firstLeg, secondLeg, thirdLeg, fourthLeg) {
+  var legs = [firstLeg, secondLeg, thirdLeg, fourthLeg];
+  var longCalls = [];
+  var shortCalls = [];
+  var longPuts = [];
+  var shortPuts = [];
+
+  for (var index in legs) {
+    var option = legs[index];
+    if (option.option.get("type") == "call") {
+      if (option.quantity > 0) {
+        longCalls.push(option);
+      } else if (option.quantity < 0) {
+        shortCalls.push(option);
+      }
+    } else if (option.option.get("type") == "put") {
+      if (option.quantity > 0) {
+        longPuts.push(option);
+      } else if (option.quantity < 0) {
+        shortPuts.push(option);
+      }
+    }
+  }
+
+  //Iron Condor
+  if (longCalls.length == 1 && shortCalls.length == 1 && longPuts.length == 1 && shortPuts.length == 1) {
+    var underlyingPosition = underlyingQuantity > 0 ? " + Long Shares" : (underlyingQuantity < 0 ? " + Short Shares" : "");
+    if (longCalls[0].option.get("strike") > shortCalls[0].option.get("strike")) {
+      //Call Credit Spread
+      if (longPuts[0].option.get("strike") > shortPuts[0].option.get("strike")) {
+        //Put Debit Spread
+        return "Bear Spreads";
+      } else if (longPuts[0].option.get("strike") < shortPuts[0].option.get("strike")) {
+        //Put Credit Spread
+        if ((longPuts[0].option.get("strike") == shortCalls[0].option.get("strike")) && (shortPuts[0].option.get("strike") == longCalls[0].option.get("strike"))) {
+          return "Short Box Spread";
+        } else if (shortPuts[0].option.get("strike") != shortCalls[0].option.get("strike")) {
+          return "Short Iron Condor" + underlyingPosition;
+        } else if (shortPuts[0].option.get("strike") == shortCalls[0].option.get("strike")) {
+          return "Short Iron Butterfly" + underlyingPosition;
+        }
+      }
+    } else if (longCalls[0].option.get("strike") < shortCalls[0].option.get("strike")) {
+      //Call Debit Spread
+      if (longPuts[0].option.get("strike") > shortPuts[0].option.get("strike")) {
+        //Put Debit Spread
+        if ((longPuts[0].option.get("strike") == shortCalls[0].option.get("strike")) && (shortPuts[0].option.get("strike") == longCalls[0].option.get("strike"))) {
+          return "Long Box Spread";
+        } else if (longPuts[0].option.get("strike") != longCalls[0].option.get("strike")) {
+          return "Long Iron Condor" + underlyingPosition;
+        } else if (longPuts[0].option.get("strike") == longCalls[0].option.get("strike")) {
+          return "Long Iron Butterfly" + underlyingPosition;
+        }
+      } else if (longPuts[0].option.get("strike") < shortPuts[0].option.get("strike")) {
+        //Put Credit Spread
+        return "Bull Spreads";
+      }
+    }
+  } else if (longCalls.length == 2 && shortCalls.length == 2 && longPuts.length == 0 && shortPuts.length == 0) {
+
+  } else if (longCalls.length == 0 && shortCalls.length == 0 && longPuts.length == 2 && shortPuts.length == 2) {
+
+  }
+
   return "Unknown Strategy";
 }
