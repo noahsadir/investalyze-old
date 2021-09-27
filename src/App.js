@@ -24,6 +24,12 @@ import 'fontsource-open-sans/600.css';
 import 'fontsource-open-sans/300.css';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import React from "react";
+import {
+  Snackbar
+} from '@material-ui/core';
+import {
+  Alert
+} from '@material-ui/lab';
 
 
 import MainToolbar from "./components/MainToolbar";
@@ -78,6 +84,9 @@ export default class App extends React.Component {
         settingsDialogVisible: false,
         strategyDialogVisible: false,
         downloadDataDialogVisible: false,
+        mainSnackbarVisible: false,
+        mainSnackbarSeverity: "error",
+        mainSnackbarMessage: "An error has occurred",
       },
       data: {
         optionsChain: null,
@@ -229,6 +238,22 @@ export default class App extends React.Component {
         },
         (progress) => {
           setSubState(this, "toolbar", "progress", progress);
+        },
+        (errorID) => {
+          var newDialogsState = this.state.dialogs;
+          if (errorID == "ERR_OPTIONS_DATA_FETCH") {
+            newDialogsState.mainSnackbarSeverity = "error";
+            newDialogsState.mainSnackbarMessage = "Error fetching data. Please check your connection and/or API Key.";
+          } else if (errorID == "ERR_HISTORICAL_FETCH") {
+            newDialogsState.mainSnackbarSeverity = "warning";
+            newDialogsState.mainSnackbarMessage = "Unable to fetch historical data.";
+          } else {
+            newDialogsState.mainSnackbarSeverity = "error";
+            newDialogsState.mainSnackbarMessage = "An unknown error occurred";
+          }
+          newDialogsState.mainSnackbarVisible = true;
+
+          this.setState({dialogs: newDialogsState});
         }
       );
     }
@@ -255,6 +280,10 @@ export default class App extends React.Component {
           setSubState(this, "preferences", "rowConfiguration", newRowConfig);
         }
       }
+    }
+
+    const handleMainSnackbarClose = (event, reason) => {
+      setSubState(this, "dialogs", "mainSnackbarVisible", false);
     }
 
     //User clicked agree on disclaimer dialog
@@ -385,6 +414,11 @@ export default class App extends React.Component {
             theme={this.state.theme}
             data={this.state.data}
             onClose={() => setSubState(this, "dialogs", "downloadDataDialogVisible", false)}/>
+            <Snackbar anchorOrigin={{ vertical: 'top', horizontal: 'center' }} open={this.state.dialogs.mainSnackbarVisible} autoHideDuration={6000} onClose={handleMainSnackbarClose}>
+              <Alert onClose={handleMainSnackbarClose} severity={this.state.dialogs.mainSnackbarSeverity} sx={{ width: '100%' }}>
+                {this.state.dialogs.mainSnackbarMessage}
+              </Alert>
+            </Snackbar>
       </div>
       </ThemeProvider>
 
@@ -401,7 +435,7 @@ export default class App extends React.Component {
  * @param {function} callback the function to call when all data has been loaded.
  *                            Should accept single parameter representing updated app state.
  */
-function retrieveDataForSymbol(adjustedSymbol, state, isTest, callback, progressCallback) {
+function retrieveDataForSymbol(adjustedSymbol, state, isTest, callback, progressCallback, errorCallback) {
 
   //Regardless of outcome for options chain, get basic data of underlying
   makeAPIRequest("API_TRADIER_QUOTE", {symbol: adjustedSymbol, tradierKey: apiKeys.tradier}, (spID, spSuccess, spData) => {
@@ -429,6 +463,7 @@ function retrieveDataForSymbol(adjustedSymbol, state, isTest, callback, progress
             var historicalStockData = new HistoricalStockData(shData);
             state.data.underlyingHistorical = historicalStockData;
           } else {
+            errorCallback("ERR_HISTORICAL_FETCH");
             console.log("Error Fetching Tradier Historical Data");
           }
 
@@ -437,6 +472,7 @@ function retrieveDataForSymbol(adjustedSymbol, state, isTest, callback, progress
           callback(state);
         }, isTest);
       } else {
+        errorCallback("ERR_OPTIONS_DATA_FETCH")
         console.log("Error Fetching Tradier Data");
       }
     }, progressCallback);

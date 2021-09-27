@@ -5,6 +5,21 @@ html, body{
   position: fixed;
   font-family: 'Open Sans', sans-serif;
 }
+.MuiAlert-standardError {
+  background-color: #cc4466 !important;
+  color: #ffffff !important;
+}
+.MuiAlert-standardWarning{
+  background-color: #dd9800 !important;
+  color: #ffffff !important;
+}
+.MuiAlert-standardSuccess{
+  background-color: #4caf50 !important;
+  color: #ffffff !important;
+}
+.MuiAlert-icon{
+  color: #ffffff !important;
+}
 .MuiCircularProgress-root{
     color: #ffffff !important;
 }

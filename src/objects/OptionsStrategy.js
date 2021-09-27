@@ -77,6 +77,7 @@ export default class OptionsStrategy {
       }
     }
 
+    console.log(totalClosePoints);
     return totalClosePoints;
   }
 
@@ -449,7 +450,6 @@ function fourLegStrategy(underlyingQuantity, firstLeg, secondLeg, thirdLeg, four
     }
   }
 
-  //Iron Condor
   if (longCalls.length == 1 && shortCalls.length == 1 && longPuts.length == 1 && shortPuts.length == 1) {
     var underlyingPosition = underlyingQuantity > 0 ? " + Long Shares" : (underlyingQuantity < 0 ? " + Short Shares" : "");
     if (longCalls[0].option.get("strike") > shortCalls[0].option.get("strike")) {
@@ -483,10 +483,6 @@ function fourLegStrategy(underlyingQuantity, firstLeg, secondLeg, thirdLeg, four
         return "Bull Spreads";
       }
     }
-  } else if (longCalls.length == 2 && shortCalls.length == 2 && longPuts.length == 0 && shortPuts.length == 0) {
-
-  } else if (longCalls.length == 0 && shortCalls.length == 0 && longPuts.length == 2 && shortPuts.length == 2) {
-
   }
 
   return "Unknown Strategy";
