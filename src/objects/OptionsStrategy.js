@@ -1,4 +1,8 @@
 import HistoricalStockData from './HistoricalStockData';
+
+/**
+ * Manage and perform calculations for a desired combination of options contracts and/or underlying shares.
+ */
 export default class OptionsStrategy {
   constructor() {
     this.singleOptions = [];
@@ -6,11 +10,13 @@ export default class OptionsStrategy {
     this.underlyingShareCount = 0;
   }
 
+  //Add an option to the strategy
   add = (singleOption, quantity) => {
     this.remove(singleOption);
     this.singleOptions.push({option: singleOption.copy(), quantity: quantity, historical: null});
   }
 
+  //Load historical data for the option
   loadHistorical = (apiKey, progressCallback, finishCallback) => {
     var loadCount = 0;
     var successForAll = true;
@@ -47,6 +53,7 @@ export default class OptionsStrategy {
     }
   }
 
+  //Get the historical closing price of the strategy
   historicalClosings = () => {
     var total = 0;
     var optionsCount = this.singleOptions.length;
@@ -81,6 +88,7 @@ export default class OptionsStrategy {
     return totalClosePoints;
   }
 
+  //Modify the data of the SingleOption object for one of the options in the strategy
   modifySingleOptionProperty = (singleOption, key, newValue) => {
     var indexIfAvailable = this.indexOf(singleOption);
     if (indexIfAvailable != null) {
@@ -88,6 +96,7 @@ export default class OptionsStrategy {
     }
   }
 
+  //Modify the quantity of contracts for one of the options in the strategy
   modifySingleOptionQuantity = (singleOption, newQuantity) => {
     var indexIfAvailable = this.indexOf(singleOption);
     if (indexIfAvailable != null) {
@@ -95,6 +104,7 @@ export default class OptionsStrategy {
     }
   }
 
+  //Remove an option from the strategy
   remove = (singleOption) => {
     var indexIfAvailable = this.indexOf(singleOption);
     if (indexIfAvailable != null) {
@@ -102,6 +112,7 @@ export default class OptionsStrategy {
     }
   }
 
+  //
   indexOf = (singleOption) => {
 
     var singleOptionID = singleOption.get("id");
@@ -119,6 +130,7 @@ export default class OptionsStrategy {
     return this;
   }
 
+  //Get the sum of values of a desired metric (e.g. "mark") for all options in the strategy
   getTotal = (key) => {
     var total = 0;
     for (var index in this.singleOptions) {
@@ -127,6 +139,7 @@ export default class OptionsStrategy {
     return total;
   }
 
+  //Get the sum of values of a desired metric (e.g. "mark") for all options in the strategy
   getAdjustedTotal = (key) => {
     var total = 0;
     for (var index in this.singleOptions) {
@@ -155,10 +168,12 @@ export default class OptionsStrategy {
     return strikesList;
   }
 
+  //Determine the total debit/credit for an options strategy based on the mark of each option
   markDebitCredit = () => {
     return ((this.getTotal("mark") * 100) + (this.underlyingPrice * this.underlyingShareCount)) * -1;
   }
 
+  //Determine the total debit/credit for an options strategy based on the predicted BS price
   predictedDebitCredit = (daysToExpiration, spotPrice, impliedVolatility) => {
     var total = 0;
     for (var index in this.singleOptions) {
@@ -167,6 +182,7 @@ export default class OptionsStrategy {
     return ((total * 100) + (this.underlyingPrice * this.underlyingShareCount)) * -1;
   }
 
+  //Use the Black-Scholes model to predict the price of an option given a specified date, spot price, and IV
   blackScholesPrice = (daysToExpiration, spotPrice, impliedVolatility) => {
     var total = 0;
     for (var index in this.singleOptions) {
@@ -178,6 +194,7 @@ export default class OptionsStrategy {
     return total;
   }
 
+  //Determine the total debit/credit for an options strategy based on the bid of each option
   bidDebitCredit = () => {
     var total = 0;
     for (var index in this.singleOptions) {
@@ -190,6 +207,7 @@ export default class OptionsStrategy {
     return total;
   }
 
+  //Determine the total debit/credit for an options strategy based on the ask of each option
   askDebitCredit = () => {
     var total = 0;
     for (var index in this.singleOptions) {
@@ -202,6 +220,7 @@ export default class OptionsStrategy {
     return total;
   }
 
+  //Attempt to name a particular options strategy (e.g. "Vertical Call Credit Spread")
   identify = () => {
     var legsCount = this.singleOptions.length;
     if (legsCount == 0) {
@@ -218,6 +237,7 @@ export default class OptionsStrategy {
     return "Unknown Strategy";
   }
 
+  //Get the expiration date of the strategy (the option with the earliest exp date)
   expiration = () => {
     var nearestExpiration = null;
     for (var index in this.singleOptions) {

@@ -1,4 +1,7 @@
 var Formats = require('../libraries/Formats');
+/**
+ * Stores and processes historical data for a given stock.
+ */
 export default class HistoricalStockData {
   constructor(rawData) {
     //var points = getPoints(rawData["Time Series (Daily)"]);
@@ -21,6 +24,12 @@ export default class HistoricalStockData {
 
 }
 
+/**
+ * Convert JSON data into a CSV format, typically for downloading.
+ *
+ * @param {Object} jsonData the historical stock data in human-readable JSON format
+ * @returns {string} the underlying stock data in a CSV format
+ */
 function formatDataAsCSV(jsonData) {
   var csvData = "";
   for (var dateKey in jsonData) {
@@ -43,6 +52,12 @@ function formatDataAsCSV(jsonData) {
   return csvData;
 }
 
+/**
+ * Convert fetched historical data (JSON) into a more human-readable JSON format, typically for downloading.
+ *
+ * @param {Object} seriesData the raw historical stock data
+ * @returns {Object} the historical stock data in JSON format
+ */
 function formatDataAsJSON(seriesData) {
   var outputData = {};
 

@@ -55,6 +55,9 @@ var apiKeys = Cookies.get("apiKeys", {"tradier": ""});
 
 var internalAPIUrl = "https://investalyze.noahsadir.io/api/";
 
+/**
+ * Main entry point of application.
+ */
 export default class App extends React.Component {
 
   constructor(props) {
@@ -433,7 +436,11 @@ export default class App extends React.Component {
  * @param {Object} state the app's state
  * @param {boolean} isTest boolean indicating whether test mode is activated
  * @param {function} callback the function to call when all data has been loaded.
- *                            Should accept single parameter representing updated app state.
+ *                            Should accept single parameter (Object) representing updated app state.
+ * @param {function} progressCallback the function to call when there is an update to the progress of the request.
+ *                                    Accepts a single parameter (number) representing the percentage loaded.
+ * @param {function} errorCallback the function to call when there is an error making the request.
+ *                                 Accepts a single parameter (string) representing the error ID.
  */
 function retrieveDataForSymbol(adjustedSymbol, state, isTest, callback, progressCallback, errorCallback) {
 

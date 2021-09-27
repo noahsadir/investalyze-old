@@ -1,5 +1,8 @@
 import SingleOption from './SingleOption';
 
+/**
+ * Stores and processes data for the options chain.
+ */
 export default class OptionsChain {
   constructor(rawData, spotPrice) {
     this.spot = spotPrice;
@@ -12,22 +15,29 @@ export default class OptionsChain {
     this.strikes = {calls: getAllKeys(this.strikeSortedData.calls), puts: getAllKeys(this.strikeSortedData.puts)};
   }
 
+  //Get expiration dates for a given type ("calls" or "puts")
+  //NOTE: Should be same regardless of type
   getDates = (type) => {
     return this.dates[type];
   }
 
+  //Get strikes for a given type ("calls" or "puts")
+  //NOTE: Should be same regardless of type
   getStrikes = (type) => {
     return this.strikes[type];
   }
 
+  //Get chain for a given type and expiration date, sorted by strike
   forDate = (date, type) => {
     return this.dateSortedData[type][date];
   }
 
+  //Get chain for a given type and strike, sorted by expiration date
   forStrike = (strike, type) => {
     return this.strikeSortedData[type][strike];
   }
 
+  //Get the two options closest to the money for a given type and expiration date
   ntmForDate = (date, type, underlyingPrice) => {
     var chainForDate = this.forDate(date, type);
     var upperItem = null;
@@ -47,6 +57,7 @@ export default class OptionsChain {
     return {upper: upperItem, lower: lowerItem};
   }
 
+  //Get the implied volatility for NTM options of specified type at the given date
   impliedVolatility = (date, type) => {
 
     if (type != "calls" && type != "puts") {
@@ -89,6 +100,7 @@ export default class OptionsChain {
     return iv;
   }
 
+  //Get the implied move based on NTM implied volatility
   impliedMove = (date, impliedVolatility) => {
     var iv = impliedVolatility;
     if (impliedVolatility == null) {
@@ -98,6 +110,10 @@ export default class OptionsChain {
     return (this.spot * (iv / 100) * Math.sqrt(yearsBetweenMilliseconds(this.currentTime, date * 1000)));
   }
 
+  //Retrieve the sum of a certain value (e.g. "open_interest") for all options of given type and/or expiration date
+  //If no date is provided, the sum of values for all calls or puts is returned
+  //If no type is provided, the sum of values for all calls and puts at the specified date is returned
+  //If neither date nor type is provided, the sum of all options for the symbol is returned
   getTotal = (metric, date, type) => {
     if (type != "calls" && type != "puts") {
       var callTotal = this.getTotal(metric, date, "calls");
@@ -143,6 +159,7 @@ export default class OptionsChain {
     return null;
   }
 
+  //Find the strike at which losses for options buyers are maximized (sellers minimized) at a specified expirationd date
   maxPain = (date) => {
     var maxPainPrice = null;
 

@@ -6,7 +6,12 @@
 * it for processing.               *
 * -------------------------------- */
 
-/*        pain         */
+/**
+ * Perform a GET request with the desired URL and return loaded data.
+ *
+ * @param {string} urlValue the URL to load
+ * @param {function} callback the function to call when the request is finished or if it fails
+ */
 export default function JSON_RETRIEVE(urlValue, callback) {
   console.log("fetching data from " + urlValue);
 

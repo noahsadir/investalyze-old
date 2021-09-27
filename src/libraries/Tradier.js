@@ -1,3 +1,10 @@
+/**
+ * Format tradier options chain into format accepted by appliication.
+ *
+ * @param {Object} rawData the data retrieved from the API
+ * @param {number} dateSecs the expiration date in seconds
+ @ @returns {Object} a fragment of the options chain at a single expiration date
+ */
 export function formatSingleExpirationChain(rawData, dateSecs) {
 
   //If data is valid, convert chain into processable format

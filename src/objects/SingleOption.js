@@ -2,6 +2,9 @@ var Greeks = require('greeks');
 var BlackScholes = require('black-scholes');
 var ImpliedVolatility = require('implied-volatility');
 
+/**
+ * Store and process data for a single option contract.
+ */
 export default class SingleOption {
   constructor(rawData, spotPrice) {
     this.rawProps = rawData;
@@ -30,7 +33,7 @@ export default class SingleOption {
     this.calcProps.bid_ask_spread = this.get("ask") - this.get("bid");
     this.calcProps.open_interest_value = this.get("mark") * this.get("open_interest");
     this.calcProps.time_to_expiration = roundFloat((this.get("expiration") - currentTime) / 1000 / 60 / 60 / 24, 2);
-    //Calculate greeks manually. Slow & Resource intensive,
+    //Calculate greeks manually. Slow & resource intensive,
     //but more accurate than 1-hr delayed values provided by Tradier
     if (calculateGreeksManually) {
       this.calcProps.implied_volatility = ImpliedVolatility.getImpliedVolatility(this.get("mark"), this.get("spot"), this.get("strike"), (this.get("expiration") - currentTime) / 31536000000, 0.0015, this.get("type")) * 100;
@@ -168,7 +171,6 @@ export default class SingleOption {
     }
     return data;
   }
-
 }
 
 function calculateIntrinsicValue(object) {
