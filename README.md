@@ -64,4 +64,4 @@ You may also notice some JSdoc comments in the source code. While I wanted to ha
 
 This application uses the [Tradier Brokerage API](https://documentation.tradier.com/brokerage-api) to fetch market data.
 
-After you obtain an API Key for the *Developer Sandbox*, you should enter it into the text field located in the Settings dialog.
+After you obtain an API Key for the *Developer Sandbox*, you should enter it into the "Tradier API Key" field located in the Settings dialog.
