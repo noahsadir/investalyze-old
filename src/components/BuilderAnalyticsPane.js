@@ -59,6 +59,9 @@ const StyledToggleButtonGroup = withStyles((theme) => ({
   },
 }))(ToggleButtonGroup);
 
+/**
+ * Pane for options strategy builder
+ */
 export default class BuilderAnalyticsPane extends React.Component {
   constructor(props) {
     super(props);
@@ -90,6 +93,9 @@ export default class BuilderAnalyticsPane extends React.Component {
   }
 }
 
+/**
+ * Displays list of selected contracts
+ */
 class StrategyList extends React.Component {
   constructor(props) {
     super(props);
@@ -144,6 +150,9 @@ class StrategyList extends React.Component {
   }
 }
 
+/**
+ * Displays data for specific contract along with fields to edit price and quantity.
+ */
 class StrategyListItem extends React.Component {
   constructor(props) {
     super(props);
@@ -204,6 +213,9 @@ class StrategyListItem extends React.Component {
   }
 }
 
+/**
+ * Contains options to change settings regarding pane (data set, chart type, etc.)
+ */
 class PaneConfiguration extends React.Component {
   constructor(props) {
     super(props);
