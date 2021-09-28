@@ -59,7 +59,6 @@ const StyledToggleButtonGroup = withStyles((theme) => ({
   },
 }))(ToggleButtonGroup);
 
-
 export default class BuilderAnalyticsPane extends React.Component {
   constructor(props) {
     super(props);

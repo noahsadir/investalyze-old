@@ -104,6 +104,9 @@ export default class MainContent extends React.Component {
   }
 }
 
+/**
+ * List containing options contracts matching filter criteria.
+ */
 class OptionsListView extends React.Component {
   constructor(props) {
     super(props);
@@ -131,6 +134,9 @@ class OptionsListView extends React.Component {
   }
 }
 
+/**
+ * Manages panes for different types of analytics regarding options chain.
+ */
 class OptionsAnalyticsView extends React.Component {
   constructor(props) {
     super(props);

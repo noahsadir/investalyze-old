@@ -11,6 +11,9 @@ import {
 import SingleOption from '../objects/SingleOption';
 var ExpandingInputBase = require('./ExpandingInputBase');
 
+/**
+ * Allows for changing data type which is displayed for each column.
+ */
 export default class OptionsListHeader extends React.Component {
   constructor(props) {
     super(props);
@@ -39,6 +42,9 @@ export default class OptionsListHeader extends React.Component {
   }
 }
 
+/**
+ * Changes data type for single column.
+ */
 class OptionsListSelect extends React.Component {
   constructor(props) {
     super(props);

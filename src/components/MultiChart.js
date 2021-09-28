@@ -8,7 +8,9 @@ import createPlotlyComponent from "react-plotly.js/factory";
 
 var Formats = require('../libraries/Formats');
 
-//TODO: Fix tooltip displaying wrong x-value with bar chart for all
+/**
+ * Streamlined implementation of several chart libraries.
+ */
 export default class MultiChart extends React.Component {
   constructor(props) {
     super(props);
@@ -18,11 +20,14 @@ export default class MultiChart extends React.Component {
     /*
     DATA FORMAT:
     --------
-    [{
-      label: "Label",
-      color: "#FF0000",
-      data: [[x,y],[x,y],[x,y],...],
-    },...]
+    [
+      {
+        label: "Label",
+        color: "#FF0000",
+        data: [[x,y],[x,y],[x,y],...],
+      },
+      ...
+    ]
     */
 
     const Plot = createPlotlyComponent(Plotly);

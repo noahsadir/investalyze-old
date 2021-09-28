@@ -14,6 +14,9 @@ import {
   TextField,
 } from '@material-ui/core/';
 
+/**
+ * Allows user to modify global configuration of application, such as API Key or theme.
+ */
 export default class SettingsDialog extends React.Component {
   constructor(props) {
     super(props);

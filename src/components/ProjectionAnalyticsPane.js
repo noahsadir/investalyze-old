@@ -40,7 +40,9 @@ var colors = [
   '#ffd149',
 ];
 
-
+/**
+ * Displays different calculations based on options data (implied move, NTM IV, etc.)
+ */
 export default class ProjectionAnalyticsPane extends React.Component {
   constructor(props) {
     super(props);
@@ -121,6 +123,9 @@ export default class ProjectionAnalyticsPane extends React.Component {
   }
 }
 
+/**
+ * Contains options to change settings regarding pane (data set, chart type, etc.)
+ */
 class PaneConfiguration extends React.Component {
   constructor(props) {
     super(props);
@@ -187,6 +192,9 @@ class PaneConfiguration extends React.Component {
   }
 }
 
+/**
+ * Displays different types of calcuations in table format.
+ */
 class ProjectionTable extends React.Component {
   constructor(props) {
     super(props);

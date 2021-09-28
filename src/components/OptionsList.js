@@ -11,6 +11,9 @@ import SplitPane from 'react-split-pane';
 import SingleOption from '../objects/SingleOption';
 import OptionsChain from '../objects/OptionsChain';
 
+/**
+ * List of options contracts which meet specified criteria.
+ */
 export default class OptionsList extends React.Component {
   constructor(props) {
     super(props);
@@ -49,6 +52,9 @@ export default class OptionsList extends React.Component {
   }
 }
 
+/**
+ * Displays data for a single options contract.
+ */
 class OptionListItem extends React.Component {
   constructor(props) {
     super(props);

@@ -34,7 +34,9 @@ var colors = [
 
 var Formats = require('../libraries/Formats');
 var ExpandingInputBase = require('./ExpandingInputBase');
-
+/**
+ * Allows user to visualize data for options chain (e.g. open interest)
+ */
 export default class DataAnalyticsPane extends React.Component {
   constructor(props) {
     super(props);
@@ -158,6 +160,9 @@ export default class DataAnalyticsPane extends React.Component {
   }
 }
 
+/**
+ * Contains options to change settings regarding pane (data set, chart type, etc.)
+ */
 class PaneConfiguration extends React.Component {
   constructor(props) {
     super(props);

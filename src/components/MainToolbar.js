@@ -41,6 +41,9 @@ const StyledStepperToggle = withStyles((theme) => ({
   },
 }))(ToggleButtonGroup);
 
+/**
+ * Responsible for handling search queries and filtering data.
+ */
 export default class MainToolbar extends React.Component {
 
   constructor(props) {
@@ -145,6 +148,9 @@ export default class MainToolbar extends React.Component {
   }
 }
 
+/**
+ * Contains filters for options chain
+ */
 class ExpandedConfiguration extends React.Component {
   constructor(props) {
     super(props);

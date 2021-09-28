@@ -148,6 +148,9 @@ export default class StrategyDialog extends React.Component {
   }
 }
 
+/**
+ * Shows historical data for strategy.
+ */
 class HistoricalOptionsChart extends React.Component {
   constructor(props) {
     super(props);
@@ -196,6 +199,9 @@ class HistoricalOptionsChart extends React.Component {
   }
 }
 
+/**
+ * Displays calculated projected prices based on BS model in table format.
+ */
 class PriceCalculationTable extends React.Component {
   constructor(props) {
     super(props);
@@ -337,6 +343,9 @@ class PriceCalculationTable extends React.Component {
   }
 }
 
+/**
+ * Allows user to adjust parameters for how data should be displayed/calculated.
+ */
 class ConfigurationBar extends React.Component {
   constructor(props) {
     super(props);

@@ -11,6 +11,9 @@ import {
   DialogTitle,
 } from '@material-ui/core/';
 
+/**
+ * Prompts user to acknowledge limitations of application and accept terms of use.
+ */
 export default class DisclaimerDialog extends React.Component {
   constructor(props) {
     super(props);

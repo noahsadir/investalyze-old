@@ -14,6 +14,9 @@ import {
   FormGroup
 } from '@material-ui/core/';
 
+/**
+ * Dialog which allows user to select what prefs/configs should be stored
+ */
 export default class CookiesDialog extends React.Component {
   constructor(props) {
     super(props);
